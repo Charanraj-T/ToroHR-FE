@@ -1,7 +1,10 @@
 import { Bell } from 'lucide-react';
+import { useAuthStore } from '../../store/authStore';
 import './Header.css';
 
 const Header = () => {
+  const user = useAuthStore((state) => state.user);
+
   return (
     <header className="header">
       <div className="header-left">
@@ -14,11 +17,13 @@ const Header = () => {
         </button>
         
         <div className="user-profile">
-          <img 
-            src="https://ui-avatars.com/api/?name=User&background=063946&color=fff" 
-            alt="User Profile" 
-            className="avatar"
-          />
+          <div className="avatar">
+            {(user?.name || 'User').substring(0, 2)}
+          </div>
+          <div className="user-info">
+            <span className="user-name">{user?.name || 'User'}</span>
+            <span className="user-role">{user?.role || 'Guest'}</span>
+          </div>
         </div>
       </div>
     </header>

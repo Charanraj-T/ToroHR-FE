@@ -1,4 +1,4 @@
-import { NavLink } from 'react-router-dom';
+import { NavLink, useNavigate } from 'react-router-dom';
 import { 
   LayoutDashboard, 
   Users, 
@@ -7,9 +7,17 @@ import {
   Settings, 
   LogOut 
 } from 'lucide-react';
+import { useAuthStore } from '../../store/authStore.ts';
 import './Sidebar.css';
 
 const Sidebar = () => {
+  const logout = useAuthStore((state) => state.logout);
+  const navigate = useNavigate();
+
+  const handleLogout = () => {
+    logout();
+    navigate('/login');
+  };
   return (
     <aside className="sidebar">
       <div className="sidebar-logo">
@@ -57,7 +65,7 @@ const Sidebar = () => {
           <span>Settings</span>
         </NavLink>
         
-        <button className="menu-item logout">
+        <button className="menu-item logout" onClick={handleLogout}>
           <LogOut size={20} />
           <span>Logout</span>
         </button>

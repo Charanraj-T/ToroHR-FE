@@ -1,14 +1,47 @@
-import { Building2, ArrowRight } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
+import { useState } from 'react';
+import { Building2, ArrowRight, Loader2 } from 'lucide-react';
+import { useNavigate, Navigate } from 'react-router-dom';
+import { useAuthStore } from '../store/authStore.ts';
+import api from '../lib/api.ts';
 import './Login.css';
 
 const Login = () => {
   const navigate = useNavigate();
+  const setAuth = useAuthStore((state) => state.setAuth);
+  const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
+  
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [error, setError] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
 
-  const handleLogin = (e: React.FormEvent) => {
+  // If already logged in, redirect to dashboard
+  if (isAuthenticated) {
+    return <Navigate to="/" replace />;
+  }
+
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    // In a real app, perform auth here. For now, navigate to dashboard
-    navigate('/');
+    setError(null);
+    setLoading(true);
+
+    try {
+      const response = await api.post('/api/auth/login', { email, password });
+      
+      if (response.data.success) {
+        const { token, user } = response.data.data;
+        setAuth(user, token);
+        navigate('/');
+      }
+    } catch (err: any) {
+      if (err.response && err.response.data && err.response.data.message) {
+        setError(err.response.data.message);
+      } else {
+        setError('An error occurred during login. Please try again.');
+      }
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -34,13 +67,18 @@ const Login = () => {
           </div>
 
           <form onSubmit={handleLogin} className="login-form">
+            {error && <div className="error-message">{error}</div>}
+            
             <div className="form-group">
               <label htmlFor="email">Email Address</label>
               <input 
                 type="email" 
                 id="email" 
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
                 placeholder="name@company.com" 
                 required 
+                disabled={loading}
               />
             </div>
 
@@ -49,13 +87,20 @@ const Login = () => {
               <input 
                 type="password" 
                 id="password" 
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
                 placeholder="••••••••" 
                 required 
+                disabled={loading}
               />
             </div>
 
-            <button type="submit" className="btn-login" style={{ marginTop: '32px' }}>
-              Login <ArrowRight size={18} />
+            <button type="submit" className="btn-login" style={{ marginTop: '32px' }} disabled={loading}>
+              {loading ? (
+                <>Logging in <Loader2 size={18} className="spin" /></>
+              ) : (
+                <>Login <ArrowRight size={18} /></>
+              )}
             </button>
           </form>
         </div>

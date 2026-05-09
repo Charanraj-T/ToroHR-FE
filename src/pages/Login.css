@@ -121,26 +121,6 @@
   color: var(--text-light);
 }
 
-
-.btn-login {
-  width: 100%;
-  padding: 14px;
-  background-color: var(--brand-primary);
-  color: white;
-  border-radius: 8px;
-  font-size: 15px;
-  font-weight: 500;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  transition: background-color 0.2s;
-}
-
-.btn-login:hover {
-  background-color: var(--brand-primary-hover);
-}
-
 .error-message {
   background-color: var(--danger-bg);
   color: var(--danger);
@@ -150,18 +130,3 @@
   font-weight: 500;
   margin-bottom: 24px;
 }
-
-.spin {
-  animation: spin 1s linear infinite;
-}
-
-@keyframes spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
-}
-
-

@@ -1,0 +1,48 @@
+.form-field {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.form-field label {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-main);
+}
+
+.form-field input, .form-field select {
+  padding: 10px 12px;
+  border-radius: 8px;
+  border: 1px solid var(--border-color);
+  background-color: white;
+  font-size: 14px;
+  color: var(--text-main);
+  transition: all 0.2s;
+}
+
+.form-field input:focus, .form-field select:focus {
+  border-color: var(--brand-primary);
+  box-shadow: 0 0 0 3px rgba(6, 57, 70, 0.1);
+  outline: none;
+}
+
+.form-field input:disabled, .form-field select:disabled {
+  background-color: #f1f5f9;
+  cursor: not-allowed;
+  color: var(--text-muted);
+}
+
+.form-field input.error, .form-field select.error {
+  border-color: var(--danger);
+}
+
+.error-text {
+  font-size: 12px;
+  color: var(--danger);
+  font-weight: 500;
+}
+
+.helper-text {
+  font-size: 12px;
+  color: var(--text-muted);
+}

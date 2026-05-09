@@ -26,7 +26,7 @@ const Login = () => {
     setLoading(true);
 
     try {
-      const response = await api.post('/api/auth/login', { email, password });
+      const response = await api.post('/api/auth/login', { identifier: email, password });
       
       if (response.data.success) {
         const { token, user } = response.data.data;
@@ -95,7 +95,7 @@ const Login = () => {
               />
             </div>
 
-            <button type="submit" className="btn-login" style={{ marginTop: '32px' }} disabled={loading}>
+            <button type="submit" className="btn-primary" style={{ marginTop: '32px', width: '100%' }} disabled={loading}>
               {loading ? (
                 <>Logging in <Loader2 size={18} className="spin" /></>
               ) : (

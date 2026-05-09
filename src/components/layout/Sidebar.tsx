@@ -12,6 +12,7 @@ import './Sidebar.css';
 
 const Sidebar = () => {
   const logout = useAuthStore((state) => state.logout);
+  const user = useAuthStore((state) => state.user);
   const navigate = useNavigate();
 
   const handleLogout = () => {
@@ -34,13 +35,25 @@ const Sidebar = () => {
           <span>Dashboard</span>
         </NavLink>
         
-        <NavLink 
-          to="/employees" 
-          className={({ isActive }) => isActive ? 'menu-item active' : 'menu-item'}
-        >
-          <Users size={20} />
-          <span>Employees</span>
-        </NavLink>
+        {(user?.role === 'Admin' || user?.role === 'Manager') ? (
+          <NavLink 
+            to="/employees" 
+            className={({ isActive }) => isActive ? 'menu-item active' : 'menu-item'}
+          >
+            <Users size={20} />
+            <span>Employees</span>
+          </NavLink>
+        ) : (
+          user?.employeeId && (
+            <NavLink 
+              to={`/employees/${user.employeeId}`} 
+              className={({ isActive }) => isActive ? 'menu-item active' : 'menu-item'}
+            >
+              <Users size={20} />
+              <span>My Profile</span>
+            </NavLink>
+          )
+        )}
         
         <NavLink 
           to="/attendance" 

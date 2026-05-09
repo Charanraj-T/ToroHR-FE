@@ -1,13 +1,20 @@
-import { Bell } from 'lucide-react';
+import { Bell, Menu } from 'lucide-react';
 import { useAuthStore } from '../../store/authStore';
 import './Header.css';
 
-const Header = () => {
+interface HeaderProps {
+  onToggleSidebar: () => void;
+}
+
+const Header: React.FC<HeaderProps> = ({ onToggleSidebar }) => {
   const user = useAuthStore((state) => state.user);
 
   return (
     <header className="header">
       <div className="header-left">
+        <button className="mobile-toggle" onClick={onToggleSidebar}>
+          <Menu size={24} />
+        </button>
       </div>
       
       <div className="header-right">

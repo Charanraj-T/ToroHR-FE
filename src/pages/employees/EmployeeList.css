@@ -18,10 +18,23 @@
   flex-wrap: wrap;
 }
 
+@media (max-width: 768px) {
+  .list-controls {
+    flex-direction: column;
+    align-items: stretch;
+  }
+}
+
 .search-box {
   position: relative;
   flex: 1;
   min-width: 300px;
+}
+
+@media (max-width: 768px) {
+  .search-box {
+    min-width: 0;
+  }
 }
 
 .search-icon {

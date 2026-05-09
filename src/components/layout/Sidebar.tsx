@@ -1,28 +1,44 @@
-import { NavLink, useNavigate } from 'react-router-dom';
+import { NavLink, useNavigate, useLocation } from 'react-router-dom';
+import { useEffect } from 'react';
 import { 
   LayoutDashboard, 
   Users, 
   CalendarClock, 
   CalendarMinus, 
   Settings, 
-  LogOut 
+  LogOut,
+  X
 } from 'lucide-react';
 import { useAuthStore } from '../../store/authStore.ts';
 import './Sidebar.css';
 
-const Sidebar = () => {
+interface SidebarProps {
+  isOpen: boolean;
+  onClose: () => void;
+}
+
+const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
   const logout = useAuthStore((state) => state.logout);
   const user = useAuthStore((state) => state.user);
   const navigate = useNavigate();
+  const location = useLocation();
+
+  useEffect(() => {
+    onClose();
+  }, [location.pathname]);
 
   const handleLogout = () => {
     logout();
     navigate('/login');
   };
+
   return (
-    <aside className="sidebar">
+    <aside className={`sidebar ${isOpen ? 'open' : ''}`}>
       <div className="sidebar-logo">
         <h1>ToroHR</h1>
+        <button className="mobile-close" onClick={onClose}>
+          <X size={24} />
+        </button>
       </div>
       
       <div className="sidebar-menu">

@@ -17,12 +17,16 @@
   --text-inverse: #ffffff;
   
   --border-color: #e2e8f0;
-  
+
+  --bg-subtle: #f8fafc;
+  --bg-hover: #f1f5f9;
+
   /* Status Colors */
   --success: #22c55e;
   --success-bg: #dcfce7;
   --warning: #f59e0b;
   --warning-bg: #fef3c7;
+  --warning-dark: #92400e;
   --danger: #ef4444;
   --danger-bg: #fee2e2;
 
@@ -114,7 +118,7 @@ input, select, textarea {
 }
 
 .btn-secondary:hover:not(:disabled) {
-  background-color: #f8fafc;
+  background-color: var(--bg-subtle);
   border-color: var(--brand-primary);
   color: var(--brand-primary);
 }

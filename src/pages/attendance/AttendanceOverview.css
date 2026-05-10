@@ -1,0 +1,118 @@
+.attendance-page {
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 20px;
+}
+
+.attendance-main-card {
+  background: var(--bg-surface);
+  border-radius: 16px;
+  border: 1px solid var(--bg-hover);
+  box-shadow: var(--shadow-sm);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.card-header-actions {
+  padding: 24px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid var(--bg-hover);
+}
+
+.attendance-legend {
+  display: flex;
+  gap: 24px;
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  color: var(--text-main);
+  font-weight: 500;
+}
+
+.dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+}
+
+.dot.present { background-color: var(--success); }
+.dot.absent { background-color: var(--danger); }
+.dot.leave { background-color: var(--warning-dark); }
+
+.button-group {
+  display: flex;
+  gap: 12px;
+}
+
+.attendance-filters-row {
+  padding: 16px 24px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: var(--bg-subtle);
+}
+
+.date-filter-group {
+  display: flex;
+  gap: 24px;
+}
+
+.date-input-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.date-input-wrapper label {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text-muted);
+}
+
+.date-input {
+  background: var(--bg-surface);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  padding: 6px 12px;
+  font-size: 14px;
+  color: var(--text-main);
+  width: 150px;
+  outline: none;
+}
+
+.date-input:focus {
+  border-color: var(--brand-primary);
+  box-shadow: 0 0 0 3px rgba(6, 57, 70, 0.1);
+}
+
+.btn-link {
+  background: none;
+  border: none;
+  color: var(--brand-primary);
+  font-weight: 600;
+  font-size: 14px;
+  cursor: pointer;
+  padding: 0;
+}
+
+.attendance-table-section {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+

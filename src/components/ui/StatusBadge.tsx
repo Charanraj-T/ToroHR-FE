@@ -2,7 +2,7 @@ import React from 'react';
 import './StatusBadge.css';
 
 interface StatusBadgeProps {
-  status: 'Active' | 'Inactive' | string;
+  status: string;
 }
 
 const StatusBadge: React.FC<StatusBadgeProps> = ({ status }) => {

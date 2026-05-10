@@ -1,6 +1,20 @@
 import React from 'react';
 import './FormFields.css';
 
+interface FormFieldProps {
+  label: string;
+  children: React.ReactNode;
+}
+
+export const FormField: React.FC<FormFieldProps> = ({ label, children }) => {
+  return (
+    <div className="form-field">
+      <label>{label}</label>
+      {children}
+    </div>
+  );
+};
+
 interface InputFieldProps extends React.InputHTMLAttributes<HTMLInputElement> {
   label: string;
   error?: string;

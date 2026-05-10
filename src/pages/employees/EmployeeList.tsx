@@ -9,10 +9,12 @@ import StatusBadge from '../../components/ui/StatusBadge';
 import Modal from '../../components/ui/Modal';
 import employeeService, { type Employee } from '../../services/employee.service';
 import { useToastStore } from '../../store/toastStore';
+import { useAuthStore } from '../../store/authStore';
 import './EmployeeList.css';
 
 const EmployeeList = () => {
   const navigate = useNavigate();
+  const { user } = useAuthStore();
   const [employees, setEmployees] = useState<Employee[]>([]);
   const [loading, setLoading] = useState(true);
   const [stats, setStats] = useState({ total: 0, active: 0, inactive: 0 });
@@ -43,7 +45,10 @@ const EmployeeList = () => {
 
   const fetchStats = async () => {
     try {
-      const statsRes = await employeeService.getStats();
+      const statsFilters = {
+        manager: user?.role === 'Manager' ? user.employeeId : undefined
+      };
+      const statsRes = await employeeService.getStats(statsFilters);
       setStats(statsRes);
     } catch (error) {
       console.error('Failed to fetch stats', error);
@@ -53,7 +58,11 @@ const EmployeeList = () => {
   const fetchEmployees = async () => {
     setLoading(true);
     try {
-      const response = await employeeService.getEmployees(filters);
+      const employeeFilters = {
+        ...filters,
+        manager: user?.role === 'Manager' ? user.employeeId : undefined
+      };
+      const response = await employeeService.getEmployees(employeeFilters);
       setEmployees(response.data); 
       setPagination({
         totalPages: response.totalPages,
@@ -169,9 +178,9 @@ const EmployeeList = () => {
       />
 
       <div className="stats-grid">
-        <StatsCard title="Total Employees" value={stats.total} icon={<Users size={24} />} variant="white" />
+        <StatsCard title="Total Employees" value={stats.total} icon={<Users size={24} />} variant="dark" />
         <StatsCard title="Active" value={stats.active} icon={<UserCheck size={24} />} variant="green" />
-        <StatsCard title="Inactive" value={stats.inactive} icon={<UserMinus size={24} />} variant="white" />
+        <StatsCard title="Inactive" value={stats.inactive} icon={<UserMinus size={24} />} variant="red" />
       </div>
 
       <div className="list-controls">

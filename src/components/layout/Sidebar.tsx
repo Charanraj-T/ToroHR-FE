@@ -51,38 +51,35 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
           <span>Dashboard</span>
         </NavLink>
         
-        {(user?.role === 'Admin' || user?.role === 'Manager') ? (
-          <NavLink 
-            to="/employees" 
-            className={({ isActive }) => isActive ? 'menu-item active' : 'menu-item'}
-          >
-            <Users size={20} />
-            <span>Employees</span>
-          </NavLink>
-        ) : (
-          user?.employeeId && (
-            <NavLink 
-              to={`/employees/${user.employeeId}`} 
-              className={({ isActive }) => isActive ? 'menu-item active' : 'menu-item'}
-            >
+        {(user?.role === 'Admin' || user?.role === 'Manager') && (
+          <>
+            <NavLink to="/employees" className={({ isActive }) => `menu-item ${isActive ? 'active' : ''}`}>
               <Users size={20} />
-              <span>My Profile</span>
+              <span>Employees</span>
             </NavLink>
-          )
+            <NavLink to="/attendance" className={({ isActive }) => `menu-item ${isActive ? 'active' : ''}`}>
+              <CalendarClock size={20} />
+              <span>Attendance</span>
+            </NavLink>
+          </>
         )}
         
-        <NavLink 
-          to="/attendance" 
-          className={({ isActive }) => isActive ? 'menu-item active' : 'menu-item'}
-        >
-          <CalendarClock size={20} />
-          <span>Attendance</span>
-        </NavLink>
+        {user?.role === 'Employee' && (
+          <>
+            <NavLink to="/attendance/me" className={({ isActive }) => `menu-item ${isActive ? 'active' : ''}`}>
+              <CalendarClock size={20} />
+              <span>My Attendance</span>
+            </NavLink>
+            {user?.employeeId && (
+              <NavLink to={`/employees/${user.employeeId}`} className={({ isActive }) => `menu-item ${isActive ? 'active' : ''}`}>
+                <Users size={20} />
+                <span>My Profile</span>
+              </NavLink>
+            )}
+          </>
+        )}
         
-        <NavLink 
-          to="/leave" 
-          className={({ isActive }) => isActive ? 'menu-item active' : 'menu-item'}
-        >
+        <NavLink to="/leave" className={({ isActive }) => `menu-item ${isActive ? 'active' : ''}`}>
           <CalendarMinus size={20} />
           <span>Leave</span>
         </NavLink>

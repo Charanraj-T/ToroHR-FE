@@ -29,6 +29,7 @@ export interface EmployeeFilters {
   search?: string;
   department?: string;
   status?: string;
+  manager?: string;
 }
 
 const employeeService = {
@@ -62,8 +63,8 @@ const employeeService = {
     return response.data.data;
   },
 
-  getStats: async () => {
-    const response = await api.get('/api/employees/stats');
+  getStats: async (params: { manager?: string } = {}) => {
+    const response = await api.get('/api/employees/stats', { params });
     return response.data.data;
   }
 };

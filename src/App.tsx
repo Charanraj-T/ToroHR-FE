@@ -11,6 +11,13 @@ import Leave from './pages/leave/Leave.tsx';
 import Settings from './pages/settings/Settings.tsx';
 import { ToastContainer } from './components/ui/Toast';
 import ProtectedRoute from './components/layout/ProtectedRoute.tsx';
+import { useAuthStore } from './store/authStore.ts';
+
+const RoleRedirect = () => {
+  const role = useAuthStore.getState().user?.role;
+  if (role === 'Employee') return <Navigate to="/attendance/me" replace />;
+  return <Navigate to="/attendance" replace />;
+};
 
 function App() {
   return (
@@ -20,7 +27,7 @@ function App() {
         <Route path="/login" element={<Login />} />
         <Route element={<ProtectedRoute />}>
           <Route path="/" element={<MainLayout />}>
-            <Route index element={<Navigate to="/attendance" replace />} />
+            <Route index element={<RoleRedirect />} />
             <Route element={<ProtectedRoute allowedRoles={['Employee']} />}>
               <Route path="attendance/me" element={<MyAttendance />} />
             </Route>
@@ -33,7 +40,7 @@ function App() {
             </Route>
             <Route path="leave" element={<Leave />} />
             <Route path="employees/:id" element={<EmployeeDetails />} />
-            <Route path="*" element={<Navigate to="/attendance" replace />} />
+            <Route path="*" element={<RoleRedirect />} />
           </Route>
         </Route>
       </Routes>

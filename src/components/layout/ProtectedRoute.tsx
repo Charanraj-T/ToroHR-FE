@@ -5,6 +5,11 @@ interface ProtectedRouteProps {
   allowedRoles?: string[];
 }
 
+const getRedirectPath = (role: string) => {
+  if (role === 'Employee') return '/attendance/me';
+  return '/attendance';
+};
+
 const ProtectedRoute = ({ allowedRoles }: ProtectedRouteProps) => {
   const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
   const user = useAuthStore((state) => state.user);
@@ -14,7 +19,7 @@ const ProtectedRoute = ({ allowedRoles }: ProtectedRouteProps) => {
   }
 
   if (allowedRoles && user && !allowedRoles.includes(user.role)) {
-    return <Navigate to="/attendance" replace />;
+    return <Navigate to={getRedirectPath(user.role)} replace />;
   }
 
   return <Outlet />;

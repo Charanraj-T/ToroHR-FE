@@ -5,19 +5,25 @@ import { useAuthStore } from '../store/authStore.ts';
 import api from '../lib/api.ts';
 import './Login.css';
 
+const getRedirectPath = (role: string) => {
+  if (role === 'Employee') return '/attendance/me';
+  return '/attendance';
+};
+
 const Login = () => {
   const navigate = useNavigate();
   const setAuth = useAuthStore((state) => state.setAuth);
   const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
+  const user = useAuthStore((state) => state.user);
   
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
-  // If already logged in, go to attendance
-  if (isAuthenticated) {
-    return <Navigate to="/attendance" replace />;
+  // If already logged in, redirect based on role
+  if (isAuthenticated && user) {
+    return <Navigate to={getRedirectPath(user.role)} replace />;
   }
 
   const handleLogin = async (e: React.FormEvent) => {
@@ -31,7 +37,9 @@ const Login = () => {
       if (response.data.success) {
         const { token, user } = response.data.data;
         setAuth(user, token);
-        navigate('/attendance');
+        navigate(getRedirectPath(user.role));
+      } else {
+        setError(response.data.message || 'Login failed. Please try again.');
       }
     } catch (err: any) {
       if (err.response && err.response.data && err.response.data.message) {

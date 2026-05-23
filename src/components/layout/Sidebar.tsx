@@ -43,13 +43,13 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
       <div className="sidebar-menu">
         {(user?.role === 'Admin' || user?.role === 'Manager') && (
           <>
-            <NavLink to="/employees" className={({ isActive }) => `menu-item ${isActive ? 'active' : ''}`}>
-              <Users size={20} />
-              <span>Employees</span>
-            </NavLink>
             <NavLink to="/attendance" className={({ isActive }) => `menu-item ${isActive ? 'active' : ''}`}>
               <CalendarClock size={20} />
               <span>Attendance</span>
+            </NavLink>
+            <NavLink to="/employees" className={({ isActive }) => `menu-item ${isActive ? 'active' : ''}`}>
+              <Users size={20} />
+              <span>Employees</span>
             </NavLink>
           </>
         )}

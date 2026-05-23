@@ -1,7 +1,6 @@
-import { Routes, Route } from 'react-router-dom';
+import { Routes, Route, Navigate } from 'react-router-dom';
 import MainLayout from './components/layout/MainLayout.tsx';
 import Login from './pages/Login.tsx';
-import Dashboard from './pages/Dashboard.tsx';
 import EmployeeList from './pages/employees/EmployeeList.tsx';
 import AddEmployee from './pages/employees/AddEmployee.tsx';
 import EditEmployee from './pages/employees/EditEmployee.tsx';
@@ -21,8 +20,7 @@ function App() {
         <Route path="/login" element={<Login />} />
         <Route element={<ProtectedRoute />}>
           <Route path="/" element={<MainLayout />}>
-            <Route index element={<Dashboard />} />
-            <Route path="leave" element={<Leave />} />
+            <Route index element={<Navigate to="/attendance" replace />} />
             <Route element={<ProtectedRoute allowedRoles={['Employee']} />}>
               <Route path="attendance/me" element={<MyAttendance />} />
             </Route>
@@ -31,10 +29,11 @@ function App() {
               <Route path="employees" element={<EmployeeList />} />
               <Route path="employees/add" element={<AddEmployee />} />
               <Route path="employees/edit/:id" element={<EditEmployee />} />
+              <Route path="settings" element={<Settings />} />
             </Route>
+            <Route path="leave" element={<Leave />} />
             <Route path="employees/:id" element={<EmployeeDetails />} />
-            <Route path="settings" element={<Settings />} />
-            <Route path="*" element={<Dashboard />} />
+            <Route path="*" element={<Navigate to="/attendance" replace />} />
           </Route>
         </Route>
       </Routes>

@@ -1,7 +1,6 @@
 import { NavLink, useNavigate, useLocation } from 'react-router-dom';
 import { useEffect } from 'react';
 import { 
-  LayoutDashboard, 
   Users, 
   CalendarClock, 
   CalendarMinus, 
@@ -42,15 +41,6 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
       </div>
       
       <div className="sidebar-menu">
-        <NavLink 
-          to="/" 
-          className={({ isActive }) => isActive ? 'menu-item active' : 'menu-item'}
-          end
-        >
-          <LayoutDashboard size={20} />
-          <span>Dashboard</span>
-        </NavLink>
-        
         {(user?.role === 'Admin' || user?.role === 'Manager') && (
           <>
             <NavLink to="/employees" className={({ isActive }) => `menu-item ${isActive ? 'active' : ''}`}>
@@ -86,10 +76,12 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
       </div>
 
       <div className="sidebar-footer">
-        <NavLink to="/settings" className="menu-item">
-          <Settings size={20} />
-          <span>Settings</span>
-        </NavLink>
+        {(user?.role === 'Admin' || user?.role === 'Manager') && (
+          <NavLink to="/settings" className="menu-item">
+            <Settings size={20} />
+            <span>Settings</span>
+          </NavLink>
+        )}
         
         <button className="menu-item logout" onClick={handleLogout}>
           <LogOut size={20} />

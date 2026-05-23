@@ -15,9 +15,9 @@ const Login = () => {
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
-  // If already logged in, redirect to dashboard
+  // If already logged in, go to attendance
   if (isAuthenticated) {
-    return <Navigate to="/" replace />;
+    return <Navigate to="/attendance" replace />;
   }
 
   const handleLogin = async (e: React.FormEvent) => {
@@ -31,7 +31,7 @@ const Login = () => {
       if (response.data.success) {
         const { token, user } = response.data.data;
         setAuth(user, token);
-        navigate('/');
+        navigate('/attendance');
       }
     } catch (err: any) {
       if (err.response && err.response.data && err.response.data.message) {

@@ -1,4 +1,6 @@
-export const getLeaveTypeDetails = (type: string) => {
+import type { LeaveType } from '../../services/leave.service';
+
+export const getLeaveTypeDetails = (type: LeaveType): { name: string; color: string } => {
   switch (type) {
     case 'CL': return { name: 'Casual Leave', color: '#15803d' };
     case 'SL': return { name: 'Sick Leave', color: '#b91c1c' };
@@ -8,17 +10,7 @@ export const getLeaveTypeDetails = (type: string) => {
   }
 };
 
-export const getLeaveTypeLabel = (type: string) => {
-  switch (type) {
-    case 'CL': return 'Casual Leave';
-    case 'SL': return 'Sick Leave';
-    case 'PL': return 'Paid Leave';
-    case 'LOP': return 'Loss Of Pay';
-    default: return type;
-  }
-};
-
-export const formatDate = (dateStr: string) => {
+export const formatDate = (dateStr: string): string => {
   const d = new Date(dateStr);
   return isNaN(d.getTime()) ? 'N/A' : d.toLocaleDateString('en-IN', {
     day: 'numeric', month: 'short', year: 'numeric'

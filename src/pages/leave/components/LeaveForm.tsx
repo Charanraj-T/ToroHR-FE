@@ -1,10 +1,10 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Calendar, AlertCircle } from 'lucide-react';
-import leaveService, { 
+import leaveService, {
   type Leave,
-  type LeaveType, 
-  type LeaveBalance, 
-  calculateWorkingDays 
+  type LeaveType,
+  type LeaveBalance,
+  calculateWorkingDays
 } from '../../../services/leave.service';
 import { useToastStore } from '../../../store/toastStore';
 import './LeaveForm.css';
@@ -23,11 +23,11 @@ const toDateInputValue = (value?: string) => {
 
 const LeaveForm = ({ balances, initialLeave = null, onSubmitSuccess, onCancel }: LeaveFormProps) => {
   const { addToast } = useToastStore();
+  const initialLeaveIdRef = useRef(initialLeave?.id ?? null);
   const isEditMode = Boolean(initialLeave);
   const isReadOnly = Boolean(initialLeave && initialLeave.status !== 'Pending');
   const [leaveType, setLeaveType] = useState<LeaveType>(initialLeave?.leaveType || 'CL');
   const [dayType, setDayType] = useState<string>(initialLeave?.dayType || 'Full-day');
-  const [halfDayPeriod, setHalfDayPeriod] = useState<string>(initialLeave?.halfDayPeriod || '');
   const [fromDate, setFromDate] = useState<string>(toDateInputValue(initialLeave?.fromDate));
   const [toDate, setToDate] = useState<string>(toDateInputValue(initialLeave?.toDate));
   const [reason, setReason] = useState<string>(initialLeave?.reason || '');
@@ -37,14 +37,15 @@ const LeaveForm = ({ balances, initialLeave = null, onSubmitSuccess, onCancel }:
   const [workingDays, setWorkingDays] = useState<number>(0);
 
   useEffect(() => {
+    if (initialLeave?.id && initialLeave.id === initialLeaveIdRef.current) return;
+    initialLeaveIdRef.current = initialLeave?.id ?? null;
     setLeaveType(initialLeave?.leaveType || 'CL');
     setDayType(initialLeave?.dayType || 'Full-day');
-    setHalfDayPeriod(initialLeave?.halfDayPeriod || '');
     setFromDate(toDateInputValue(initialLeave?.fromDate));
     setToDate(toDateInputValue(initialLeave?.toDate));
     setReason(initialLeave?.reason || '');
     setErrors({});
-  }, [initialLeave]);
+  }, [initialLeave?.id, initialLeave?.leaveType, initialLeave?.dayType, initialLeave?.fromDate, initialLeave?.toDate, initialLeave?.reason]);
 
   useEffect(() => {
     if (fromDate && toDate) {
@@ -66,20 +67,10 @@ const LeaveForm = ({ balances, initialLeave = null, onSubmitSuccess, onCancel }:
     }
   }, [fromDate, toDate, dayType]);
 
-  useEffect(() => {
-    if (dayType !== 'Half-day') {
-      setHalfDayPeriod('');
-    }
-  }, [dayType]);
-
   const validate = () => {
     const newErrors: { [key: string]: string } = {};
     if (!fromDate) newErrors.fromDate = 'From date is required';
     if (!toDate) newErrors.toDate = 'To date is required';
-
-    if (dayType === 'Half-day' && !halfDayPeriod) {
-      newErrors.halfDayPeriod = 'Please select a half-day period';
-    }
 
     if (fromDate && toDate) {
       const start = new Date(fromDate + 'T00:00:00.000Z');
@@ -119,7 +110,6 @@ const LeaveForm = ({ balances, initialLeave = null, onSubmitSuccess, onCancel }:
         fromDate,
         toDate,
         dayType,
-        halfDayPeriod: halfDayPeriod || undefined,
         reason: reason.trim()
       };
 
@@ -140,18 +130,18 @@ const LeaveForm = ({ balances, initialLeave = null, onSubmitSuccess, onCancel }:
     }
   };
 
-  const preview = { current: 0, after: 0 };
-
   return (
     <form className="leave-form" onSubmit={handleSubmit}>
       <div className="form-grid">
         <div className="form-group">
-          <label className="form-label">Leave Type</label>
-          <select 
+          <label className="form-label" htmlFor="leave-type">Leave Type</label>
+          <select
+            id="leave-type"
             className={`form-select ${errors.leaveType ? 'error' : ''}`}
             value={leaveType}
             onChange={(e) => setLeaveType(e.target.value as LeaveType)}
             disabled={isReadOnly || loading}
+            aria-describedby={errors.leaveType ? 'leave-type-error' : undefined}
           >
             <option value="CL">Casual Leave (CL)</option>
             <option value="SL">Sick Leave (SL)</option>
@@ -159,7 +149,7 @@ const LeaveForm = ({ balances, initialLeave = null, onSubmitSuccess, onCancel }:
             <option value="LOP">Loss Of Pay (LOP)</option>
           </select>
           {errors.leaveType && (
-            <span className="error-text">
+            <span className="error-text" id="leave-type-error" role="alert">
               <AlertCircle size={14} />
               {errors.leaveType}
             </span>
@@ -167,8 +157,9 @@ const LeaveForm = ({ balances, initialLeave = null, onSubmitSuccess, onCancel }:
         </div>
 
         <div className="form-group">
-          <label className="form-label">Day Type</label>
+          <label className="form-label" htmlFor="day-type">Day Type</label>
           <select
+            id="day-type"
             className="form-select"
             value={dayType}
             onChange={(e) => setDayType(e.target.value)}
@@ -180,19 +171,21 @@ const LeaveForm = ({ balances, initialLeave = null, onSubmitSuccess, onCancel }:
         </div>
 
         <div className="form-group">
-          <label className="form-label">From Date</label>
+          <label className="form-label" htmlFor="from-date">From Date</label>
           <div className="date-input-wrapper">
-            <input 
-              type="date" 
+            <input
+              id="from-date"
+              type="date"
               className={`form-input ${errors.fromDate ? 'error' : ''}`}
               value={fromDate}
               onChange={(e) => setFromDate(e.target.value)}
               disabled={isReadOnly || loading}
+              aria-describedby={errors.fromDate ? 'from-date-error' : undefined}
             />
             <Calendar size={18} className="calendar-icon" />
           </div>
           {errors.fromDate && (
-            <span className="error-text">
+            <span className="error-text" id="from-date-error" role="alert">
               <AlertCircle size={14} />
               {errors.fromDate}
             </span>
@@ -200,102 +193,61 @@ const LeaveForm = ({ balances, initialLeave = null, onSubmitSuccess, onCancel }:
         </div>
 
         <div className="form-group">
-          <label className="form-label">To Date</label>
+          <label className="form-label" htmlFor="to-date">To Date</label>
           <div className="date-input-wrapper">
-            <input 
-              type="date" 
+            <input
+              id="to-date"
+              type="date"
               className={`form-input ${errors.toDate ? 'error' : ''}`}
               value={toDate}
               onChange={(e) => setToDate(e.target.value)}
               disabled={isReadOnly || loading}
+              aria-describedby={errors.toDate ? 'to-date-error' : undefined}
             />
             <Calendar size={18} className="calendar-icon" />
           </div>
           {errors.toDate && (
-            <span className="error-text">
+            <span className="error-text" id="to-date-error" role="alert">
               <AlertCircle size={14} />
               {errors.toDate}
             </span>
           )}
         </div>
 
-        {dayType === 'Half-day' && (
-          <div className="form-group">
-            <label className="form-label">Half Day Period</label>
-            <select
-              className={`form-select ${errors.halfDayPeriod ? 'error' : ''}`}
-              value={halfDayPeriod}
-              onChange={(e) => setHalfDayPeriod(e.target.value)}
-              disabled={isReadOnly || loading}
-            >
-              <option value="">Select period</option>
-              <option value="First-half">First Half</option>
-              <option value="Second-half">Second Half</option>
-            </select>
-            {errors.halfDayPeriod && (
-              <span className="error-text">
-                <AlertCircle size={14} />
-                {errors.halfDayPeriod}
-              </span>
-            )}
-          </div>
-        )}
-
         <div className="form-group full-width">
-          <label className="form-label">Reason</label>
-          <textarea 
+          <label className="form-label" htmlFor="leave-reason">Reason</label>
+          <textarea
+            id="leave-reason"
             className={`form-textarea ${errors.reason ? 'error' : ''}`}
             placeholder="Please enter details or reasons for leave..."
             rows={4}
+            maxLength={500}
             value={reason}
             onChange={(e) => setReason(e.target.value)}
             disabled={isReadOnly || loading}
+            aria-describedby={errors.reason ? 'reason-error' : undefined}
           />
           {errors.reason && (
-            <span className="error-text">
+            <span className="error-text" id="reason-error" role="alert">
               <AlertCircle size={14} />
               {errors.reason}
             </span>
           )}
         </div>
-
-        {false && fromDate && toDate && !errors.fromDate && !errors.toDate && (
-          <div className="preview-box full-width">
-            <div className="preview-row">
-              <span className="preview-label">Requested Duration:</span>
-              <span className="preview-value highlight">
-                {workingDays} {workingDays === 1 ? 'Working Day' : 'Working Days'}
-                <span className="preview-subtext">
-                  {dayType === 'Half-day' ? ' (half day)' : ' (excludes weekends)'}
-                </span>
-              </span>
-            </div>
-            {preview && (
-              <div className="preview-row border-top">
-                <span className="preview-label">{leaveType} Balance Preview:</span>
-                <div className="balance-preview-steps">
-                  <span>Current: <strong>{preview.current}</strong></span>
-                  <span className="arrow">→</span>
-                  <span>After request: <strong className={leaveType === 'LOP' ? 'text-danger' : 'text-success'}>{preview.after}</strong></span>
-                </div>
-              </div>
-            )}
-          </div>
-        )}
       </div>
 
       <div className="form-actions">
-        <button 
-          type="button" 
-          className="btn-secondary" 
+        <button
+          type="button"
+          className="btn-secondary"
           onClick={onCancel}
           disabled={loading}
         >
           {isReadOnly ? 'Close' : 'Cancel'}
         </button>
         {!isReadOnly && (
-          <button 
-            type="submit" 
+          <button
+            type="submit"
             className="btn-primary"
             disabled={loading}
           >

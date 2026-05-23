@@ -1,0 +1,208 @@
+.leave-filters-card {
+  background-color: var(--bg-surface);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  padding: 20px;
+  box-shadow: var(--shadow-sm);
+  overflow-x: auto;
+}
+
+.leave-filters-form {
+  display: flex;
+  flex-wrap: nowrap;
+  align-items: center;
+  gap: 12px;
+  min-width: max-content;
+}
+
+.lf-search-wrapper {
+  position: relative;
+  flex: 1 1 220px;
+  min-width: 160px;
+}
+
+.lf-search-icon {
+  position: absolute;
+  left: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--text-muted);
+  pointer-events: none;
+}
+
+.lf-search-input {
+  width: 100%;
+  padding: 10px 14px 10px 42px;
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  font-size: 14px;
+  color: var(--text-main);
+  background-color: var(--bg-page);
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.lf-search-input:focus {
+  border-color: var(--primary);
+}
+
+.lf-select-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+  flex: 0 0 150px;
+}
+
+.lf-select-wrapper select {
+  width: 100%;
+  padding: 10px 32px 10px 36px;
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text-main);
+  background-color: var(--bg-page);
+  outline: none;
+  cursor: pointer;
+  appearance: none;
+  transition: border-color 0.2s;
+}
+
+.lf-select-wrapper:not(:has(.lf-icon)) select {
+  padding-left: 16px;
+}
+
+.lf-select-wrapper select:focus {
+  border-color: var(--primary);
+}
+
+.lf-select-wrapper::after {
+  content: "";
+  position: absolute;
+  right: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  border: 4px solid transparent;
+  border-top-color: var(--text-light);
+  pointer-events: none;
+}
+
+.lf-icon {
+  position: absolute;
+  left: 12px;
+  color: var(--text-light);
+  pointer-events: none;
+  z-index: 1;
+}
+
+.lf-date-range {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.lf-date-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.lf-date-wrapper input[type="date"] {
+  padding: 10px 32px 10px 12px;
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text-main);
+  background-color: var(--bg-page);
+  outline: none;
+  width: 140px;
+}
+
+.lf-date-wrapper input[type="date"]:focus {
+  border-color: var(--primary);
+}
+
+.lf-date-wrapper input[type="date"]::-webkit-calendar-picker-indicator {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  width: auto;
+  height: auto;
+  color: transparent;
+  background: transparent;
+  cursor: pointer;
+}
+
+.lf-cal-icon {
+  position: absolute;
+  right: 10px;
+  color: var(--text-muted);
+  pointer-events: none;
+}
+
+.lf-date-sep {
+  font-size: 13px;
+  color: var(--text-light);
+  font-weight: 500;
+}
+
+.lf-clear-btn {
+  width: 38px;
+  height: 38px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 auto;
+  background: var(--bg-page);
+  border: 1px solid var(--border-color);
+  color: var(--danger);
+  cursor: pointer;
+  border-radius: 8px;
+  transition: background-color 0.2s, color 0.2s, opacity 0.2s;
+}
+
+.lf-clear-btn:hover {
+  background-color: var(--danger-bg);
+}
+
+.lf-clear-btn:disabled {
+  color: var(--text-light);
+  cursor: not-allowed;
+  opacity: 0.55;
+}
+
+.lf-clear-btn:disabled:hover {
+  background: var(--bg-page);
+}
+
+@media (max-width: 900px) {
+  .leave-filters-form {
+    flex-direction: row;
+    align-items: center;
+  }
+
+  .lf-search-wrapper,
+  .lf-select-wrapper,
+  .lf-date-wrapper {
+    flex: 0 0 auto;
+  }
+
+  .lf-select-wrapper select {
+    width: 100%;
+  }
+
+  .lf-date-range {
+    justify-content: flex-start;
+  }
+
+  .lf-date-wrapper {
+    flex: 1;
+  }
+
+  .lf-date-wrapper input[type="date"] {
+    width: 100%;
+  }
+}

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Plus, Search, Filter, Users, UserCheck, UserMinus, Eye, Edit2, UserX, UserCheck2 } from 'lucide-react';
 import PageHeader from '../../components/ui/PageHeader';
@@ -223,7 +223,7 @@ const EmployeeList = () => {
         </div>
       </div>
 
-      <div className="list-table-container">
+      <div>
         <Table 
           columns={columns} 
           data={employees} 

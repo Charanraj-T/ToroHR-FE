@@ -18,14 +18,13 @@ const AddEmployee = () => {
       navigate('/employees');
     } catch (error) {
       console.error('Failed to create employee', error);
-      // Handle error display
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="add-employee-page">
+    <div>
       <PageHeader 
         title="Add New Employee" 
         subtitle="Onboard a new member to your organization"

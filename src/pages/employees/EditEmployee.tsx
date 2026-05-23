@@ -51,7 +51,7 @@ const EditEmployee = () => {
   }
 
   return (
-    <div className="edit-employee-page">
+    <div>
       <PageHeader 
         title={`Edit Employee: ${employee.fullName}`} 
         subtitle={`Employee ID: ${employee.employeeId}`}

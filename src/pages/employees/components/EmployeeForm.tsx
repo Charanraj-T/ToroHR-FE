@@ -187,8 +187,6 @@ const EmployeeForm: React.FC<EmployeeFormProps> = ({ initialData, onSubmit, onCa
           </div>
         </div>
 
-
-
         {/* Section E: Bank & Government Details */}
         <div className="form-card">
           <h3>Bank & Government Details</h3>

@@ -60,7 +60,7 @@ const EmployeeDetails = () => {
         }
       />
 
-      <div className="details-grid">
+      <div>
         {/* Personal & Employment Header */}
         <div className="profile-header-card">
           <div className="profile-avatar-large">

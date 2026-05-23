@@ -8,6 +8,7 @@ import EditEmployee from './pages/employees/EditEmployee.tsx';
 import EmployeeDetails from './pages/employees/EmployeeDetails.tsx';
 import AttendanceOverview from './pages/attendance/AttendanceOverview.tsx';
 import MyAttendance from './pages/attendance/MyAttendance.tsx';
+import Leave from './pages/leave/Leave.tsx';
 import { ToastContainer } from './components/ui/Toast';
 import ProtectedRoute from './components/layout/ProtectedRoute.tsx';
 
@@ -20,6 +21,7 @@ function App() {
         <Route element={<ProtectedRoute />}>
           <Route path="/" element={<MainLayout />}>
             <Route index element={<Dashboard />} />
+            <Route path="leave" element={<Leave />} />
             <Route element={<ProtectedRoute allowedRoles={['Employee']} />}>
               <Route path="attendance/me" element={<MyAttendance />} />
             </Route>

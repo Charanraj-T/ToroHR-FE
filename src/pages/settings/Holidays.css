@@ -1,0 +1,104 @@
+.holidays-page {
+  padding: 10px 0;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.animate-fade-in {
+  animation: hp-fade-in 0.4s ease-out;
+}
+
+@keyframes hp-fade-in {
+  from { opacity: 0; transform: translateY(4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.hp-table-card {
+  background-color: var(--bg-surface);
+  border-radius: 12px;
+  border: 1px solid var(--border-color);
+  box-shadow: var(--shadow-sm);
+  overflow: hidden;
+}
+
+.hp-pagination-wrapper {
+  padding: 16px 24px;
+  border-top: 1px solid var(--border-color);
+}
+
+.hp-delete-body {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 12px;
+  padding: 16px 0;
+}
+
+.hp-delete-icon {
+  color: var(--danger);
+  background-color: var(--danger-bg);
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.hp-delete-warning {
+  font-size: 15px;
+  color: var(--text-main);
+  line-height: 1.5;
+}
+
+.hp-delete-hint {
+  font-size: 13px;
+  color: var(--text-muted);
+}
+
+.hp-delete-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  padding: 16px 24px;
+  background-color: #f8fafc;
+  border-top: 1px solid var(--border-color);
+}
+
+.hp-delete-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  background-color: var(--danger);
+  color: white;
+  padding: 10px 20px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  transition: all 0.2s;
+  border: none;
+}
+
+.hp-delete-btn:hover:not(:disabled) {
+  background-color: #dc2626;
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-md);
+}
+
+.hp-delete-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+@media (max-width: 768px) {
+  .holidays-page {
+    gap: 16px;
+  }
+
+  .hp-pagination-wrapper {
+    padding: 12px 16px;
+  }
+}

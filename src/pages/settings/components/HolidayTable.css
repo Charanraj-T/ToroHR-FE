@@ -1,0 +1,76 @@
+.holiday-table-container {
+  border-radius: 12px;
+  border: 1px solid var(--border-color);
+  overflow: hidden;
+}
+
+.ht-name {
+  font-weight: 600;
+  color: var(--text-main);
+}
+
+.ht-date {
+  font-weight: 500;
+  color: var(--text-main);
+}
+
+.ht-desc {
+  color: var(--text-muted);
+  max-width: 240px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  display: block;
+}
+
+.ht-recurring {
+  display: inline-block;
+  padding: 4px 10px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.3px;
+}
+
+.ht-recurring.yes {
+  background-color: var(--success-bg);
+  color: var(--success);
+}
+
+.ht-recurring.no {
+  background-color: var(--bg-hover);
+  color: var(--text-muted);
+}
+
+.ht-actions {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.ht-action-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 6px;
+  color: var(--text-muted);
+  transition: background-color 0.2s, color 0.2s;
+}
+
+.ht-action-btn.edit:hover {
+  background-color: var(--brand-secondary-light);
+  color: var(--brand-primary);
+}
+
+.ht-action-btn.delete:hover {
+  background-color: var(--danger-bg);
+  color: var(--danger);
+}
+
+@media (max-width: 768px) {
+  .ht-desc {
+    max-width: 120px;
+  }
+}

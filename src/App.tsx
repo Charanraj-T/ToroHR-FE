@@ -9,6 +9,7 @@ import EmployeeDetails from './pages/employees/EmployeeDetails.tsx';
 import AttendanceOverview from './pages/attendance/AttendanceOverview.tsx';
 import MyAttendance from './pages/attendance/MyAttendance.tsx';
 import Leave from './pages/leave/Leave.tsx';
+import Settings from './pages/settings/Settings.tsx';
 import { ToastContainer } from './components/ui/Toast';
 import ProtectedRoute from './components/layout/ProtectedRoute.tsx';
 
@@ -32,6 +33,7 @@ function App() {
               <Route path="employees/edit/:id" element={<EditEmployee />} />
             </Route>
             <Route path="employees/:id" element={<EmployeeDetails />} />
+            <Route path="settings" element={<Settings />} />
             <Route path="*" element={<Dashboard />} />
           </Route>
         </Route>

@@ -12,7 +12,7 @@ export const getLeaveTypeDetails = (type: LeaveType): { name: string; color: str
 
 export const formatDate = (dateStr: string): string => {
   const d = new Date(dateStr);
-  return isNaN(d.getTime()) ? 'N/A' : d.toLocaleDateString('en-IN', {
-    day: 'numeric', month: 'short', year: 'numeric'
-  });
+  if (isNaN(d.getTime())) return 'N/A';
+  const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+  return `${d.getUTCDate()} ${months[d.getUTCMonth()]} ${d.getUTCFullYear()}`;
 };

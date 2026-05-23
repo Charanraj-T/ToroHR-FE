@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { Download } from 'lucide-react';
 import PageHeader from '../../components/ui/PageHeader';
 import AttendanceCard from './components/AttendanceCard';
@@ -92,7 +92,7 @@ const MyAttendance: React.FC = () => {
     return new Date(t).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', timeZone: 'Asia/Kolkata' });
   };
 
-  const columns = [
+  const columns = useMemo(() => [
     { 
       header: 'Date', 
       accessor: (item: any) => new Date(item.date).toLocaleDateString('en-IN', { 
@@ -114,7 +114,7 @@ const MyAttendance: React.FC = () => {
       header: 'Status', 
       accessor: (item: any) => <StatusBadge status={item.status} /> 
     }
-  ];
+  ], []);
 
   return (
     <div className="my-attendance-page">

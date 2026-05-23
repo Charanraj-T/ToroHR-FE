@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { Check, X } from 'lucide-react';
 import Table, { type Column } from '../../components/ui/Table';
 import Pagination from '../../components/ui/Pagination';
@@ -9,6 +9,8 @@ import leaveService, { type Leave, type LeaveFilters as LeaveFilterParams } from
 import LeaveFilters from './components/LeaveFilters';
 import { getLeaveTypeDetails, formatDate } from './leaveHelpers';
 import './TeamLeaveManagement.css';
+
+const PAGE_LIMIT = 10;
 
 const TeamLeaveManagement = () => {
   const { addToast } = useToastStore();
@@ -25,7 +27,6 @@ const TeamLeaveManagement = () => {
   const [startDate, setStartDate] = useState<string>('');
   const [endDate, setEndDate] = useState<string>('');
   const [page, setPage] = useState<number>(1);
-  const limit = 10;
   
   const [pagination, setPagination] = useState({
     totalPages: 1,
@@ -35,13 +36,19 @@ const TeamLeaveManagement = () => {
   const [rejectLeaveId, setRejectLeaveId] = useState<string | null>(null);
   const [rejectionReason, setRejectionReason] = useState<string>('');
   const [actionLoading, setActionLoading] = useState<boolean>(false);
+  const actionSubmittedRef = useRef(false);
+  const abortRef = useRef<AbortController | null>(null);
 
-  const fetchLeaves = async () => {
+  const fetchLeaves = useCallback(async () => {
+    abortRef.current?.abort();
+    const controller = new AbortController();
+    abortRef.current = controller;
+
     setLoading(true);
     try {
       const filters: LeaveFilterParams = {
         page,
-        limit,
+        limit: PAGE_LIMIT,
         search: searchRef.current.trim() || undefined,
         leaveType: leaveType || undefined,
         status: status || undefined,
@@ -50,17 +57,19 @@ const TeamLeaveManagement = () => {
       };
       
       const response = await leaveService.getLeaves(filters);
+      if (controller.signal.aborted) return;
       setLeaves(response.data || []);
       setPagination({
-        totalPages: response.totalPages || 1,
+        totalPages: response.totalPages > 0 ? response.totalPages : 1,
         totalItems: response.total || 0
       });
-    } catch (error) {
+    } catch (error: any) {
+      if (error?.name === 'CanceledError' || error?.code === 'ERR_CANCELED') return;
       console.error('Failed to fetch team leaves:', error);
     } finally {
-      setLoading(false);
+      if (!controller.signal.aborted) setLoading(false);
     }
-  };
+  }, [page, leaveType, status, startDate, endDate]);
 
   const commitSearch = (value: string) => {
     searchRef.current = value;
@@ -87,7 +96,7 @@ const TeamLeaveManagement = () => {
 
   useEffect(() => {
     fetchLeaves();
-  }, [page, leaveType, status, startDate, endDate, searchVersion]);
+  }, [fetchLeaves, searchVersion]);
 
   useEffect(() => {
     return () => {
@@ -97,6 +106,8 @@ const TeamLeaveManagement = () => {
 
   const handleApprove = async (e: React.MouseEvent, id: string) => {
     e.stopPropagation();
+    if (actionSubmittedRef.current) return;
+    actionSubmittedRef.current = true;
     setActionLoading(true);
     try {
       await leaveService.approveLeave(id);
@@ -104,10 +115,9 @@ const TeamLeaveManagement = () => {
       fetchLeaves();
     } catch (error: any) {
       console.error(error);
-      const msg = error.response?.data?.message || 'Failed to approve leave request';
-      addToast(msg, 'error');
     } finally {
       setActionLoading(false);
+      actionSubmittedRef.current = false;
     }
   };
 
@@ -119,6 +129,8 @@ const TeamLeaveManagement = () => {
 
   const handleConfirmReject = async () => {
     if (!rejectLeaveId || !rejectionReason.trim()) return;
+    if (actionSubmittedRef.current) return;
+    actionSubmittedRef.current = true;
     setActionLoading(true);
     try {
       await leaveService.rejectLeave(rejectLeaveId, { 
@@ -129,10 +141,9 @@ const TeamLeaveManagement = () => {
       fetchLeaves();
     } catch (error: any) {
       console.error(error);
-      const msg = error.response?.data?.message || 'Failed to reject leave request';
-      addToast(msg, 'error');
     } finally {
       setActionLoading(false);
+      actionSubmittedRef.current = false;
     }
   };
 
@@ -234,7 +245,7 @@ const TeamLeaveManagement = () => {
           currentPage={page}
           totalPages={pagination.totalPages}
           totalItems={pagination.totalItems}
-          itemsPerPage={limit}
+          itemsPerPage={PAGE_LIMIT}
           onPageChange={(p) => setPage(p)}
         />
       </div>

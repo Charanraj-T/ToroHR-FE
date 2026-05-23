@@ -27,11 +27,30 @@
 
 .indicator-text {
   font-size: 11px;
-  font-weight: 600;
-  color: var(--text-light);
+  font-weight: 700;
+  color: var(--text-muted);
+}
+
+.indicator-text.holiday {
+  color: var(--warning-dark);
+  background-color: var(--warning-bg);
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  font-weight: 700;
 }
 
 .sm .indicator-dot {
   width: 12px;
   height: 12px;
+}
+
+.sm .indicator-text.holiday {
+  width: 20px;
+  height: 20px;
+  font-size: 10px;
 }

@@ -14,6 +14,7 @@ import AttendanceModal from './components/AttendanceModal';
 import Pagination from '../../components/ui/Pagination';
 import attendanceService from '../../services/attendance.service';
 import employeeService from '../../services/employee.service';
+import holidayService from '../../services/holiday.service';
 import { useToastStore } from '../../store/toastStore';
 import { useAuthStore } from '../../store/authStore';
 import './AttendanceOverview.css';
@@ -50,6 +51,8 @@ const AttendanceOverview: React.FC = () => {
   const addToast = useToastStore(state => state.addToast);
   const { user } = useAuthStore();
 
+  const [holidayDates, setHolidayDates] = useState<Set<string>>(new Set());
+
   const dateForMonth = filters.startDate ? new Date(filters.startDate) : new Date();
   const daysInMonth = new Date(dateForMonth.getFullYear(), dateForMonth.getMonth() + 1, 0).getDate();
   const [startY, startM, startD] = (filters.startDate || '').split('-').map(Number);
@@ -66,15 +69,24 @@ const AttendanceOverview: React.FC = () => {
     setLoading(true);
     try {
       const activeFilters = overrideFilters || filters;
-      const [summaryRes, listRes, empRes] = await Promise.all([
+      const [summaryRes, listRes, empRes, holidayRes] = await Promise.all([
         attendanceService.getSummary(),
         attendanceService.getAttendance(activeFilters),
         employeeService.getEmployees({ 
           limit: 100,
           page: activeFilters.page,
           manager: user?.role === 'Manager' ? user.employeeId : undefined
-        })
+        }),
+        holidayService.getCurrentYearHolidays().catch(() => []),
       ]);
+
+      const holidaySet = new Set<string>();
+      (holidayRes || []).forEach((h: any) => {
+        const d = new Date(h.date);
+        const ds = `${d.getUTCFullYear()}-${String(d.getUTCMonth() + 1).padStart(2, '0')}-${String(d.getUTCDate()).padStart(2, '0')}`;
+        holidaySet.add(ds);
+      });
+      setHolidayDates(holidaySet);
       
       setStats({
         presentToday: summaryRes.present || 0,
@@ -284,10 +296,13 @@ const AttendanceOverview: React.FC = () => {
             <div className="legend-item">
               <span className="dot absent" aria-hidden="true"></span> Absent
             </div>
-            <div className="legend-item">
-              <span className="dot leave" aria-hidden="true"></span> Leave
+             <div className="legend-item">
+                <span className="dot leave" aria-hidden="true"></span> Leave
+              </div>
+              <div className="legend-item">
+                <span className="dot holiday" aria-hidden="true">H</span> Holiday
+              </div>
             </div>
-          </div>
           <div className="button-group">
             {user?.role !== 'Admin' && (
               <button className="btn-primary" onClick={handleSelfMark}>
@@ -338,6 +353,7 @@ const AttendanceOverview: React.FC = () => {
                 currentDate={currentDate}
                 onUpdate={handleUpdate}
                 startDate={filters.startDate}
+                holidayDates={holidayDates}
               />
               <Pagination 
                 currentPage={filters.page}

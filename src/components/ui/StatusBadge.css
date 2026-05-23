@@ -39,6 +39,16 @@
   color: #92400e;
 }
 
+.status-badge.holiday {
+  background-color: var(--warning-bg);
+  color: var(--warning-dark);
+}
+
+.status-badge.weekend {
+  background-color: var(--bg-hover);
+  color: var(--text-muted);
+}
+
 /* Leave Module Statuses */
 .status-badge.pending {
   background-color: #fffbeb;

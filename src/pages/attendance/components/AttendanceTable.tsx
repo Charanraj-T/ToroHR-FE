@@ -9,11 +9,11 @@ interface AttendanceTableProps {
   currentDate: number;
   onUpdate: (employee: any, day: number) => void;
   startDate: string;
+  holidayDates?: Set<string>;
 }
 
-const AttendanceTable: React.FC<AttendanceTableProps> = ({ data, startDay, endDay, currentDate, onUpdate, startDate }) => {
+const AttendanceTable: React.FC<AttendanceTableProps> = ({ data, startDay, endDay, currentDate, onUpdate, startDate, holidayDates }) => {
   const [baseY, baseM] = startDate.split('-').map(Number);
-  const dayCount = endDay - startDay + 1;
 
   const isWeekend = (day: number) => {
     const d = new Date(baseY, baseM - 1, day);
@@ -21,7 +21,19 @@ const AttendanceTable: React.FC<AttendanceTableProps> = ({ data, startDay, endDa
     return dayOfWeek === 0 || dayOfWeek === 6;
   };
 
-  const days = Array.from({ length: dayCount }, (_, i) => startDay + i);
+  const isHoliday = (day: number) => {
+    const dateStr = `${baseY}-${String(baseM).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+    return holidayDates?.has(dateStr) || false;
+  };
+
+  const getDayStatus = (day: number, dayStatus: string | undefined) => {
+    if (dayStatus) return dayStatus as any;
+    if (isHoliday(day)) return 'Holiday' as const;
+    if (isWeekend(day)) return 'Holiday' as const;
+    return 'N/A' as const;
+  };
+
+  const days = Array.from({ length: endDay - startDay + 1 }, (_, i) => startDay + i);
 
   return (
     <div className="attendance-matrix-container">
@@ -71,13 +83,13 @@ const AttendanceTable: React.FC<AttendanceTableProps> = ({ data, startDay, endDa
               </td>
               {days.map(day => {
                 const dayStatus = row.attendance?.[day];
-                const status = dayStatus || (isWeekend(day) ? 'Weekend' : 'N/A');
-                
+                const status = getDayStatus(day, dayStatus);
+
                 return (
                   <td key={day} className={day === currentDate ? 'current-day' : ''}>
-                    <AttendanceIndicator 
-                      status={status as any} 
-                      size="sm" 
+                    <AttendanceIndicator
+                      status={status}
+                      size="sm"
                       onClick={() => onUpdate(row, day)}
                     />
                   </td>

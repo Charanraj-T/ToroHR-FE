@@ -1,0 +1,115 @@
+.holiday-form {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.hf-fields {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.hf-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.hf-full {
+  grid-column: 1 / -1;
+}
+
+.hf-label {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-main);
+}
+
+.hf-textarea {
+  padding: 10px 12px;
+  border-radius: 8px;
+  border: 1px solid var(--border-color);
+  font-size: 14px;
+  color: var(--text-main);
+  background-color: white;
+  outline: none;
+  transition: border-color 0.2s, box-shadow 0.2s;
+  width: 100%;
+  font-family: var(--font-family);
+  resize: vertical;
+  min-height: 80px;
+}
+
+.hf-textarea:focus {
+  border-color: var(--brand-primary);
+  box-shadow: 0 0 0 3px rgba(6, 57, 70, 0.1);
+}
+
+.hf-textarea.error {
+  border-color: var(--danger);
+}
+
+.hf-textarea:disabled {
+  background-color: #f1f5f9;
+  cursor: not-allowed;
+  color: var(--text-muted);
+}
+
+.hf-err-text {
+  font-size: 12px;
+  color: var(--danger);
+  font-weight: 500;
+}
+
+.hf-checkbox {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  cursor: pointer;
+  padding: 14px 16px;
+  border: 1px solid var(--border-color);
+  border-radius: 10px;
+  background-color: #f8fafc;
+  transition: border-color 0.2s, background-color 0.2s;
+}
+
+.hf-checkbox:hover {
+  border-color: var(--brand-primary);
+  background-color: var(--brand-secondary-light);
+}
+
+.hf-checkbox input[type="checkbox"] {
+  width: 18px;
+  height: 18px;
+  accent-color: var(--brand-primary);
+  margin-top: 2px;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.hf-checkbox > span {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.hf-checkbox-label {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-main);
+}
+
+.hf-checkbox-hint {
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+.hf-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-top: 24px;
+  padding-top: 20px;
+  border-top: 1px solid var(--border-color);
+}

@@ -23,7 +23,14 @@ api.interceptors.request.use(
 );
 
 api.interceptors.response.use(
-  (response) => response,
+  (response) => {
+    if (response.data && response.data.success === false) {
+      const message = response.data.message || 'An unexpected error occurred';
+      useToastStore.getState().addToast(message, 'error');
+      return Promise.reject(new Error(message));
+    }
+    return response;
+  },
   (error) => {
     if (error.response && error.response.status === 401) {
       useAuthStore.getState().logout();

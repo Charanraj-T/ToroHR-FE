@@ -38,8 +38,14 @@ const MyLeave = () => {
   const [editingLeave, setEditingLeave] = useState<Leave | null>(null);
   const [cancelLeaveId, setCancelLeaveId] = useState<string | null>(null);
   const [cancelReason, setCancelReason] = useState('');
+  const cancelSubmittedRef = useRef(false);
+  const abortRef = useRef<AbortController | null>(null);
 
   const fetchLeaves = useCallback(async (p: number) => {
+    abortRef.current?.abort();
+    const controller = new AbortController();
+    abortRef.current = controller;
+
     setLoading(true);
     try {
       const params: Record<string, string | number> = { page: p, limit: PAGE_SIZE };
@@ -50,15 +56,18 @@ const MyLeave = () => {
       if (endDate) params.endDate = endDate;
 
       const res = await leaveService.getMyLeaves(params);
+      if (controller.signal.aborted) return;
       setLeaves(res.data || []);
       setTotalItems(res.total || 0);
-      setTotalPages(res.totalPages || 1);
-    } catch (error) {
+      setTotalPages(res.totalPages > 0 ? res.totalPages : 1);
+    } catch (error: any) {
+      if (error?.name === 'CanceledError' || error?.code === 'ERR_CANCELED') return;
       console.error('Failed to fetch leaves:', error);
+      addToast('Failed to load leaves', 'error');
     } finally {
-      setLoading(false);
+      if (!controller.signal.aborted) setLoading(false);
     }
-  }, [leaveType, status, startDate, endDate]);
+  }, [leaveType, status, startDate, endDate, addToast]);
 
   const fetchBalances = async () => {
     try {
@@ -125,19 +134,20 @@ const MyLeave = () => {
 
   const handleConfirmCancel = async () => {
     if (!cancelLeaveId) return;
+    if (cancelSubmittedRef.current) return;
+    cancelSubmittedRef.current = true;
     try {
       await leaveService.cancelLeave(cancelLeaveId, {
         cancellationReason: cancelReason.trim() || 'Cancelled by employee'
       });
       addToast('Leave request cancelled successfully', 'success');
       setCancelLeaveId(null);
+      cancelSubmittedRef.current = false;
       fetchLeaves(currentPage);
       fetchBalances();
     } catch (error) {
       console.error(error);
-      const err = error as { response?: { data?: { message?: string } } };
-      const msg = err.response?.data?.message || 'Failed to cancel leave request';
-      addToast(msg, 'error');
+      cancelSubmittedRef.current = false;
     }
   };
 

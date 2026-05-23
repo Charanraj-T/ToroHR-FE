@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useMemo } from 'react';
 import { Calendar, AlertCircle } from 'lucide-react';
 import leaveService, {
   type Leave,
@@ -24,6 +24,7 @@ const toDateInputValue = (value?: string) => {
 const LeaveForm = ({ balances, initialLeave = null, onSubmitSuccess, onCancel }: LeaveFormProps) => {
   const { addToast } = useToastStore();
   const initialLeaveIdRef = useRef(initialLeave?.id ?? null);
+  const submittedRef = useRef(false);
   const isEditMode = Boolean(initialLeave);
   const isReadOnly = Boolean(initialLeave && initialLeave.status !== 'Pending');
   const [leaveType, setLeaveType] = useState<LeaveType>(initialLeave?.leaveType || 'CL');
@@ -34,8 +35,6 @@ const LeaveForm = ({ balances, initialLeave = null, onSubmitSuccess, onCancel }:
   const [loading, setLoading] = useState<boolean>(false);
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
 
-  const [workingDays, setWorkingDays] = useState<number>(0);
-
   useEffect(() => {
     if (initialLeave?.id && initialLeave.id === initialLeaveIdRef.current) return;
     initialLeaveIdRef.current = initialLeave?.id ?? null;
@@ -45,26 +44,18 @@ const LeaveForm = ({ balances, initialLeave = null, onSubmitSuccess, onCancel }:
     setToDate(toDateInputValue(initialLeave?.toDate));
     setReason(initialLeave?.reason || '');
     setErrors({});
-  }, [initialLeave?.id, initialLeave?.leaveType, initialLeave?.dayType, initialLeave?.fromDate, initialLeave?.toDate, initialLeave?.reason]);
+    submittedRef.current = false;
+  }, [initialLeave?.id]);
 
-  useEffect(() => {
-    if (fromDate && toDate) {
-      if (dayType === 'Full-day') {
-        const days = calculateWorkingDays(fromDate, toDate);
-        setWorkingDays(days);
-      } else {
-        const same = fromDate === toDate;
-        if (same) {
-          const d = new Date(fromDate + 'T00:00:00.000Z');
-          const isWeekend = d.getUTCDay() === 0 || d.getUTCDay() === 6;
-          setWorkingDays(isWeekend ? 0 : 0.5);
-        } else {
-          setWorkingDays(0);
-        }
-      }
-    } else {
-      setWorkingDays(0);
+  const workingDays = useMemo(() => {
+    if (!fromDate || !toDate) return 0;
+    if (dayType === 'Full-day') {
+      return calculateWorkingDays(fromDate, toDate);
     }
+    if (fromDate !== toDate) return 0;
+    const d = new Date(fromDate + 'T00:00:00.000Z');
+    const isWeekend = d.getUTCDay() === 0 || d.getUTCDay() === 6;
+    return isWeekend ? 0 : 0.5;
   }, [fromDate, toDate, dayType]);
 
   const validate = () => {
@@ -102,6 +93,8 @@ const LeaveForm = ({ balances, initialLeave = null, onSubmitSuccess, onCancel }:
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!validate()) return;
+    if (submittedRef.current) return;
+    submittedRef.current = true;
 
     setLoading(true);
     try {
@@ -123,8 +116,7 @@ const LeaveForm = ({ balances, initialLeave = null, onSubmitSuccess, onCancel }:
       onSubmitSuccess();
     } catch (error: any) {
       console.error(error);
-      const msg = error.response?.data?.message || `Failed to ${isEditMode ? 'update' : 'submit'} leave request`;
-      addToast(msg, 'error');
+      submittedRef.current = false;
     } finally {
       setLoading(false);
     }

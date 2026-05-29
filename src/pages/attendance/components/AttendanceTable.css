@@ -46,6 +46,25 @@
   border-right: 1px solid var(--bg-hover);
 }
 
+.third-col {
+  left: 400px;
+  text-align: center !important;
+  width: 80px;
+  min-width: 80px;
+  border-right: 1px solid var(--bg-hover);
+}
+
+.summary-cell {
+  font-weight: 600;
+  font-size: 14px;
+}
+
+.worked-cell {
+  color: var(--brand-primary);
+}
+
+
+
 .employee-info-cell {
   display: flex;
   align-items: center;

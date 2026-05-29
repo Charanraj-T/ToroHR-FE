@@ -35,6 +35,15 @@ const AttendanceTable: React.FC<AttendanceTableProps> = ({ data, startDay, endDa
 
   const days = Array.from({ length: endDay - startDay + 1 }, (_, i) => startDay + i);
 
+  const getWorkedDays = (row: any) => {
+    let count = 0;
+    days.forEach(day => {
+      const status = getDayStatus(day, row.attendance?.[day]);
+      if (status === 'Present' || status === 'Half-day') count++;
+    });
+    return count;
+  };
+
   return (
     <div className="attendance-matrix-container">
       <table className="attendance-matrix">
@@ -42,6 +51,7 @@ const AttendanceTable: React.FC<AttendanceTableProps> = ({ data, startDay, endDa
           <tr>
             <th className="sticky-col first-col">Employee</th>
             <th className="sticky-col second-col">Actions</th>
+            <th className="sticky-col third-col">Worked</th>
             {days.map(day => (
               <th key={day} className={day === currentDate ? 'current-day' : ''}>
                 {day}
@@ -81,6 +91,7 @@ const AttendanceTable: React.FC<AttendanceTableProps> = ({ data, startDay, endDa
                   </>
                 )}
               </td>
+              <td className="sticky-col third-col summary-cell worked-cell">{getWorkedDays(row)}</td>
               {days.map(day => {
                 const dayStatus = row.attendance?.[day];
                 const status = getDayStatus(day, dayStatus);

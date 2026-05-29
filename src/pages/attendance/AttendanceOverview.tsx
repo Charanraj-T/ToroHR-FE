@@ -4,8 +4,7 @@ import {
   UserMinus, 
   Calendar, 
   Download, 
-  UserPlus,
-  CheckCircle2
+  UserPlus
 } from 'lucide-react';
 import PageHeader from '../../components/ui/PageHeader';
 import StatsCard from '../../components/ui/StatsCard';
@@ -26,7 +25,6 @@ const AttendanceOverview: React.FC = () => {
   const [stats, setStats] = useState({
     presentToday: 0,
     onLeave: 0,
-    attendanceRate: 0,
     absentCount: 0
   });
   const [attendanceData, setAttendanceData] = useState<any[]>([]);
@@ -65,6 +63,13 @@ const AttendanceOverview: React.FC = () => {
   const todayDateNum = new Date().getDate();
   const currentDate = (isCurrentMonth && todayDateNum >= startDay && todayDateNum <= endDay) ? todayDateNum : 0;
 
+  const workingDays = Array.from({ length: endDay - startDay + 1 }, (_, i) => startDay + i).filter(day => {
+    const d = new Date(dateForMonth.getFullYear(), dateForMonth.getMonth(), day);
+    const dayOfWeek = d.getDay();
+    const dateStr = `${dateForMonth.getFullYear()}-${String(dateForMonth.getMonth() + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+    return dayOfWeek !== 0 && dayOfWeek !== 6 && !holidayDates.has(dateStr);
+  }).length;
+
   const fetchData = useCallback(async (overrideFilters?: typeof filters) => {
     setLoading(true);
     try {
@@ -83,7 +88,7 @@ const AttendanceOverview: React.FC = () => {
       const holidaySet = new Set<string>();
       (holidayRes || []).forEach((h: any) => {
         const d = new Date(h.date);
-        const ds = `${d.getUTCFullYear()}-${String(d.getUTCMonth() + 1).padStart(2, '0')}-${String(d.getUTCDate()).padStart(2, '0')}`;
+        const ds = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
         holidaySet.add(ds);
       });
       setHolidayDates(holidaySet);
@@ -91,7 +96,6 @@ const AttendanceOverview: React.FC = () => {
       setStats({
         presentToday: summaryRes.present || 0,
         onLeave: summaryRes.onLeave || 0,
-        attendanceRate: summaryRes.total > 0 ? Math.round((summaryRes.present / summaryRes.total) * 100) : 0,
         absentCount: summaryRes.absent || 0
       });
 
@@ -139,11 +143,7 @@ const AttendanceOverview: React.FC = () => {
   }, [fetchData]);
 
   const handleFilterChange = (key: string, value: string) => {
-    setFilters(prev => ({ ...prev, [key]: value }));
-  };
-
-  const handleApplyFilters = () => {
-    setFilters(prev => ({ ...prev, page: 1 }));
+    setFilters(prev => ({ ...prev, [key]: value, page: 1 }));
   };
 
   const handlePageChange = (page: number) => {
@@ -274,12 +274,6 @@ const AttendanceOverview: React.FC = () => {
           variant="blue" 
         />
         <StatsCard 
-          title="Attendance Rate" 
-          value={`${stats.attendanceRate}%`} 
-          icon={<CheckCircle2 />} 
-          variant="dark" 
-        />
-        <StatsCard 
           title="Absent Count" 
           value={stats.absentCount} 
           icon={<UserMinus />} 
@@ -338,7 +332,7 @@ const AttendanceOverview: React.FC = () => {
               />
             </div>
           </div>
-          <button className="btn-link" onClick={handleApplyFilters}>Apply Filter</button>
+          <span className="working-days-label">{workingDays} Working Days</span>
         </div>
 
         <div className="attendance-table-section">

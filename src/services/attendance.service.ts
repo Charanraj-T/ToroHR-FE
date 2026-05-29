@@ -20,7 +20,6 @@ export interface AttendanceRecord {
 export interface AttendanceSummary {
   presentToday: number;
   onLeave: number;
-  attendanceRate: number;
   absentCount: number;
 }
 
@@ -84,9 +83,11 @@ const attendanceService = {
     });
 
     const contentDisposition = response.headers['content-disposition'];
+    const now = new Date();
+    const fallbackFilename = `attendance-summary-${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}.csv`;
     const filename = contentDisposition
-      ? contentDisposition.split('filename=')[1]?.replace(/"/g, '') || `attendance_report_${new Date().toISOString().split('T')[0]}.csv`
-      : `attendance_report_${new Date().toISOString().split('T')[0]}.csv`;
+      ? contentDisposition.split('filename=')[1]?.replace(/"/g, '') || fallbackFilename
+      : fallbackFilename;
 
     const url = window.URL.createObjectURL(response.data);
     const link = document.createElement('a');

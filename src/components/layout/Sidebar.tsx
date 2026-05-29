@@ -4,6 +4,7 @@ import {
   Users, 
   CalendarClock, 
   CalendarMinus, 
+  Receipt,
   Settings, 
   LogOut,
   X
@@ -72,6 +73,11 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
         <NavLink to="/leave" className={({ isActive }) => `menu-item ${isActive ? 'active' : ''}`}>
           <CalendarMinus size={20} />
           <span>Leave</span>
+        </NavLink>
+
+        <NavLink to="/claims" className={({ isActive }) => `menu-item ${isActive ? 'active' : ''}`}>
+          <Receipt size={20} />
+          <span>Claims</span>
         </NavLink>
       </div>
 

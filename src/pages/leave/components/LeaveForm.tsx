@@ -5,7 +5,7 @@ import leaveService, {
   type LeaveType,
   type LeaveBalance
 } from '../../../services/leave.service';
-import { calculateWorkingDays } from '../../../lib/date';
+import { calculateWorkingDays, isWeekend } from '../../../lib/date';
 import { useToastStore } from '../../../store/toastStore';
 import './LeaveForm.css';
 
@@ -53,9 +53,9 @@ const LeaveForm = ({ balances, initialLeave = null, onSubmitSuccess, onCancel }:
       return calculateWorkingDays(fromDate, toDate);
     }
     if (fromDate !== toDate) return 0;
-    const d = new Date(fromDate + 'T00:00:00.000Z');
-    const isWeekend = d.getUTCDay() === 0 || d.getUTCDay() === 6;
-    return isWeekend ? 0 : 0.5;
+    const [y, m, d] = fromDate.split('-').map(Number);
+    const wknd = isWeekend(y, m, d);
+    return wknd ? 0 : 0.5;
   }, [fromDate, toDate, dayType]);
 
   const validate = () => {

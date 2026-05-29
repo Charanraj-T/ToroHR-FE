@@ -16,7 +16,7 @@ import employeeService from '../../services/employee.service';
 import holidayService from '../../services/holiday.service';
 import { useToastStore } from '../../store/toastStore';
 import { useAuthStore } from '../../store/authStore';
-import { formatDateOnly, buildDateStr, isWeekend, getMonthBoundaries, getCurrentYearMonth } from '../../lib/date';
+import { formatDateOnly, buildDateStr, isWeekend, getMonthBoundaries, getCurrentYearMonth, toISTTime } from '../../lib/date';
 import './AttendanceOverview.css';
 
 const AttendanceOverview: React.FC = () => {
@@ -84,7 +84,7 @@ const AttendanceOverview: React.FC = () => {
 
       const holidaySet = new Set<string>();
       (holidayRes || []).forEach((h: any) => {
-        const ds = formatDateOnly(new Date(h.date));
+        const ds = formatDateOnly(h.date);
         holidaySet.add(ds);
       });
       setHolidayDates(holidaySet);
@@ -163,8 +163,8 @@ const AttendanceOverview: React.FC = () => {
         recordData = {
           status: existing.status || 'Present',
           id: existing.id || existing._id || null,
-          checkInTime: existing.checkInTime ? new Date(existing.checkInTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', timeZone: 'Asia/Kolkata', hour12: false }) : '',
-          checkOutTime: existing.checkOutTime ? new Date(existing.checkOutTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', timeZone: 'Asia/Kolkata', hour12: false }) : ''
+          checkInTime: existing.checkInTime ? toISTTime(existing.checkInTime) : '',
+          checkOutTime: existing.checkOutTime ? toISTTime(existing.checkOutTime) : ''
         };
       }
     } catch {
@@ -206,8 +206,8 @@ const AttendanceOverview: React.FC = () => {
     if (recordData.id) {
       try {
         const record = await attendanceService.getAttendanceById(recordData.id);
-        const checkInTimeStr = record.data.checkInTime ? new Date(record.data.checkInTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', timeZone: 'Asia/Kolkata', hour12: false }) : '';
-        const checkOutTimeStr = record.data.checkOutTime ? new Date(record.data.checkOutTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', timeZone: 'Asia/Kolkata', hour12: false }) : '';
+        const checkInTimeStr = record.data.checkInTime ? toISTTime(record.data.checkInTime) : '';
+        const checkOutTimeStr = record.data.checkOutTime ? toISTTime(record.data.checkOutTime) : '';
         
         recordData = {
           ...recordData,

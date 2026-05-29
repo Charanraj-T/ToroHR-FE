@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { InputField, SelectField } from '../../../components/ui/FormFields';
 import employeeService, { type Employee } from '../../../services/employee.service';
+import { useToastStore } from '../../../store/toastStore';
 import { Loader2, Save, X } from 'lucide-react';
 import './EmployeeForm.css';
 
@@ -47,6 +48,7 @@ const EmployeeForm: React.FC<EmployeeFormProps> = ({ initialData, onSubmit, onCa
         const data = await employeeService.getManagers();
         setManagers(data);
       } catch {
+        useToastStore.getState().addToast('Failed to load managers', 'error');
       }
     };
     fetchManagers();

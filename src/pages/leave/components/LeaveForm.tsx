@@ -115,6 +115,7 @@ const LeaveForm = ({ balances, initialLeave = null, onSubmitSuccess, onCancel }:
       addToast(`Leave request ${isEditMode ? 'updated' : 'submitted'} successfully`, 'success');
       onSubmitSuccess();
     } catch {
+      addToast(`Failed to ${isEditMode ? 'update' : 'submit'} leave request`, 'error');
       submittedRef.current = false;
     } finally {
       setLoading(false);

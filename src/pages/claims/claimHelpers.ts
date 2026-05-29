@@ -35,6 +35,7 @@ export interface ClaimActions {
   canView: boolean;
   canEdit: boolean;
   canCancel: boolean;
+  canDelete: boolean;
   canApprove: boolean;
   canReject: boolean;
   canReimburse: boolean;
@@ -49,10 +50,13 @@ export const getClaimActions = (
   const own = isOwnClaim(claim, employeeId);
   const team = role === 'Manager' && isTeamClaim(claim, employeeId);
 
+  const canDelete = (status === 'Cancelled' || status === 'Rejected') && (own || role === 'Admin' || (role === 'Manager' && team));
+
   const base = {
     canView: true,
     canEdit: false,
     canCancel: false,
+    canDelete,
     canApprove: false,
     canReject: false,
     canReimburse: false

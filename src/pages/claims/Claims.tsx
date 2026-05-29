@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from 'react';
-import { Plus, Clock, CheckCircle2, XCircle, Banknote } from 'lucide-react';
+import { Plus, Clock, CheckCircle2, XCircle, Banknote, Trash2 } from 'lucide-react';
 import PageHeader from '../../components/ui/PageHeader';
 import Pagination from '../../components/ui/Pagination';
 import Modal from '../../components/ui/Modal';
@@ -55,6 +55,7 @@ const Claims = () => {
   const [editingClaim, setEditingClaim] = useState<Claim | null>(null);
   const [detailsClaimId, setDetailsClaimId] = useState<string | null>(null);
   const [cancelClaim, setCancelClaim] = useState<Claim | null>(null);
+  const [deleteClaim, setDeleteClaim] = useState<Claim | null>(null);
   const [actionLoadingId, setActionLoadingId] = useState<string | null>(null);
 
   const buildQueryParams = useCallback(
@@ -80,6 +81,7 @@ const Claims = () => {
       const data = await claimService.getClaimSummary();
       setSummary(data);
     } catch {
+      useToastStore.getState().addToast('Failed to load claim summary', 'error');
       setSummary(EMPTY_SUMMARY);
     } finally {
       setSummaryLoading(false);
@@ -94,6 +96,7 @@ const Claims = () => {
       setTotalCount(response.totalCount || 0);
       setTotalPages(response.totalPages > 0 ? response.totalPages : 1);
     } catch {
+      useToastStore.getState().addToast('Failed to load claims', 'error');
       setClaims([]);
       setTotalCount(0);
       setTotalPages(1);
@@ -103,10 +106,7 @@ const Claims = () => {
   }, [filters, buildQueryParams, currentPage]);
 
   const refreshAll = useCallback(async () => {
-    try {
-      await Promise.all([fetchSummary(), fetchClaims()]);
-    } catch {
-    }
+    await Promise.all([fetchSummary(), fetchClaims()]);
   }, [fetchClaims, fetchSummary]);
 
   useEffect(() => {
@@ -205,6 +205,21 @@ const Claims = () => {
     }
   };
 
+  const handleConfirmDelete = async () => {
+    if (!deleteClaim) return;
+    setActionLoadingId(deleteClaim.id);
+    try {
+      await claimService.deleteClaim(deleteClaim.id);
+      addToast('Claim deleted successfully', 'success');
+      setDeleteClaim(null);
+      refreshAll();
+    } catch {
+      addToast('Failed to delete claim', 'error');
+    } finally {
+      setActionLoadingId(null);
+    }
+  };
+
   return (
     <div className="claims-page animate-fade-in">
       <PageHeader
@@ -275,6 +290,7 @@ const Claims = () => {
           onView={(claim) => setDetailsClaimId(claim.id)}
           onEdit={openEditModal}
           onCancel={setCancelClaim}
+          onDelete={setDeleteClaim}
           onApprove={handleApprove}
           onReject={handleReject}
           onReimburse={handleReimburse}
@@ -295,6 +311,7 @@ const Claims = () => {
       </div>
 
       <ClaimFormModal
+        key={isFormOpen ? (editingClaim?.id ?? 'new') : 'closed'}
         isOpen={isFormOpen}
         onClose={() => {
           setIsFormOpen(false);
@@ -305,6 +322,7 @@ const Claims = () => {
       />
 
       <ClaimDetailsModal
+        key={detailsClaimId}
         isOpen={detailsClaimId !== null}
         claimId={detailsClaimId}
         role={role}
@@ -335,6 +353,31 @@ const Claims = () => {
       >
         <p className="claim-cancel-text">
           Are you sure you want to cancel this claim? This action cannot be undone.
+        </p>
+      </Modal>
+
+      <Modal
+        isOpen={deleteClaim !== null}
+        onClose={() => setDeleteClaim(null)}
+        title="Delete Claim"
+        footer={
+          <div className="modal-footer-btns">
+            <button type="button" className="btn-secondary" onClick={() => setDeleteClaim(null)}>
+              Go Back
+            </button>
+            <button
+              type="button"
+              className="btn-primary btn-danger-action"
+              onClick={handleConfirmDelete}
+              disabled={actionLoadingId === deleteClaim?.id}
+            >
+              <Trash2 size={16} /> Delete
+            </button>
+          </div>
+        }
+      >
+        <p className="claim-cancel-text">
+          Are you sure you want to permanently delete this claim? This action cannot be undone.
         </p>
       </Modal>
     </div>

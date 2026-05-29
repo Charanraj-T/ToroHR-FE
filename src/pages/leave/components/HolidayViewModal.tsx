@@ -3,6 +3,7 @@ import { Calendar } from 'lucide-react';
 import Modal from '../../../components/ui/Modal';
 import holidayService, { type Holiday } from '../../../services/holiday.service';
 import { formatDateOnly, parseDateParts } from '../../../lib/date';
+import { useToastStore } from '../../../store/toastStore';
 import './HolidayViewModal.css';
 
 interface HolidayViewModalProps {
@@ -24,6 +25,7 @@ const HolidayViewModal = ({ isOpen, onClose }: HolidayViewModalProps) => {
         const data = await holidayService.getCurrentYearHolidays();
         setHolidays(data);
       } catch {
+        useToastStore.getState().addToast('Failed to load holidays', 'error');
         setHolidays([]);
       } finally {
         setLoading(false);

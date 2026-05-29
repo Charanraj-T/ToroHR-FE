@@ -6,7 +6,8 @@ import {
   Check,
   X,
   Banknote,
-  Paperclip
+  Paperclip,
+  Trash2
 } from 'lucide-react';
 import Table, { type Column } from '../../../components/ui/Table';
 import StatusBadge from '../../../components/ui/StatusBadge';
@@ -29,6 +30,7 @@ interface ClaimTableProps {
   onView: (claim: Claim) => void;
   onEdit?: (claim: Claim) => void;
   onCancel?: (claim: Claim) => void;
+  onDelete?: (claim: Claim) => void;
   onApprove?: (claim: Claim) => void;
   onReject?: (claim: Claim) => void;
   onReimburse?: (claim: Claim) => void;
@@ -44,6 +46,7 @@ const ClaimTable = ({
   onView,
   onEdit,
   onCancel,
+  onDelete,
   onApprove,
   onReject,
   onReimburse,
@@ -197,6 +200,20 @@ const ClaimTable = ({
                   <XCircle size={18} />
                 </button>
               )}
+              {actions.canDelete && onDelete && (
+                <button
+                  type="button"
+                  className="action-btn delete"
+                  title="Delete"
+                  disabled={isBusy}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onDelete(item);
+                  }}
+                >
+                  <Trash2 size={18} />
+                </button>
+              )}
             </div>
           );
         }
@@ -204,7 +221,7 @@ const ClaimTable = ({
     );
 
     return cols;
-  }, [showEmployeeColumn, role, employeeId, actionLoadingId, onView, onEdit, onApprove, onReject, onReimburse, onCancel]);
+  }, [showEmployeeColumn, role, employeeId, actionLoadingId, onView, onEdit, onApprove, onReject, onReimburse, onCancel, onDelete]);
 
   if (!loading && claims.length === 0) {
     return <EmptyState title="No claims found" message="Try adjusting your filters or create a new claim." />;

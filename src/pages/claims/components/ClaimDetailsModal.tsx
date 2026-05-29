@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { FileText, Download, Eye, Check, X, XCircle, Banknote } from 'lucide-react';
+import { FileText, Download, Eye, Check, X, XCircle, Banknote, Trash2 } from 'lucide-react';
 import Modal from '../../../components/ui/Modal';
 import StatusBadge from '../../../components/ui/StatusBadge';
 import claimService, { type Claim } from '../../../services/claim.service';
@@ -32,24 +32,21 @@ const ClaimDetailsModal = ({
 }: ClaimDetailsModalProps) => {
   const { addToast } = useToastStore();
   const [claim, setClaim] = useState<Claim | null>(null);
-  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(false);
   const [actionLoading, setActionLoading] = useState(false);
 
-  useEffect(() => {
-    if (!isOpen || !claimId) {
-      setClaim(null);
-      return;
-    }
+  const loading = Boolean(claimId && !claim && !error);
 
-    setLoading(true);
+  useEffect(() => {
+    if (!claimId) return;
+
     claimService
       .getClaimById(claimId)
-      .then(setClaim)
-      .catch(() => setClaim(null))
-      .finally(() => setLoading(false));
-  }, [isOpen, claimId]);
+      .then((data) => { setClaim(data); setError(false); })
+      .catch(() => { setClaim(null); setError(true); });
+  }, [claimId]);
 
-  const handleAction = async (action: 'approve' | 'reject' | 'cancel' | 'reimburse') => {
+  const handleAction = async (action: 'approve' | 'reject' | 'cancel' | 'reimburse' | 'delete') => {
     if (!claim) return;
     setActionLoading(true);
 
@@ -66,11 +63,13 @@ const ClaimDetailsModal = ({
       } else if (action === 'reimburse') {
         await claimService.reimburseClaim(claim.id);
         addToast('Claim marked as reimbursed successfully', 'success');
+      } else if (action === 'delete') {
+        await claimService.deleteClaim(claim.id);
+        addToast('Claim deleted successfully', 'success');
       }
 
       onUpdated();
       onClose();
-    } catch {
     } finally {
       setActionLoading(false);
     }
@@ -159,15 +158,25 @@ const ClaimDetailsModal = ({
                 <Check size={16} /> Approve
               </button>
             )}
+            {actions.canDelete && (
+              <button
+                type="button"
+                className="btn-secondary btn-danger-action"
+                disabled={actionLoading}
+                onClick={() => handleAction('delete')}
+              >
+                <Trash2 size={16} /> Delete
+              </button>
+            )}
           </div>
         )
       }
     >
       {loading ? (
         <LoadingSkeleton variant="table" count={5} />
-      ) : !claim ? (
+      ) : error ? (
         <EmptyState title="Claim not found" message="This claim may have been removed or you lack access." />
-      ) : (
+      ) : claim ? (
         <div className="claim-details">
           <div className="claim-details-header">
             <div>
@@ -253,7 +262,7 @@ const ClaimDetailsModal = ({
             )}
           </div>
         </div>
-      )}
+      ) : null}
     </Modal>
   );
 };

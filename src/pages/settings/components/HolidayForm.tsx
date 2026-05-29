@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { Loader2 } from 'lucide-react';
 import holidayService, { type Holiday } from '../../../services/holiday.service';
 import { useToastStore } from '../../../store/toastStore';
@@ -26,16 +26,6 @@ const HolidayForm = ({ holiday, onSubmitSuccess, onCancel }: HolidayFormProps) =
   const [isRecurringYearly, setIsRecurringYearly] = useState(holiday?.isRecurringYearly || false);
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
-
-  useEffect(() => {
-    if (holiday) {
-      setName(holiday.name);
-      setDate(toDateInputValue(holiday.date));
-      setDescription(holiday.description || '');
-      setIsRecurringYearly(holiday.isRecurringYearly);
-      setErrors({});
-    }
-  }, [holiday]);
 
   const validate = () => {
     const e: Record<string, string> = {};

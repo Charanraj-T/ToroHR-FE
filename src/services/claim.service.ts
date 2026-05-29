@@ -124,6 +124,10 @@ const claimService = {
   reimburseClaim: async (id: string): Promise<Claim> => {
     const response = await api.put(`/api/claims/${id}/reimburse`);
     return response.data?.data?.claim;
+  },
+
+  deleteClaim: async (id: string): Promise<void> => {
+    await api.delete(`/api/claims/${id}`);
   }
 };
 

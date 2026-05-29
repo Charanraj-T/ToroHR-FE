@@ -13,11 +13,6 @@ interface ClaimFormModalProps {
   editingClaim?: Claim | null;
 }
 
-const toDateInputValue = (value?: string) => {
-  if (!value) return '';
-  return value.split('T')[0];
-};
-
 const mapExistingAttachments = (claim?: Claim | null): AttachmentFile[] =>
   (claim?.attachments || []).map((attachment) => ({
     id: attachment.id,
@@ -33,46 +28,26 @@ const ClaimFormModal = ({ isOpen, onClose, onSuccess, editingClaim }: ClaimFormM
   const isEditMode = Boolean(editingClaim);
   const submittedRef = useRef(false);
 
-  const [name, setName] = useState('');
-  const [amount, setAmount] = useState('');
-  const [expenseDate, setExpenseDate] = useState('');
-  const [description, setDescription] = useState('');
-  const [attachments, setAttachments] = useState<AttachmentFile[]>([]);
+  const [name, setName] = useState(editingClaim?.name ?? '');
+  const [amount, setAmount] = useState(editingClaim ? String(editingClaim.amount) : '');
+  const [expenseDate, setExpenseDate] = useState(editingClaim ? editingClaim.expenseDate.split('T')[0] : '');
+  const [description, setDescription] = useState(editingClaim?.description ?? '');
+  const [attachments, setAttachments] = useState<AttachmentFile[]>(editingClaim ? mapExistingAttachments(editingClaim) : []);
   const [loading, setLoading] = useState(false);
   const [detailLoading, setDetailLoading] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
 
   useEffect(() => {
-    if (!isOpen) return;
+    if (!editingClaim) return;
+    if (!editingClaim.attachments.some((item) => !item.data)) return;
 
-    if (editingClaim) {
-      setName(editingClaim.name);
-      setAmount(String(editingClaim.amount));
-      setExpenseDate(toDateInputValue(editingClaim.expenseDate));
-      setDescription(editingClaim.description || '');
-      setAttachments(mapExistingAttachments(editingClaim));
-      setErrors({});
-      submittedRef.current = false;
-
-      if (editingClaim.attachments.some((item) => !item.data)) {
-        setDetailLoading(true);
-        claimService
-          .getClaimById(editingClaim.id)
-          .then((claim) => setAttachments(mapExistingAttachments(claim)))
-          .catch(() => {})
-          .finally(() => setDetailLoading(false));
-      }
-      return;
-    }
-
-    setName('');
-    setAmount('');
-    setExpenseDate('');
-    setDescription('');
-    setAttachments([]);
-    setErrors({});
-    submittedRef.current = false;
-  }, [isOpen, editingClaim]);
+    setDetailLoading(true);
+    claimService
+      .getClaimById(editingClaim.id)
+      .then((claim) => setAttachments(mapExistingAttachments(claim)))
+      .catch(() => {})
+      .finally(() => setDetailLoading(false));
+  }, [editingClaim?.id]);
 
   const validate = () => {
     const nextErrors: Record<string, string> = {};
@@ -121,6 +96,7 @@ const ClaimFormModal = ({ isOpen, onClose, onSuccess, editingClaim }: ClaimFormM
       onSuccess();
       onClose();
     } catch {
+      addToast(`Failed to ${isEditMode ? 'update' : 'submit'} claim`, 'error');
       submittedRef.current = false;
     } finally {
       setLoading(false);

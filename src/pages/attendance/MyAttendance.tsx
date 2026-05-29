@@ -159,7 +159,7 @@ const MyAttendance: React.FC = () => {
           <button className="btn-secondary sm" onClick={async () => {
             const now = new Date();
             const { start, end } = getMonthBoundaries(now.getFullYear(), now.getMonth() + 1);
-            try { await attendanceService.exportCsv({ startDate: start, endDate: end }); } catch {}
+            attendanceService.exportCsv({ startDate: start, endDate: end });
           }}>
             <Download size={16} /> Export CSV
           </button>

@@ -19,7 +19,6 @@ const EditEmployee = () => {
       try {
         const response = await employeeService.getEmployeeById(id);
         setEmployee(response.data.employee);
-      } catch {
       } finally {
         setFetching(false);
       }
@@ -34,7 +33,6 @@ const EditEmployee = () => {
       await employeeService.updateEmployee(id!, data);
       addToast('Employee updated successfully', 'success');
       navigate(`/employees/${id}`);
-    } catch {
     } finally {
       setLoading(false);
     }

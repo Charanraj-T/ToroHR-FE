@@ -20,7 +20,6 @@ const EmployeeDetails = () => {
       try {
         const response = await employeeService.getEmployeeById(id);
         setEmployee(response.data.employee);
-      } catch {
       } finally {
         setLoading(false);
       }

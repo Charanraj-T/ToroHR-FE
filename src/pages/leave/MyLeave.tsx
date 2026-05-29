@@ -75,6 +75,7 @@ const MyLeave = () => {
       const data = await leaveService.getMyLeaveBalance();
       setBalances(data);
     } catch {
+      addToast('Failed to load leave balance', 'error');
     }
   };
 
@@ -146,6 +147,7 @@ const MyLeave = () => {
       fetchLeaves(currentPage);
       fetchBalances();
     } catch {
+      addToast('Failed to cancel leave request', 'error');
       cancelSubmittedRef.current = false;
     }
   };

@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   UserCheck, 
   UserMinus, 
@@ -67,7 +67,7 @@ const AttendanceOverview: React.FC = () => {
     return !holidayDates.has(dateStr);
   }).length;
 
-  const fetchData = useCallback(async (overrideFilters?: typeof filters) => {
+  const loadAttendanceData = async (overrideFilters?: typeof filters) => {
     setLoading(true);
     try {
       const activeFilters = overrideFilters || filters;
@@ -127,16 +127,17 @@ const AttendanceOverview: React.FC = () => {
       });
 
       setAttendanceData(Object.values(employeeMap) as any);
-    } catch (error) {
+    } catch {
       addToast('Failed to load attendance data', 'error');
     } finally {
       setLoading(false);
     }
-  }, [filters, user, addToast]);
+  };
 
   useEffect(() => {
-    fetchData();
-  }, [fetchData]);
+    loadAttendanceData();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [filters.page, filters.startDate, filters.endDate, filters.limit, user?.employeeId, user?.role]);
 
   const handleFilterChange = (key: string, value: string) => {
     setFilters(prev => ({ ...prev, [key]: value, page: 1 }));
@@ -168,6 +169,7 @@ const AttendanceOverview: React.FC = () => {
         };
       }
     } catch {
+      addToast('Failed to load existing attendance record', 'error');
     }
 
     setSelectedRecord({
@@ -241,7 +243,7 @@ const AttendanceOverview: React.FC = () => {
       }
       setModalOpen(false);
       addToast('Attendance updated successfully', 'success');
-      fetchData();
+      loadAttendanceData();
     } catch {
       addToast('Failed to update attendance', 'error');
     }

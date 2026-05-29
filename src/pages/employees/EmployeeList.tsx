@@ -51,6 +51,7 @@ const EmployeeList = () => {
       const statsRes = await employeeService.getStats(statsFilters);
       setStats(statsRes);
     } catch {
+      useToastStore.getState().addToast('Failed to load employee stats', 'error');
     }
   };
 
@@ -67,7 +68,6 @@ const EmployeeList = () => {
         totalPages: response.totalPages,
         totalItems: response.total
       });
-    } catch {
     } finally {
       setLoading(false);
     }
@@ -99,8 +99,9 @@ const EmployeeList = () => {
       }
       setConfirmModal({ ...confirmModal, isOpen: false });
       fetchEmployees();
-      fetchStats(); // Refresh stats after status change
+      fetchStats();
     } catch {
+      useToastStore.getState().addToast(`Failed to ${action} employee`, 'error');
     }
   };
 

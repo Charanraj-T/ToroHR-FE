@@ -89,6 +89,7 @@
 }
 
 .action-btn.reject:hover:not(:disabled),
+.action-btn.delete:hover:not(:disabled),
 .action-btn.deactivate:hover:not(:disabled) {
   background-color: var(--danger-bg);
   color: var(--danger);

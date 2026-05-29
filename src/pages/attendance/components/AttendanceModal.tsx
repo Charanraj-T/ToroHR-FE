@@ -26,17 +26,6 @@ const AttendanceModal: React.FC<AttendanceModalProps> = ({
     status: initialData?.status || 'Present'
   });
 
-  // Update form data when initialData changes
-  React.useEffect(() => {
-    if (initialData) {
-      setFormData({
-        checkInTime: initialData.checkInTime || '',
-        checkOutTime: initialData.checkOutTime || '',
-        status: initialData.status || 'Present'
-      });
-    }
-  }, [initialData]);
-
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     onSubmit(formData);

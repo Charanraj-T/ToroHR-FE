@@ -116,6 +116,7 @@ const TeamLeaveManagement = () => {
       addToast('Leave request approved successfully', 'success');
       fetchLeaves();
     } catch {
+      addToast('Failed to approve leave request', 'error');
     } finally {
       setActionLoading(false);
       actionSubmittedRef.current = false;
@@ -141,6 +142,7 @@ const TeamLeaveManagement = () => {
       setRejectLeaveId(null);
       fetchLeaves();
     } catch {
+      addToast('Failed to reject leave request', 'error');
     } finally {
       setActionLoading(false);
       actionSubmittedRef.current = false;

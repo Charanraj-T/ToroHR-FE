@@ -44,6 +44,7 @@ const Holidays = () => {
       setTotalItems(res.total);
       setTotalPages(res.pages);
     } catch {
+      addToast('Failed to load holidays', 'error');
       setHolidays([]);
     } finally {
       setLoading(false);
@@ -144,6 +145,7 @@ const Holidays = () => {
         title={editHoliday ? 'Edit Holiday' : 'Add Holiday'}
       >
         <HolidayForm
+          key={formOpen ? (editHoliday?.id ?? 'new') : 'closed'}
           holiday={editHoliday}
           onSubmitSuccess={handleFormSuccess}
           onCancel={() => { setFormOpen(false); setEditHoliday(null); }}

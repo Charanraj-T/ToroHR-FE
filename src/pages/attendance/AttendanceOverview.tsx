@@ -16,6 +16,7 @@ import employeeService from '../../services/employee.service';
 import holidayService from '../../services/holiday.service';
 import { useToastStore } from '../../store/toastStore';
 import { useAuthStore } from '../../store/authStore';
+import { formatDateOnly, buildDateStr, isWeekend, getMonthBoundaries, getCurrentYearMonth } from '../../lib/date';
 import './AttendanceOverview.css';
 
 const AttendanceOverview: React.FC = () => {
@@ -28,16 +29,12 @@ const AttendanceOverview: React.FC = () => {
     absentCount: 0
   });
   const [attendanceData, setAttendanceData] = useState<any[]>([]);
-  const today = new Date();
-  const y = today.getFullYear();
-  const m = today.getMonth();
-  const monthStart = `${y}-${String(m + 1).padStart(2, '0')}-01`;
-  const monthEndDate = new Date(y, m + 1, 0);
-  const monthEnd = `${monthEndDate.getFullYear()}-${String(monthEndDate.getMonth() + 1).padStart(2, '0')}-${String(monthEndDate.getDate()).padStart(2, '0')}`;
+  const { year, month } = getCurrentYearMonth();
+  const boundaries = getMonthBoundaries(year, month);
 
   const [filters, setFilters] = useState({
-    startDate: monthStart,
-    endDate: monthEnd,
+    startDate: boundaries.start,
+    endDate: boundaries.end,
     page: 1,
     limit: 20
   });
@@ -51,23 +48,23 @@ const AttendanceOverview: React.FC = () => {
 
   const [holidayDates, setHolidayDates] = useState<Set<string>>(new Set());
 
-  const dateForMonth = filters.startDate ? new Date(filters.startDate) : new Date();
-  const daysInMonth = new Date(dateForMonth.getFullYear(), dateForMonth.getMonth() + 1, 0).getDate();
   const [startY, startM, startD] = (filters.startDate || '').split('-').map(Number);
   const [endY, endM, endD] = (filters.endDate || '').split('-').map(Number);
   const sameMonth = startY === endY && startM === endM;
+  const daysInMonth = new Date(Date.UTC(startY, startM, 0)).getUTCDate();
   const startDay = sameMonth ? startD : 1;
   const endDay = sameMonth ? endD : daysInMonth;
-  const isCurrentMonth = dateForMonth.getMonth() === new Date().getMonth() && 
-                         dateForMonth.getFullYear() === new Date().getFullYear();
-  const todayDateNum = new Date().getDate();
+  const now = new Date();
+  const todayUTC = formatDateOnly(now);
+  const [todayY, todayM, todayD] = todayUTC.split('-').map(Number);
+  const isCurrentMonth = startY === todayY && startM === todayM;
+  const todayDateNum = todayD;
   const currentDate = (isCurrentMonth && todayDateNum >= startDay && todayDateNum <= endDay) ? todayDateNum : 0;
 
   const workingDays = Array.from({ length: endDay - startDay + 1 }, (_, i) => startDay + i).filter(day => {
-    const d = new Date(dateForMonth.getFullYear(), dateForMonth.getMonth(), day);
-    const dayOfWeek = d.getDay();
-    const dateStr = `${dateForMonth.getFullYear()}-${String(dateForMonth.getMonth() + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
-    return dayOfWeek !== 0 && dayOfWeek !== 6 && !holidayDates.has(dateStr);
+    if (isWeekend(startY, startM, day)) return false;
+    const dateStr = buildDateStr(startY, startM, day);
+    return !holidayDates.has(dateStr);
   }).length;
 
   const fetchData = useCallback(async (overrideFilters?: typeof filters) => {
@@ -87,8 +84,7 @@ const AttendanceOverview: React.FC = () => {
 
       const holidaySet = new Set<string>();
       (holidayRes || []).forEach((h: any) => {
-        const d = new Date(h.date);
-        const ds = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+        const ds = formatDateOnly(new Date(h.date));
         holidaySet.add(ds);
       });
       setHolidayDates(holidaySet);
@@ -124,7 +120,7 @@ const AttendanceOverview: React.FC = () => {
       records.forEach((record: any) => {
         const empId = record.employeeId?._id || record.employeeId;
         if (employeeMap[empId]) {
-          const day = new Date(record.date).getDate();
+          const day = new Date(record.date).getUTCDate();
           employeeMap[empId].attendance[day] = record.status;
           employeeMap[empId].attendance[`${day}_id`] = record.id || record._id;
         }
@@ -151,8 +147,7 @@ const AttendanceOverview: React.FC = () => {
   };
 
   const handleSelfMark = async () => {
-    const today = new Date();
-    const dateStr = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
+    const dateStr = formatDateOnly(new Date());
 
     let recordData = {
       status: 'Present',
@@ -173,7 +168,6 @@ const AttendanceOverview: React.FC = () => {
         };
       }
     } catch {
-      // No existing record, use defaults
     }
 
     setSelectedRecord({
@@ -183,7 +177,7 @@ const AttendanceOverview: React.FC = () => {
         employeeId: user?.employeeId,
         attendance: {}
       },
-      day: today.getDate(),
+      day: todayDateNum,
       dateString: dateStr,
       attendance: recordData
     });
@@ -200,7 +194,7 @@ const AttendanceOverview: React.FC = () => {
   };
 
   const handleUpdate = async (employee: any, day: number) => {
-    const dateStr = `${dateForMonth.getFullYear()}-${String(dateForMonth.getMonth() + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+    const dateStr = buildDateStr(startY, startM, day);
     
     let recordData = {
       status: employee.attendance?.[day] || 'Present',

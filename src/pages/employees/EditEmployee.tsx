@@ -19,8 +19,7 @@ const EditEmployee = () => {
       try {
         const response = await employeeService.getEmployeeById(id);
         setEmployee(response.data.employee);
-      } catch (error) {
-        console.error('Failed to fetch employee', error);
+      } catch {
       } finally {
         setFetching(false);
       }
@@ -35,8 +34,7 @@ const EditEmployee = () => {
       await employeeService.updateEmployee(id!, data);
       addToast('Employee updated successfully', 'success');
       navigate(`/employees/${id}`);
-    } catch (error) {
-      console.error('Failed to update employee', error);
+    } catch {
     } finally {
       setLoading(false);
     }

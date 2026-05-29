@@ -1,28 +1,5 @@
 import api from '../lib/api';
 
-export interface AttendanceRecord {
-  id: string;
-  employee: {
-    id: string;
-    fullName: string;
-    employeeId: string;
-    department: string;
-  };
-  date: string;
-  checkIn?: string;
-  checkOut?: string;
-  status: 'Present' | 'Absent' | 'Half-day' | 'Leave' | 'Weekend';
-  hoursWorked?: number;
-  workMode?: 'Office' | 'Remote';
-  notes?: string;
-}
-
-export interface AttendanceSummary {
-  presentToday: number;
-  onLeave: number;
-  absentCount: number;
-}
-
 export interface AttendanceFilters {
   page?: number;
   limit?: number;

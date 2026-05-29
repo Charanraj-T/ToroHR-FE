@@ -41,18 +41,8 @@ const holidayService = {
     };
   },
 
-  getHolidayById: async (id: string) => {
-    const response = await api.get(`/api/holidays/${id}`);
-    return response.data.data.holiday;
-  },
-
   getCurrentYearHolidays: async (): Promise<Holiday[]> => {
     const response = await api.get('/api/holidays/current-year');
-    return response.data.data.holidays;
-  },
-
-  getUpcomingHolidays: async (days = 365): Promise<Holiday[]> => {
-    const response = await api.get('/api/holidays/upcoming', { params: { days } });
     return response.data.data.holidays;
   },
 

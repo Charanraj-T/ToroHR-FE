@@ -50,8 +50,7 @@ const EmployeeList = () => {
       };
       const statsRes = await employeeService.getStats(statsFilters);
       setStats(statsRes);
-    } catch (error) {
-      console.error('Failed to fetch stats', error);
+    } catch {
     }
   };
 
@@ -68,8 +67,7 @@ const EmployeeList = () => {
         totalPages: response.totalPages,
         totalItems: response.total
       });
-    } catch (error) {
-      console.error('Failed to fetch employees', error);
+    } catch {
     } finally {
       setLoading(false);
     }
@@ -102,8 +100,7 @@ const EmployeeList = () => {
       setConfirmModal({ ...confirmModal, isOpen: false });
       fetchEmployees();
       fetchStats(); // Refresh stats after status change
-    } catch (error) {
-      console.error(`Failed to ${action} employee`, error);
+    } catch {
     }
   };
 
@@ -136,7 +133,7 @@ const EmployeeList = () => {
     { header: 'Designation', accessor: 'designation' },
     { 
       header: 'Joining Date', 
-      accessor: (item: Employee) => item.joiningDate ? new Date(item.joiningDate).toLocaleDateString('en-IN') : 'N/A' 
+      accessor: (item: Employee) => item.joiningDate ? new Date(item.joiningDate).toLocaleDateString('en-IN', { timeZone: 'UTC' }) : 'N/A' 
     },
     { header: 'Reporting Manager', accessor: (item: Employee) => (item.reportingManager && typeof item.reportingManager === 'object') ? (item.reportingManager as any).fullName : 'N/A' },
     { header: 'Role', accessor: (item: Employee) => <span className={`role-badge ${item.role.toLowerCase()}`}>{item.role}</span> },

@@ -6,6 +6,7 @@ import Table from '../../components/ui/Table';
 import StatusBadge from '../../components/ui/StatusBadge';
 import attendanceService from '../../services/attendance.service';
 import { useToastStore } from '../../store/toastStore';
+import { formatDateOnly, getMonthBoundaries, toISTTime } from '../../lib/date';
 import './MyAttendance.css';
 
 const MyAttendance: React.FC = () => {
@@ -23,15 +24,13 @@ const MyAttendance: React.FC = () => {
   const fetchData = async () => {
     setLoading(true);
     try {
-      const today = new Date();
-      const monthStart = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-01`;
-      const monthEndDate = new Date(today.getFullYear(), today.getMonth() + 1, 0);
-      const monthEnd = `${monthEndDate.getFullYear()}-${String(monthEndDate.getMonth() + 1).padStart(2, '0')}-${String(monthEndDate.getDate()).padStart(2, '0')}`;
-      const historyRes = await attendanceService.getMyAttendance({ startDate: monthStart, endDate: monthEnd });
+      const now = new Date();
+      const { start, end } = getMonthBoundaries(now.getFullYear(), now.getMonth() + 1);
+      const historyRes = await attendanceService.getMyAttendance({ startDate: start, endDate: end });
       const data = historyRes?.data || [];
       setHistory(data);
       
-      const todayStr = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
+      const todayStr = formatDateOnly(now);
       const todayRec = data.find((r: any) => r.date?.startsWith(todayStr));
       setTodayRecord(todayRec || null);
 
@@ -89,7 +88,7 @@ const MyAttendance: React.FC = () => {
 
   const formatTime = (t: string | undefined) => {
     if (!t) return undefined;
-    return new Date(t).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', timeZone: 'Asia/Kolkata' });
+    return toISTTime(t);
   };
 
   const columns = useMemo(() => [
@@ -98,16 +97,17 @@ const MyAttendance: React.FC = () => {
       accessor: (item: any) => new Date(item.date).toLocaleDateString('en-IN', { 
         day: '2-digit', 
         month: 'short', 
-        year: 'numeric' 
+        year: 'numeric',
+        timeZone: 'UTC'
       }) 
     },
     { 
       header: 'Check In', 
-      accessor: (item: any) => item.checkInTime ? new Date(item.checkInTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', timeZone: 'Asia/Kolkata' }) : '--:--' 
+      accessor: (item: any) => item.checkInTime ? toISTTime(item.checkInTime) : '--:--' 
     },
     { 
       header: 'Check Out', 
-      accessor: (item: any) => item.checkOutTime ? new Date(item.checkOutTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', timeZone: 'Asia/Kolkata' }) : '--:--' 
+      accessor: (item: any) => item.checkOutTime ? toISTTime(item.checkOutTime) : '--:--' 
     },
     { header: 'Work Hours', accessor: (item: any) => item.hoursWorked ? `${item.hoursWorked.toFixed(1)}h` : '0h' },
     { 
@@ -156,12 +156,10 @@ const MyAttendance: React.FC = () => {
       <div className="history-section">
         <div className="section-header">
           <h3>Attendance History</h3>
-          <button className="btn-secondary sm" onClick={() => {
-            const today = new Date();
-            const monthStart = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-01`;
-            const monthEndDate = new Date(today.getFullYear(), today.getMonth() + 1, 0);
-            const monthEnd = `${monthEndDate.getFullYear()}-${String(monthEndDate.getMonth() + 1).padStart(2, '0')}-${String(monthEndDate.getDate()).padStart(2, '0')}`;
-            attendanceService.exportCsv({ startDate: monthStart, endDate: monthEnd });
+          <button className="btn-secondary sm" onClick={async () => {
+            const now = new Date();
+            const { start, end } = getMonthBoundaries(now.getFullYear(), now.getMonth() + 1);
+            try { await attendanceService.exportCsv({ startDate: start, endDate: end }); } catch {}
           }}>
             <Download size={16} /> Export CSV
           </button>

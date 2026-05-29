@@ -41,7 +41,7 @@ const AttendanceCard: React.FC<AttendanceCardProps> = ({
       <div className="card-header">
         <div className="title-area">
           <h3>Today's Attendance</h3>
-          <span className="current-date">{new Date().toLocaleDateString('en-IN', { weekday: 'long', day: 'numeric', month: 'long' })}</span>
+          <span className="current-date">{new Date().toLocaleDateString('en-IN', { weekday: 'long', day: 'numeric', month: 'long', timeZone: 'Asia/Kolkata' })}</span>
         </div>
         <div className={`status-pill ${display.color}`}>
           {display.label}

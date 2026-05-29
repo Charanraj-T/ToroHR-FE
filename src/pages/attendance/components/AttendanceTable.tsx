@@ -1,5 +1,6 @@
 import React from 'react';
 import AttendanceIndicator from './AttendanceIndicator';
+import { isWeekend } from '../../../lib/date';
 import './AttendanceTable.css';
 
 interface AttendanceTableProps {
@@ -15,12 +16,6 @@ interface AttendanceTableProps {
 const AttendanceTable: React.FC<AttendanceTableProps> = ({ data, startDay, endDay, currentDate, onUpdate, startDate, holidayDates }) => {
   const [baseY, baseM] = startDate.split('-').map(Number);
 
-  const isWeekend = (day: number) => {
-    const d = new Date(baseY, baseM - 1, day);
-    const dayOfWeek = d.getDay();
-    return dayOfWeek === 0 || dayOfWeek === 6;
-  };
-
   const isHoliday = (day: number) => {
     const dateStr = `${baseY}-${String(baseM).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
     return holidayDates?.has(dateStr) || false;
@@ -29,7 +24,7 @@ const AttendanceTable: React.FC<AttendanceTableProps> = ({ data, startDay, endDa
   const getDayStatus = (day: number, dayStatus: string | undefined) => {
     if (dayStatus) return dayStatus as any;
     if (isHoliday(day)) return 'Holiday' as const;
-    if (isWeekend(day)) return 'Holiday' as const;
+    if (isWeekend(baseY, baseM, day)) return 'Holiday' as const;
     return 'N/A' as const;
   };
 

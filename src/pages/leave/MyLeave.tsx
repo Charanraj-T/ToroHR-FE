@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
-import { Plus, Edit2, XCircle } from 'lucide-react';
+import { Plus, Edit2, XCircle, Calendar } from 'lucide-react';
 import PageHeader from '../../components/ui/PageHeader';
 import Table, { type Column } from '../../components/ui/Table';
 import Modal from '../../components/ui/Modal';
@@ -10,6 +10,7 @@ import leaveService, { type Leave, type LeaveBalance } from '../../services/leav
 import LeaveBalanceCard from './components/LeaveBalanceCard';
 import LeaveForm from './components/LeaveForm';
 import LeaveFilters from './components/LeaveFilters';
+import HolidayViewModal from './components/HolidayViewModal';
 import { getLeaveTypeDetails, formatDate } from './leaveHelpers';
 import './MyLeave.css';
 
@@ -38,6 +39,7 @@ const MyLeave = () => {
   const [editingLeave, setEditingLeave] = useState<Leave | null>(null);
   const [cancelLeaveId, setCancelLeaveId] = useState<string | null>(null);
   const [cancelReason, setCancelReason] = useState('');
+  const [isHolidayViewOpen, setIsHolidayViewOpen] = useState(false);
   const cancelSubmittedRef = useRef(false);
   const abortRef = useRef<AbortController | null>(null);
 
@@ -62,7 +64,6 @@ const MyLeave = () => {
       setTotalPages(res.totalPages > 0 ? res.totalPages : 1);
     } catch (error: any) {
       if (error?.name === 'CanceledError' || error?.code === 'ERR_CANCELED') return;
-      console.error('Failed to fetch leaves:', error);
       addToast('Failed to load leaves', 'error');
     } finally {
       if (!controller.signal.aborted) setLoading(false);
@@ -73,8 +74,7 @@ const MyLeave = () => {
     try {
       const data = await leaveService.getMyLeaveBalance();
       setBalances(data);
-    } catch (error) {
-      console.error('Failed to fetch balances:', error);
+    } catch {
     }
   };
 
@@ -145,8 +145,7 @@ const MyLeave = () => {
       cancelSubmittedRef.current = false;
       fetchLeaves(currentPage);
       fetchBalances();
-    } catch (error) {
-      console.error(error);
+    } catch {
       cancelSubmittedRef.current = false;
     }
   };
@@ -214,9 +213,14 @@ const MyLeave = () => {
         title="Leave Overview"
         subtitle="Manage your leave balances and track your time off."
         actions={
-          <button className="btn-primary" onClick={openApplyModal}>
-            <Plus size={18} /> Apply Leave
-          </button>
+          <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
+            <button className="btn-secondary" onClick={() => setIsHolidayViewOpen(true)}>
+              <Calendar size={18} /> View Holidays
+            </button>
+            <button className="btn-primary" onClick={openApplyModal}>
+              <Plus size={18} /> Apply Leave
+            </button>
+          </div>
         }
       />
 
@@ -316,6 +320,11 @@ const MyLeave = () => {
           </div>
         </div>
       </Modal>
+
+      <HolidayViewModal
+        isOpen={isHolidayViewOpen}
+        onClose={() => setIsHolidayViewOpen(false)}
+      />
     </div>
   );
 };

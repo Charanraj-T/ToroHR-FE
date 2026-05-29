@@ -3,9 +3,9 @@ import { Calendar, AlertCircle } from 'lucide-react';
 import leaveService, {
   type Leave,
   type LeaveType,
-  type LeaveBalance,
-  calculateWorkingDays
+  type LeaveBalance
 } from '../../../services/leave.service';
+import { calculateWorkingDays } from '../../../lib/date';
 import { useToastStore } from '../../../store/toastStore';
 import './LeaveForm.css';
 
@@ -114,8 +114,7 @@ const LeaveForm = ({ balances, initialLeave = null, onSubmitSuccess, onCancel }:
 
       addToast(`Leave request ${isEditMode ? 'updated' : 'submitted'} successfully`, 'success');
       onSubmitSuccess();
-    } catch (error: any) {
-      console.error(error);
+    } catch {
       submittedRef.current = false;
     } finally {
       setLoading(false);

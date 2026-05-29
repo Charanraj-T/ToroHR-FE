@@ -16,8 +16,7 @@ const AddEmployee = () => {
       await employeeService.createEmployee(data);
       addToast('Employee created successfully', 'success');
       navigate('/employees');
-    } catch (error) {
-      console.error('Failed to create employee', error);
+    } catch {
     } finally {
       setLoading(false);
     }

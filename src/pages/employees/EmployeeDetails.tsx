@@ -20,8 +20,7 @@ const EmployeeDetails = () => {
       try {
         const response = await employeeService.getEmployeeById(id);
         setEmployee(response.data.employee);
-      } catch (error) {
-        console.error('Failed to fetch employee', error);
+      } catch {
       } finally {
         setLoading(false);
       }
@@ -86,7 +85,7 @@ const EmployeeDetails = () => {
               <DetailRow label="Full Name" value={employee.fullName} />
               <DetailRow label="Email" value={employee.email} />
               <DetailRow label="Phone" value={employee.phoneNumber} />
-              <DetailRow label="Date of Birth" value={employee.dateOfBirth ? new Date(employee.dateOfBirth).toLocaleDateString('en-IN') : 'N/A'} />
+              <DetailRow label="Date of Birth" value={employee.dateOfBirth ? new Date(employee.dateOfBirth).toLocaleDateString('en-IN', { timeZone: 'UTC' }) : 'N/A'} />
             </div>
           </div>
 
@@ -98,7 +97,7 @@ const EmployeeDetails = () => {
               <DetailRow label="Employee ID" value={employee.employeeId} />
               <DetailRow label="Department" value={employee.department} />
               <DetailRow label="Designation" value={employee.designation} />
-              <DetailRow label="Joining Date" value={employee.joiningDate ? new Date(employee.joiningDate).toLocaleDateString('en-IN') : 'N/A'} />
+              <DetailRow label="Joining Date" value={employee.joiningDate ? new Date(employee.joiningDate).toLocaleDateString('en-IN', { timeZone: 'UTC' }) : 'N/A'} />
               <DetailRow label="Employment Type" value={employee.employmentType} />
               <DetailRow label="Reporting Manager" value={(employee.reportingManager && typeof employee.reportingManager === 'object') ? (employee.reportingManager as any).fullName : 'N/A'} />
             </div>

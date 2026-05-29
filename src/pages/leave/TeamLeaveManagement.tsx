@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
-import { Check, X } from 'lucide-react';
+import { Check, X, Calendar } from 'lucide-react';
 import Table, { type Column } from '../../components/ui/Table';
 import Pagination from '../../components/ui/Pagination';
 import StatusBadge from '../../components/ui/StatusBadge';
@@ -7,6 +7,8 @@ import Modal from '../../components/ui/Modal';
 import { useToastStore } from '../../store/toastStore';
 import leaveService, { type Leave, type LeaveFilters as LeaveFilterParams } from '../../services/leave.service';
 import LeaveFilters from './components/LeaveFilters';
+import HolidayViewModal from './components/HolidayViewModal';
+import PageHeader from '../../components/ui/PageHeader';
 import { getLeaveTypeDetails, formatDate } from './leaveHelpers';
 import './TeamLeaveManagement.css';
 
@@ -35,6 +37,7 @@ const TeamLeaveManagement = () => {
 
   const [rejectLeaveId, setRejectLeaveId] = useState<string | null>(null);
   const [rejectionReason, setRejectionReason] = useState<string>('');
+  const [isHolidayViewOpen, setIsHolidayViewOpen] = useState(false);
   const [actionLoading, setActionLoading] = useState<boolean>(false);
   const actionSubmittedRef = useRef(false);
   const abortRef = useRef<AbortController | null>(null);
@@ -65,7 +68,6 @@ const TeamLeaveManagement = () => {
       });
     } catch (error: any) {
       if (error?.name === 'CanceledError' || error?.code === 'ERR_CANCELED') return;
-      console.error('Failed to fetch team leaves:', error);
     } finally {
       if (!controller.signal.aborted) setLoading(false);
     }
@@ -113,8 +115,7 @@ const TeamLeaveManagement = () => {
       await leaveService.approveLeave(id);
       addToast('Leave request approved successfully', 'success');
       fetchLeaves();
-    } catch (error: any) {
-      console.error(error);
+    } catch {
     } finally {
       setActionLoading(false);
       actionSubmittedRef.current = false;
@@ -139,8 +140,7 @@ const TeamLeaveManagement = () => {
       addToast('Leave request rejected successfully', 'success');
       setRejectLeaveId(null);
       fetchLeaves();
-    } catch (error: any) {
-      console.error(error);
+    } catch {
     } finally {
       setActionLoading(false);
       actionSubmittedRef.current = false;
@@ -221,6 +221,16 @@ const TeamLeaveManagement = () => {
 
   return (
     <div className="team-leaves-page animate-fade-in">
+      <PageHeader
+        title="Team Leave Overview"
+        subtitle="Manage and review all leave requests across your team."
+        actions={
+          <button className="btn-secondary" onClick={() => setIsHolidayViewOpen(true)}>
+            <Calendar size={18} /> View Holidays
+          </button>
+        }
+      />
+
       <LeaveFilters
         search={search}
         leaveType={leaveType}
@@ -284,6 +294,11 @@ const TeamLeaveManagement = () => {
           </div>
         </div>
       </Modal>
+
+      <HolidayViewModal
+        isOpen={isHolidayViewOpen}
+        onClose={() => setIsHolidayViewOpen(false)}
+      />
     </div>
   );
 };

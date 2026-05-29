@@ -46,8 +46,7 @@ const EmployeeForm: React.FC<EmployeeFormProps> = ({ initialData, onSubmit, onCa
       try {
         const data = await employeeService.getManagers();
         setManagers(data);
-      } catch (error) {
-        console.error('Failed to fetch managers', error);
+      } catch {
       }
     };
     fetchManagers();
@@ -187,7 +186,7 @@ const EmployeeForm: React.FC<EmployeeFormProps> = ({ initialData, onSubmit, onCa
           </div>
         </div>
 
-        {/* Section E: Bank & Government Details */}
+        {/* Section D: Bank & Government Details */}
         <div className="form-card">
           <h3>Bank & Government Details</h3>
           <div className="form-grid">

@@ -7,7 +7,6 @@ export interface EmployeeBrief {
   email: string;
   department?: string;
   designation?: string;
-  reportingManagerId?: string;
 }
 
 export type LeaveType = 'CL' | 'SL' | 'PL' | 'LOP';
@@ -75,30 +74,6 @@ export interface PaginatedResponse<T> {
   data: T[];
 }
 
-export const calculateWorkingDays = (fromDateStr: string, toDateStr: string): number => {
-  if (!fromDateStr || !toDateStr) return 0;
-
-  const start = new Date(`${fromDateStr}T00:00:00.000Z`);
-  const end = new Date(`${toDateStr}T00:00:00.000Z`);
-
-  if (isNaN(start.getTime()) || isNaN(end.getTime()) || start > end) {
-    return 0;
-  }
-
-  let count = 0;
-  const cursor = new Date(start);
-
-  while (cursor <= end) {
-    const dayOfWeek = cursor.getUTCDay();
-    if (dayOfWeek !== 0 && dayOfWeek !== 6) {
-      count++;
-    }
-    cursor.setUTCDate(cursor.getUTCDate() + 1);
-  }
-
-  return count;
-};
-
 interface ApiResponse<T> {
   success: boolean;
   message?: string;
@@ -122,11 +97,6 @@ const leaveService = {
   getLeaves: async (params: LeaveFilters = {}): Promise<PaginatedResponse<Leave>> => {
     const response = await api.get('/api/leaves', { params });
     return response.data;
-  },
-
-  getLeaveById: async (id: string): Promise<Leave | null> => {
-    const response = await api.get(`/api/leaves/${id}`);
-    return response.data?.data?.leave ?? null;
   },
 
   applyLeave: async (data: LeaveRequestPayload): Promise<ApiResponse<{ leave: Leave }>> => {

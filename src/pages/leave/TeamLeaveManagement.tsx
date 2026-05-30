@@ -168,7 +168,7 @@ const TeamLeaveManagement = () => {
       header: 'LEAVE TYPE',
       accessor: (item: Leave) => {
         const detail = getLeaveTypeDetails(item.leaveType);
-        return <span className="type-badge" style={{ borderLeft: `3px solid ${detail.color}`, paddingLeft: '8px', fontWeight: 500 }}>{detail.name}</span>;
+        return <span style={{ borderLeft: `3px solid ${detail.color}`, paddingLeft: '8px', fontWeight: 500 }}>{detail.name}</span>;
       }
     },
     {
@@ -247,7 +247,7 @@ const TeamLeaveManagement = () => {
         onClear={handleClearFilters}
       />
 
-      <div className="table-card-container">
+      <div className="table-card">
         <Table 
           columns={columns}
           data={leaves}

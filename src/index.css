@@ -128,6 +128,17 @@ input, select, textarea {
   cursor: not-allowed;
 }
 
+.btn-danger-action {
+  background-color: var(--danger) !important;
+  border-color: var(--danger) !important;
+  color: white !important;
+}
+
+.btn-danger-action:hover:not(:disabled) {
+  background-color: #dc2626 !important;
+  border-color: #dc2626 !important;
+}
+
 .spin {
   animation: spin 1s linear infinite;
 }

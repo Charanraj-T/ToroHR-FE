@@ -1,5 +1,4 @@
 import { Search, X } from 'lucide-react';
-import './HolidayFilters.css';
 
 interface HolidayFiltersProps {
   search: string;
@@ -26,20 +25,19 @@ const HolidayFilters = ({
   const hasFilters = search || year;
 
   return (
-    <div className="holiday-filters-card">
-      <div className="holiday-filters-form">
-        <div className="hf-search-wrapper">
-          <Search size={18} className="hf-search-icon" />
+    <div className="filter-card">
+      <div className="filter-bar">
+        <div className="filter-search">
+          <Search size={18} className="filter-search-icon" />
           <input
             type="text"
-            className="hf-search-input"
             placeholder="Search by holiday name..."
             value={search}
             onChange={(e) => onSearchChange(e.target.value)}
           />
         </div>
 
-        <div className="hf-select-wrapper">
+        <div className="filter-select">
           <select value={year} onChange={(e) => onYearChange(e.target.value)}>
             {YEAR_OPTIONS.map(({ value, label }) => (
               <option key={value} value={value}>{label}</option>
@@ -49,7 +47,7 @@ const HolidayFilters = ({
 
         <button
           type="button"
-          className="hf-clear-btn"
+          className="filter-clear-btn"
           onClick={onClear}
           disabled={!hasFilters}
           title="Clear filters"

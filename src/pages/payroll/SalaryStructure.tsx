@@ -72,7 +72,7 @@ const SalaryStructurePage = () => {
         }
       />
 
-      <div className="payroll-table-card">
+      <div className="table-card">
         <SalaryStructureTable
           records={records}
           loading={loading}
@@ -81,7 +81,7 @@ const SalaryStructurePage = () => {
         />
 
         {!loading && records.length > 0 && (
-          <div className="payroll-pagination-wrapper">
+          <div className="table-card-pagination">
             <Pagination
               currentPage={currentPage}
               totalPages={totalPages}

@@ -1,5 +1,4 @@
-import { Search, Filter, Calendar, X } from 'lucide-react';
-import './LeaveFilters.css';
+import { Search, Filter, X } from 'lucide-react';
 
 interface LeaveFiltersProps {
   search: string;
@@ -40,21 +39,20 @@ const LeaveFilters = ({
   const hasFilters = search || leaveType || status || startDate || endDate;
 
   return (
-    <div className="leave-filters-card">
-      <div className="leave-filters-form">
-        <div className="lf-search-wrapper">
-          <Search size={18} className="lf-search-icon" />
+    <div className="filter-card">
+      <div className="filter-bar">
+        <div className="filter-search">
+          <Search size={18} className="filter-search-icon" />
           <input
             type="text"
-            className="lf-search-input"
             placeholder="Search by reason..."
             value={search}
             onChange={(e) => onSearchChange(e.target.value)}
           />
         </div>
 
-        <div className="lf-select-wrapper">
-          <Filter size={14} className="lf-icon" />
+        <div className="filter-select has-icon">
+          <Filter size={14} className="filter-select-icon" />
           <select
             value={leaveType}
             onChange={(e) => onLeaveTypeChange(e.target.value)}
@@ -65,7 +63,7 @@ const LeaveFilters = ({
           </select>
         </div>
 
-        <div className="lf-select-wrapper">
+        <div className="filter-select">
           <select
             value={status}
             onChange={(e) => onStatusChange(e.target.value)}
@@ -76,31 +74,29 @@ const LeaveFilters = ({
           </select>
         </div>
 
-        <div className="lf-date-range">
-          <div className="lf-date-wrapper">
+        <div className="filter-date-range">
+          <div className="filter-date">
             <input
               type="date"
               value={startDate}
               onChange={(e) => onStartDateChange(e.target.value)}
               title="Start Date"
             />
-            <Calendar size={14} className="lf-cal-icon" />
           </div>
-          <span className="lf-date-sep">to</span>
-          <div className="lf-date-wrapper">
+          <span className="filter-date-sep">to</span>
+          <div className="filter-date">
             <input
               type="date"
               value={endDate}
               onChange={(e) => onEndDateChange(e.target.value)}
               title="End Date"
             />
-            <Calendar size={14} className="lf-cal-icon" />
           </div>
         </div>
 
         <button
           type="button"
-          className="lf-clear-btn"
+          className="filter-clear-btn"
           onClick={onClear}
           disabled={!hasFilters}
           title="Clear filters"

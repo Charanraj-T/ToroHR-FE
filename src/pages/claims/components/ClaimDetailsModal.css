@@ -96,6 +96,13 @@
   white-space: nowrap;
 }
 
+.claim-attachment-actions {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex-shrink: 0;
+}
+
 .claim-attachment-action {
   display: inline-flex;
   align-items: center;

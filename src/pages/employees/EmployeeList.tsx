@@ -119,13 +119,13 @@ const EmployeeList = () => {
     { 
       header: 'Name', 
       accessor: (item: Employee) => (
-        <div className="name-cell">
-          <div className="name-avatar">
+        <div className="employee-cell">
+          <div className="employee-avatar employee-avatar-initials">
             {item.fullName.substring(0, 2).toUpperCase()}
           </div>
-          <div className="name-info">
-            <span className="full-name">{item.fullName}</span>
-            <span className="email">{item.email}</span>
+          <div className="employee-info">
+            <span className="employee-name">{item.fullName}</span>
+            <span className="employee-sub">{item.email}</span>
           </div>
         </div>
       )
@@ -142,19 +142,19 @@ const EmployeeList = () => {
     { 
       header: 'Actions', 
       accessor: (item: Employee) => (
-        <div className="table-actions">
+        <div className="action-btns">
           <button className="action-btn" onClick={(e) => { e.stopPropagation(); navigate(`/employees/${item.id}`); }} title="View">
             <Eye size={18} />
           </button>
-          <button className="action-btn edit" onClick={(e) => { e.stopPropagation(); navigate(`/employees/edit/${item.id}`); }} title="Edit">
+          <button className="action-btn action-btn-edit" onClick={(e) => { e.stopPropagation(); navigate(`/employees/edit/${item.id}`); }} title="Edit">
             <Edit2 size={18} />
           </button>
           {item.status === 'Active' ? (
-            <button className="action-btn deactivate" onClick={(e) => { e.stopPropagation(); openConfirmModal(item, 'deactivate'); }} title="Deactivate">
+            <button className="action-btn action-btn-delete" onClick={(e) => { e.stopPropagation(); openConfirmModal(item, 'deactivate'); }} title="Deactivate">
               <UserX size={18} />
             </button>
           ) : (
-            <button className="action-btn activate" onClick={(e) => { e.stopPropagation(); openConfirmModal(item, 'activate'); }} title="Activate">
+            <button className="action-btn action-btn-approve" onClick={(e) => { e.stopPropagation(); openConfirmModal(item, 'activate'); }} title="Activate">
               <UserCheck2 size={18} />
             </button>
           )}
@@ -175,7 +175,7 @@ const EmployeeList = () => {
         }
       />
 
-      <div className="stats-grid">
+      <div className="summary-grid">
         <StatsCard title="Total Employees" value={stats.total} icon={<Users size={24} />} variant="dark" />
         <StatsCard title="Active" value={stats.active} icon={<UserCheck size={24} />} variant="green" />
         <StatsCard title="Inactive" value={stats.inactive} icon={<UserMinus size={24} />} variant="red" />

@@ -29,11 +29,11 @@ const Settings = () => {
 
   return (
     <div className="settings-module-container animate-fade-in">
-      <div className="settings-tabs-header">
+      <div className="tabs-header">
         {tabs.map((tab) => (
           <button
             key={tab.key}
-            className={`settings-tab-btn ${activeTab === tab.key ? 'active' : ''}`}
+            className={`tab-btn ${activeTab === tab.key ? 'active' : ''}`}
             onClick={() => setActiveTab(tab.key)}
           >
             {tab.label}
@@ -41,7 +41,7 @@ const Settings = () => {
         ))}
       </div>
 
-      <div className="settings-tab-content">
+      <div className="tab-content">
         {activeTab === 'company' && <CompanySettingsPage />}
         {activeTab === 'holidays' && <Holidays />}
         {activeTab === 'payroll' && isAdmin && <PayrollSettingsForm />}

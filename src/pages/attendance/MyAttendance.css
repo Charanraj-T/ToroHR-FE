@@ -62,6 +62,11 @@
   gap: 20px;
 }
 
+.history-table-container {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
 .section-header {
   display: flex;
   justify-content: space-between;
@@ -82,5 +87,31 @@
 @media (max-width: 1024px) {
   .my-attendance-top {
     grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 768px) {
+  .my-attendance-page {
+    gap: 24px;
+  }
+
+  .section-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+
+  .summary-card {
+    padding: 20px;
+  }
+}
+
+@media (max-width: 480px) {
+  .summary-stats {
+    gap: 16px;
+  }
+
+  .section-header h3 {
+    font-size: 16px;
   }
 }

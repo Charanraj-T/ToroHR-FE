@@ -113,3 +113,21 @@
   padding-top: 20px;
   border-top: 1px solid var(--border-color);
 }
+
+@media (max-width: 480px) {
+  .hf-actions {
+    flex-direction: column-reverse;
+  }
+
+  .hf-actions button {
+    width: 100%;
+  }
+
+  .hf-checkbox {
+    padding: 12px;
+  }
+
+  .hf-textarea {
+    font-size: 16px;
+  }
+}

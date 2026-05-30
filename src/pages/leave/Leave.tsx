@@ -18,7 +18,7 @@ const Leave = () => {
 
   return (
     <div className="leave-module-container">
-      <div className="leave-tabs-header">
+      <div className="tabs-header">
         <button
           className={`tab-btn ${activeTab === 'my' ? 'active' : ''}`}
           onClick={() => setActiveTab('my')}
@@ -33,7 +33,7 @@ const Leave = () => {
         </button>
       </div>
 
-      <div className="leave-tab-content">
+      <div className="tab-content">
         {activeTab === 'my' ? <MyLeave /> : <TeamLeaveManagement />}
       </div>
     </div>

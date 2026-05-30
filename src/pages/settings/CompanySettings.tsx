@@ -130,7 +130,7 @@ const CompanySettingsPage = () => {
         <div className="cs-form-sections">
           <div className="cs-form-card">
             <h3><Building2 size={18} /> Company Details</h3>
-            <div className="cs-form-grid">
+            <div className="form-grid-3">
               <InputField
                 label="Company Name"
                 name="companyName"
@@ -170,7 +170,7 @@ const CompanySettingsPage = () => {
 
           <div className="cs-form-card">
             <h3><MapPin size={18} /> Address Details</h3>
-            <div className="cs-form-grid">
+            <div className="form-grid-3">
               <InputField
                 label="Address Line 1"
                 name="addressLine1"
@@ -217,7 +217,7 @@ const CompanySettingsPage = () => {
           </div>
         </div>
 
-        <div className="cs-form-actions">
+        <div className="form-actions-row">
           <button className="btn-secondary" onClick={handleCancel} disabled={saving}>
             <X size={18} /> Cancel
           </button>
@@ -244,12 +244,12 @@ const CompanySettingsPage = () => {
         }
       />
 
-      <div className="cs-sections-container">
-        <div className="cs-detail-section">
-          <div className="cs-section-title">
+      <div className="detail-grid">
+        <div className="detail-section">
+          <div className="section-title">
             <Building2 size={18} /> <h3>Company Details</h3>
           </div>
-          <div className="cs-detail-content">
+          <div>
             {settings?.companyLogo && (
               <div className="cs-logo-wrapper">
                 <img src={settings.companyLogo} alt={settings.companyName} className="cs-logo" />
@@ -261,11 +261,11 @@ const CompanySettingsPage = () => {
           </div>
         </div>
 
-        <div className="cs-detail-section">
-          <div className="cs-section-title">
+        <div className="detail-section">
+          <div className="section-title">
             <MapPin size={18} /> <h3>Address Details</h3>
           </div>
-          <div className="cs-detail-content">
+          <div>
             <DetailRow label="Address Line 1" value={settings?.addressLine1} />
             <DetailRow label="Address Line 2" value={settings?.addressLine2} />
             <DetailRow label="City" value={settings?.city} />
@@ -280,9 +280,9 @@ const CompanySettingsPage = () => {
 };
 
 const DetailRow = ({ label, value }: { label: string; value?: string }) => (
-  <div className="cs-detail-row">
-    <span className="cs-detail-label">{label}</span>
-    <span className="cs-detail-value">{value || '—'}</span>
+  <div className="detail-row">
+    <span className="detail-label">{label}</span>
+    <span className="detail-value">{value || '—'}</span>
   </div>
 );
 

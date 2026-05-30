@@ -119,7 +119,7 @@ const Holidays = () => {
         onClear={handleClearFilters}
       />
 
-      <div className="hp-table-card">
+      <div className="table-card">
         <HolidayTable
           holidays={holidays}
           loading={loading}
@@ -127,7 +127,7 @@ const Holidays = () => {
           onDelete={setDeleteTarget}
         />
         {!loading && holidays.length > 0 && (
-          <div className="hp-pagination-wrapper">
+          <div className="table-card-pagination">
             <Pagination
               currentPage={currentPage}
               totalPages={totalPages}

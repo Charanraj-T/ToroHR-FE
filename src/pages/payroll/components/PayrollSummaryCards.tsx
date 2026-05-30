@@ -14,7 +14,7 @@ const PayrollSummaryCards = ({ summary, loading }: PayrollSummaryCardsProps) => 
   }
 
   return (
-    <div className="payroll-summary-grid">
+    <div className="summary-grid">
       <StatsCard title="Draft" value={summary.Draft} icon={<FileEdit size={24} />} variant="blue" />
       <StatsCard
         title="Processed"

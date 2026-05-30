@@ -237,7 +237,7 @@ const Claims = () => {
       {summaryLoading ? (
         <LoadingSkeleton variant="cards" count={4} />
       ) : (
-        <div className="claims-summary-grid">
+        <div className="summary-grid">
           <ClaimSummaryCard
             title="Pending"
             value={summary.Pending}
@@ -274,9 +274,9 @@ const Claims = () => {
         onClear={handleClearFilters}
       />
 
-      <div className="claims-table-card">
-        <div className="claims-table-header">
-          <span className="claims-count-badge">
+      <div className="table-card">
+        <div className="table-card-header">
+          <span className="table-card-count">
             {totalCount} {totalCount === 1 ? 'claim' : 'claims'}
           </span>
         </div>
@@ -298,7 +298,7 @@ const Claims = () => {
         />
 
         {!tableLoading && claims.length > 0 && (
-          <div className="claims-pagination-wrapper">
+          <div className="table-card-pagination">
             <Pagination
               currentPage={currentPage}
               totalPages={totalPages}

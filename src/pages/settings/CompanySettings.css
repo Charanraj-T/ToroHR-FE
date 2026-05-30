@@ -2,66 +2,6 @@
   padding: 0;
 }
 
-.cs-sections-container {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 24px;
-}
-
-.cs-detail-section {
-  background-color: var(--bg-surface);
-  border-radius: 12px;
-  border: 1px solid var(--border-color);
-  padding: 24px;
-  height: 100%;
-}
-
-.cs-section-title {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  margin-bottom: 24px;
-  color: var(--brand-primary);
-  padding-bottom: 12px;
-  border-bottom: 1px solid var(--border-color);
-}
-
-.cs-section-title h3 {
-  font-size: 16px;
-  font-weight: 700;
-  margin: 0;
-  color: var(--text-main);
-}
-
-.cs-detail-content {
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-}
-
-.cs-detail-row {
-  display: flex;
-  align-items: center;
-  gap: 16px;
-  padding: 8px 0;
-}
-
-.cs-detail-label {
-  flex: 0 0 160px;
-  font-size: 13px;
-  font-weight: 600;
-  color: var(--text-muted);
-  text-transform: none;
-  letter-spacing: normal;
-}
-
-.cs-detail-value {
-  flex: 1;
-  font-size: 15px;
-  font-weight: 500;
-  color: var(--text-main);
-}
-
 .cs-logo-wrapper {
   margin-bottom: 16px;
 }
@@ -72,8 +12,6 @@
   object-fit: contain;
   border-radius: 8px;
 }
-
-/* Edit mode */
 
 .cs-form-sections {
   display: flex;
@@ -99,48 +37,6 @@
   display: flex;
   align-items: center;
   gap: 10px;
-}
-
-.cs-form-grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 24px;
-}
-
-.cs-form-actions {
-  display: flex;
-  justify-content: flex-end;
-  gap: 16px;
-  padding: 24px 0;
-  position: sticky;
-  bottom: 0;
-  background-color: var(--bg-main);
-  border-top: 1px solid var(--border-color);
-  z-index: 10;
-}
-
-@media (max-width: 1024px) {
-  .cs-sections-container {
-    grid-template-columns: 1fr;
-  }
-  .cs-form-grid {
-    grid-template-columns: repeat(2, 1fr);
-  }
-}
-
-@media (max-width: 640px) {
-  .cs-form-grid {
-    grid-template-columns: 1fr;
-  }
-}
-
-@media (max-width: 480px) {
-  .cs-form-actions {
-    flex-direction: column-reverse;
-  }
-  .cs-form-actions button {
-    width: 100%;
-  }
 }
 
 .loading-state {

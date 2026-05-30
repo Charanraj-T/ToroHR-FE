@@ -226,7 +226,7 @@ const MyLeave = () => {
         }
       />
 
-      <div className="leave-balances-grid">
+      <div className="summary-grid">
           <LeaveBalanceCard type="CL" balance={balances?.CL} />
           <LeaveBalanceCard type="SL" balance={balances?.SL} />
           <LeaveBalanceCard type="PL" balance={balances?.PL} />
@@ -247,9 +247,9 @@ const MyLeave = () => {
         onClear={clearFilters}
       />
 
-      <div className="history-table-card">
-        <div className="history-table-header">
-          <span className="history-count-badge">
+      <div className="table-card">
+        <div className="table-card-header">
+          <span className="table-card-count">
             {totalItems} {totalItems === 1 ? 'record' : 'records'}
           </span>
         </div>
@@ -258,7 +258,7 @@ const MyLeave = () => {
           data={leaves}
           loading={loading}
         />
-        <div className="history-pagination-wrapper">
+        <div className="table-card-pagination">
           <Pagination
             currentPage={currentPage}
             totalPages={totalPages}

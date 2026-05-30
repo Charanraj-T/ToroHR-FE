@@ -99,11 +99,11 @@ const EmployeeForm: React.FC<EmployeeFormProps> = ({ initialData, onSubmit, onCa
 
   return (
     <form className="employee-form" onSubmit={handleSubmit}>
-      <div className="form-sections">
+      <div className="form-section">
         {/* Section A: Personal Details */}
         <div className="form-card">
           <h3>Personal Details</h3>
-          <div className="form-grid">
+          <div className="form-grid-3">
             <InputField label="Full Name" name="fullName" value={formData.fullName} onChange={handleChange} error={errors.fullName} placeholder="John Doe" required />
             <InputField label="Email Address" name="email" type="email" value={formData.email} onChange={handleChange} error={errors.email} placeholder="john@company.com" required />
             <InputField label="Phone Number" name="phoneNumber" value={formData.phoneNumber} onChange={handleChange} error={errors.phoneNumber} placeholder="98765 43210" required />
@@ -125,7 +125,7 @@ const EmployeeForm: React.FC<EmployeeFormProps> = ({ initialData, onSubmit, onCa
         {/* Section B: Employment Details */}
         <div className="form-card">
           <h3>Employment Details</h3>
-          <div className="form-grid">
+          <div className="form-grid-3">
             <InputField label="Employee ID" name="employeeId" value={formData.employeeId} disabled placeholder="Auto-generated" />
             <InputField label="Joining Date" name="joiningDate" type="date" value={formData.joiningDate} onChange={handleChange} required />
             <SelectField 
@@ -162,7 +162,7 @@ const EmployeeForm: React.FC<EmployeeFormProps> = ({ initialData, onSubmit, onCa
         {/* Section C: Reporting & Role */}
         <div className="form-card">
           <h3>Reporting & Role</h3>
-          <div className="form-grid">
+          <div className="form-grid-3">
             <SelectField 
               label="Reporting Manager" 
               name="reportingManagerId" 
@@ -191,7 +191,7 @@ const EmployeeForm: React.FC<EmployeeFormProps> = ({ initialData, onSubmit, onCa
         {/* Section D: Bank & Government Details */}
         <div className="form-card">
           <h3>Bank & Government Details</h3>
-          <div className="form-grid">
+          <div className="form-grid-3">
             <InputField label="Bank Name" name="bankName" value={formData.bankName} onChange={handleChange} placeholder="Global Bank" />
             <InputField label="Account Number" name="accountNumber" value={formData.accountNumber} onChange={handleChange} placeholder="1234567890" />
             <InputField label="IFSC Code" name="ifscCode" value={formData.ifscCode} onChange={handleChange} placeholder="GBNK0001234" />
@@ -201,7 +201,7 @@ const EmployeeForm: React.FC<EmployeeFormProps> = ({ initialData, onSubmit, onCa
         </div>
       </div>
 
-      <div className="form-actions">
+      <div className="form-actions-row">
         <button type="button" className="btn-secondary" onClick={onCancel} disabled={loading}>
           <X size={18} /> Cancel
         </button>

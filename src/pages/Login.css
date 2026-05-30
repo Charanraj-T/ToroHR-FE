@@ -172,3 +172,35 @@
     max-width: 100%;
   }
 }
+
+@media (max-width: 480px) {
+  .login-left {
+    height: 20vh;
+    min-height: 140px;
+    padding: 16px;
+  }
+
+  .login-right {
+    height: auto;
+    min-height: auto;
+    padding: 16px;
+  }
+
+  .login-form-container {
+    padding: 0;
+  }
+
+  .login-header h2 {
+    font-size: 22px;
+  }
+
+  .form-group input {
+    padding: 14px 16px;
+    font-size: 16px;
+  }
+
+  .btn-primary {
+    width: 100%;
+    padding: 14px;
+  }
+}

@@ -256,7 +256,7 @@ const AttendanceOverview: React.FC = () => {
         subtitle="Monitor and manage organization-wide attendance"
       />
 
-      <div className="stats-grid">
+      <div className="summary-grid">
         <StatsCard 
           title="Present Today" 
           value={stats.presentToday} 

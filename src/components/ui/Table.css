@@ -45,6 +45,10 @@
 }
 
 /* Skeletons */
+.table-loader {
+  width: 100%;
+}
+
 .skeleton-rows {
   padding: 24px;
   display: flex;

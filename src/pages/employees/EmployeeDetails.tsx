@@ -60,7 +60,7 @@ const EmployeeDetails = () => {
 
       <div>
         {/* Personal & Employment Header */}
-        <div className="profile-header-card">
+        <div className="profile-header">
           <div className="profile-avatar-large">
             {employee.fullName.substring(0, 2).toUpperCase()}
           </div>
@@ -75,12 +75,12 @@ const EmployeeDetails = () => {
         </div>
 
         {/* Details Sections */}
-        <div className="sections-container">
+        <div className="detail-grid">
           <div className="detail-section">
             <div className="section-title">
               <User size={18} /> <h3>Personal Information</h3>
             </div>
-            <div className="detail-content grid-2">
+            <div>
               <DetailRow label="Full Name" value={employee.fullName} />
               <DetailRow label="Email" value={employee.email} />
               <DetailRow label="Phone" value={employee.phoneNumber} />
@@ -92,7 +92,7 @@ const EmployeeDetails = () => {
             <div className="section-title">
               <Briefcase size={18} /> <h3>Employment Information</h3>
             </div>
-            <div className="detail-content grid-2">
+            <div>
               <DetailRow label="Employee ID" value={employee.employeeId} />
               <DetailRow label="Department" value={employee.department} />
               <DetailRow label="Designation" value={employee.designation} />
@@ -106,7 +106,7 @@ const EmployeeDetails = () => {
             <div className="section-title">
               <Landmark size={18} /> <h3>Bank Details</h3>
             </div>
-            <div className="detail-content grid-2">
+            <div>
               <DetailRow label="Bank Name" value={employee.bankName} />
               <DetailRow label="Account Number" value={employee.accountNumber} />
               <DetailRow label="IFSC Code" value={employee.ifscCode} />
@@ -118,7 +118,7 @@ const EmployeeDetails = () => {
             <div className="section-title">
               <ShieldCheck size={18} /> <h3>Government IDs</h3>
             </div>
-            <div className="detail-content grid-2">
+            <div>
               <DetailRow label="PAN Number" value={employee.panNumber} />
               <DetailRow label="Aadhaar Number" value={employee.aadhaarNumber} />
             </div>

@@ -28,8 +28,21 @@
   }
 }
 
+.sidebar-overlay {
+  position: fixed;
+  inset: 0;
+  background-color: rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(4px);
+  z-index: 999;
+}
+
 @media (max-width: 768px) {
   .layout-container {
     flex-direction: column;
+  }
+
+  .layout-content {
+    padding: 12px;
+    padding-bottom: 80px;
   }
 }

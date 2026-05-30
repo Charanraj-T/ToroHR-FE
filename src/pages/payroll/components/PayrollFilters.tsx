@@ -1,7 +1,6 @@
 import { X } from 'lucide-react';
 import type { Employee } from '../../../services/employee.service';
 import { MONTH_NAMES, buildYearOptions } from '../payrollHelpers';
-import './PayrollFilters.css';
 
 export interface PayrollFilterValues {
   month: string;
@@ -40,9 +39,9 @@ const PayrollFilters = ({
   const years = buildYearOptions();
 
   return (
-    <div className="payroll-filters-card">
-      <div className="payroll-filters-form">
-        <div className="pf-select-wrapper">
+    <div className="filter-card">
+      <div className="filter-bar">
+        <div className="filter-select">
           <select value={values.month} onChange={(e) => onChange('month', e.target.value)}>
             <option value="">All Months</option>
             {MONTH_NAMES.map((name, index) => (
@@ -51,7 +50,7 @@ const PayrollFilters = ({
           </select>
         </div>
 
-        <div className="pf-select-wrapper">
+        <div className="filter-select">
           <select value={values.year} onChange={(e) => onChange('year', e.target.value)}>
             <option value="">All Years</option>
             {years.map((year) => (
@@ -61,7 +60,7 @@ const PayrollFilters = ({
         </div>
 
         {showEmployeeFilter && (
-          <div className="pf-select-wrapper pf-employee-wrapper">
+          <div className="filter-select" style={{ flex: '1 1 220px', minWidth: '200px' }}>
             <select
               value={values.employee}
               onChange={(e) => onChange('employee', e.target.value)}
@@ -78,7 +77,7 @@ const PayrollFilters = ({
         )}
 
         {showStatusFilter && (
-          <div className="pf-select-wrapper">
+          <div className="filter-select">
             <select value={values.status} onChange={(e) => onChange('status', e.target.value)}>
               {STATUS_OPTIONS.map(({ value, label }) => (
                 <option key={value || 'all'} value={value}>{label}</option>
@@ -89,7 +88,7 @@ const PayrollFilters = ({
 
         <button
           type="button"
-          className="pf-clear-btn"
+          className="filter-clear-btn"
           onClick={onClear}
           disabled={!hasFilters}
           title="Clear filters"

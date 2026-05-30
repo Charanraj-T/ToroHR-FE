@@ -100,9 +100,9 @@ const MyPayslips = () => {
         onClear={handleClearFilters}
       />
 
-      <div className="payroll-table-card">
-        <div className="payroll-table-header">
-          <span className="payroll-count-badge">
+      <div className="table-card">
+        <div className="table-card-header">
+          <span className="table-card-count">
             {totalCount} {totalCount === 1 ? 'payslip' : 'payslips'}
           </span>
         </div>
@@ -117,7 +117,7 @@ const MyPayslips = () => {
         />
 
         {!loading && records.length > 0 && (
-          <div className="payroll-pagination-wrapper">
+          <div className="table-card-pagination">
             <Pagination
               currentPage={currentPage}
               totalPages={totalPages}

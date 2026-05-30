@@ -39,11 +39,11 @@ const ClaimFilters = React.memo(({
   const hasFilters = values.employee || values.status || values.dateFrom || values.dateTo;
 
   return (
-    <div className="claim-filters-card">
-      <div className="claim-filters-form">
+    <div className="filter-card">
+      <div className="filter-bar">
         {showEmployeeFilter && (
-          <div className="cf-select-wrapper">
-            <Filter size={14} className="cf-icon" />
+          <div className="filter-select has-icon">
+            <Filter size={14} className="filter-select-icon" />
             <select
               value={values.employee}
               onChange={(e) => onChange('employee', e.target.value)}
@@ -59,7 +59,7 @@ const ClaimFilters = React.memo(({
           </div>
         )}
 
-        <div className="cf-select-wrapper">
+        <div className="filter-select">
           <select
             value={values.status}
             onChange={(e) => onChange('status', e.target.value)}
@@ -72,31 +72,31 @@ const ClaimFilters = React.memo(({
           </select>
         </div>
 
-        <div className="cf-date-range">
-          <div className="cf-date-wrapper">
+        <div className="filter-date-range">
+          <div className="filter-date">
             <input
               type="date"
               value={values.dateFrom}
               onChange={(e) => onChange('dateFrom', e.target.value)}
               title="From date"
             />
-            <Calendar size={14} className="cf-cal-icon" />
+            <Calendar size={14} className="filter-date-sep" style={{ position: 'absolute', right: '10px', color: 'var(--text-muted)', pointerEvents: 'none' }} />
           </div>
-          <span className="cf-date-sep">to</span>
-          <div className="cf-date-wrapper">
+          <span className="filter-date-sep">to</span>
+          <div className="filter-date">
             <input
               type="date"
               value={values.dateTo}
               onChange={(e) => onChange('dateTo', e.target.value)}
               title="To date"
             />
-            <Calendar size={14} className="cf-cal-icon" />
+            <Calendar size={14} className="filter-date-sep" style={{ position: 'absolute', right: '10px', color: 'var(--text-muted)', pointerEvents: 'none' }} />
           </div>
         </div>
 
         <button
           type="button"
-          className="cf-clear-btn"
+          className="filter-clear-btn"
           onClick={onClear}
           disabled={!hasFilters}
           title="Clear filters"

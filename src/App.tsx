@@ -12,6 +12,7 @@ import Claims from './pages/claims/Claims.tsx';
 import PayrollOverview from './pages/payroll/PayrollOverview.tsx';
 import SalaryStructure from './pages/payroll/SalaryStructure.tsx';
 import MyPayslips from './pages/payroll/MyPayslips.tsx';
+import Tenants from './pages/tenants/Tenants.tsx';
 import Settings from './pages/settings/Settings.tsx';
 import { ToastContainer } from './components/ui/Toast';
 import ProtectedRoute from './components/layout/ProtectedRoute.tsx';
@@ -19,6 +20,7 @@ import { useAuthStore } from './store/authStore.ts';
 
 const RoleRedirect = () => {
   const role = useAuthStore.getState().user?.role;
+  if (role === 'SuperAdmin') return <Navigate to="/tenants" replace />;
   if (role === 'Employee') return <Navigate to="/attendance/me" replace />;
   return <Navigate to="/attendance" replace />;
 };
@@ -62,6 +64,9 @@ function App() {
             </Route>
             <Route element={<ProtectedRoute allowedRoles={['Admin']} />}>
               <Route path="payroll/salary-structure" element={<SalaryStructure />} />
+            </Route>
+            <Route element={<ProtectedRoute allowedRoles={['SuperAdmin']} />}>
+              <Route path="tenants" element={<Tenants />} />
             </Route>
             <Route path="employees/:id" element={<EmployeeDetails />} />
             <Route path="*" element={<RoleRedirect />} />

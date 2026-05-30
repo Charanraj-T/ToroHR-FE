@@ -6,6 +6,7 @@ import {
   CalendarMinus, 
   Receipt,
   Banknote,
+  Building2,
   Settings, 
   LogOut,
   X
@@ -43,6 +44,12 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
       </div>
       
       <div className="sidebar-menu">
+        {user?.role === 'SuperAdmin' && (
+          <NavLink to="/tenants" className={({ isActive }) => `menu-item ${isActive ? 'active' : ''}`}>
+            <Building2 size={20} />
+            <span>Tenants</span>
+          </NavLink>
+        )}
         {(user?.role === 'Admin' || user?.role === 'Manager') && (
           <>
             <NavLink to="/attendance" className={({ isActive }) => `menu-item ${isActive ? 'active' : ''}`}>

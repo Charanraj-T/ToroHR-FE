@@ -6,6 +6,7 @@ import api from '../lib/api.ts';
 import './Login.css';
 
 const getRedirectPath = (role: string) => {
+  if (role === 'SuperAdmin') return '/tenants';
   if (role === 'Employee') return '/attendance/me';
   return '/attendance';
 };

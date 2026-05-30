@@ -22,7 +22,7 @@ export interface FullTimeSalarySnapshot {
   netPay: number;
 }
 
-export interface ContractSalarySnapshot {
+interface ContractSalarySnapshot {
   dailyAmount: number;
   payableDays: number;
   totalPay: number;

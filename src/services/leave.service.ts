@@ -10,7 +10,7 @@ export interface EmployeeBrief {
 }
 
 export type LeaveType = 'CL' | 'SL' | 'PL' | 'LOP';
-export type LeaveStatus = 'Pending' | 'Approved' | 'Rejected' | 'Cancelled';
+type LeaveStatus = 'Pending' | 'Approved' | 'Rejected' | 'Cancelled';
 
 export interface Leave {
   id: string;

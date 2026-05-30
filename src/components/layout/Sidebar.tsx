@@ -78,20 +78,24 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
           </>
         )}
         
-        <NavLink to="/leave" className={({ isActive }) => `menu-item ${isActive ? 'active' : ''}`}>
-          <CalendarMinus size={20} />
-          <span>Leave</span>
-        </NavLink>
+        {user?.role !== 'SuperAdmin' && (
+          <>
+            <NavLink to="/leave" className={({ isActive }) => `menu-item ${isActive ? 'active' : ''}`}>
+              <CalendarMinus size={20} />
+              <span>Leave</span>
+            </NavLink>
 
-        <NavLink to="/claims" className={({ isActive }) => `menu-item ${isActive ? 'active' : ''}`}>
-          <Receipt size={20} />
-          <span>Claims</span>
-        </NavLink>
+            <NavLink to="/claims" className={({ isActive }) => `menu-item ${isActive ? 'active' : ''}`}>
+              <Receipt size={20} />
+              <span>Claims</span>
+            </NavLink>
 
-        <NavLink to="/payroll" className={({ isActive }) => `menu-item ${isActive ? 'active' : ''}`}>
-          <Banknote size={20} />
-          <span>Payroll</span>
-        </NavLink>
+            <NavLink to="/payroll" className={({ isActive }) => `menu-item ${isActive ? 'active' : ''}`}>
+              <Banknote size={20} />
+              <span>Payroll</span>
+            </NavLink>
+          </>
+        )}
       </div>
 
       <div className="sidebar-footer">

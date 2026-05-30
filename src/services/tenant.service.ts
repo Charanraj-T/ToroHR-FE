@@ -51,12 +51,19 @@ export interface CreateAdminPayload {
 export interface UpdateAdminPayload {
   name?: string;
   isActive?: boolean;
+  password?: string;
 }
 
 const tenantService = {
-  list: async (params: { page?: number; limit?: number; search?: string } = {}): Promise<PaginatedTenantResponse> => {
+  list: async (params: { page?: number; limit?: number } = {}): Promise<PaginatedTenantResponse> => {
     const response = await api.get('/api/tenants', { params });
-    return response.data;
+    const body = response.data;
+    return {
+      data: body.data?.tenants ?? [],
+      totalCount: body.data?.pagination?.total ?? 0,
+      currentPage: body.data?.pagination?.page ?? 1,
+      totalPages: body.data?.pagination?.pages ?? 1,
+    };
   },
 
   getById: async (id: string): Promise<Tenant> => {

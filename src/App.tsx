@@ -56,8 +56,10 @@ function App() {
               <Route path="employees/edit/:id" element={<EditEmployee />} />
               <Route path="settings" element={<Settings />} />
             </Route>
-            <Route path="leave" element={<Leave />} />
-            <Route path="claims" element={<Claims />} />
+            <Route element={<ProtectedRoute allowedRoles={['Admin', 'Manager', 'Employee']} />}>
+              <Route path="leave" element={<Leave />} />
+              <Route path="claims" element={<Claims />} />
+            </Route>
             <Route element={<ProtectedRoute allowedRoles={['Admin', 'Manager', 'Employee']} />}>
               <Route path="payroll" element={<PayrollRedirectPage />} />
               <Route path="payroll/my-payslips" element={<MyPayslipsRedirectPage />} />

@@ -20,15 +20,15 @@ const TenantTable = ({ tenants, loading, onView, onEdit, onStatusToggle }: Tenan
 
   if (tenants.length === 0) {
     return (
-      <div className="table-empty-state">
+      <div className="table-empty">
         <p>No tenants found</p>
       </div>
     );
   }
 
   return (
-    <div className="table-responsive">
-      <table className="table">
+    <div className="table-container">
+      <table className="custom-table">
         <thead>
           <tr>
             <th>Company Name</th>
@@ -48,21 +48,21 @@ const TenantTable = ({ tenants, loading, onView, onEdit, onStatusToggle }: Tenan
               <td>{tenant.companyEmail}</td>
               <td>{tenant.companyPhone}</td>
               <td>
-                <span className={`status-badge ${tenant.status === 'Active' ? 'active' : 'inactive'}`}>
+                <span className={`badge ${tenant.status === 'Active' ? 'badge-success' : 'badge-danger'}`}>
                   {tenant.status}
                 </span>
               </td>
               <td>{tenant.adminCount ?? 0}</td>
               <td>
-                <div className="action-btn-group">
-                  <button className="action-btn view" title="View" onClick={() => onView(tenant)}>
+                <div className="action-btns">
+                  <button className="action-btn action-btn-edit" title="View" onClick={() => onView(tenant)}>
                     <Eye size={16} />
                   </button>
-                  <button className="action-btn edit" title="Edit" onClick={() => onEdit(tenant)}>
+                  <button className="action-btn action-btn-edit" title="Edit" onClick={() => onEdit(tenant)}>
                     <Edit2 size={16} />
                   </button>
                   <button
-                    className={`action-btn ${tenant.status === 'Active' ? 'warning' : 'success'}`}
+                    className={`action-btn ${tenant.status === 'Active' ? 'action-btn-delete' : 'action-btn-approve'}`}
                     title={tenant.status === 'Active' ? 'Deactivate' : 'Activate'}
                     onClick={() => onStatusToggle(tenant)}
                   >

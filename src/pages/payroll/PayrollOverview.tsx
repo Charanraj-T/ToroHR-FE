@@ -36,7 +36,7 @@ const PayrollOverview = () => {
   const [records, setRecords] = useState<Payroll[]>([]);
   const [summary, setSummary] = useState<PayrollSummary>(EMPTY_SUMMARY);
   const [employees, setEmployees] = useState<Employee[]>([]);
-  const [employeesLoading, setEmployeesLoading] = useState(false);
+  const [employeesLoading, setEmployeesLoading] = useState(true);
 
   const [summaryLoading, setSummaryLoading] = useState(true);
   const [tableLoading, setTableLoading] = useState(true);
@@ -79,7 +79,6 @@ const PayrollOverview = () => {
   }, []);
 
   const fetchSummary = useCallback(async () => {
-    setSummaryLoading(true);
     try {
       const data = await payrollService.getPayrollSummary();
       setSummary(data);
@@ -91,7 +90,6 @@ const PayrollOverview = () => {
   }, []);
 
   const fetchRecords = useCallback(async () => {
-    setTableLoading(true);
     try {
       const response = await payrollService.getPayroll(buildParams(currentPage));
       setRecords(response.data || []);
@@ -110,11 +108,12 @@ const PayrollOverview = () => {
     await Promise.all([fetchSummary(), fetchRecords()]);
   }, [fetchSummary, fetchRecords]);
 
+  // eslint-disable-next-line react-hooks/set-state-in-effect
   useEffect(() => { fetchSummary(); }, [fetchSummary]);
+  // eslint-disable-next-line react-hooks/set-state-in-effect
   useEffect(() => { fetchRecords(); }, [fetchRecords]);
 
   useEffect(() => {
-    setEmployeesLoading(true);
     employeeService
       .getEmployees({
         limit: 100,
@@ -132,6 +131,7 @@ const PayrollOverview = () => {
       downloadBlob(blob, `${record.payrollNumber}.pdf`);
       addToast('PDF downloaded successfully', 'success');
     } catch {
+      addToast('Failed to download payslip', 'error');
     } finally {
       setDownloadLoading(false);
     }
@@ -144,6 +144,7 @@ const PayrollOverview = () => {
       addToast('Payroll processed successfully', 'success');
       refreshAll();
     } catch {
+      addToast('Failed to process payroll', 'error');
     } finally {
       setActionLoadingId(null);
     }
@@ -156,6 +157,7 @@ const PayrollOverview = () => {
       addToast('Payroll marked as paid successfully', 'success');
       refreshAll();
     } catch {
+      addToast('Failed to mark payroll as paid', 'error');
     } finally {
       setActionLoadingId(null);
     }
@@ -173,6 +175,7 @@ const PayrollOverview = () => {
       addToast('Payroll regenerated successfully', 'success');
       refreshAll();
     } catch {
+      addToast('Failed to regenerate payroll', 'error');
     } finally {
       setActionLoadingId(null);
     }
@@ -195,6 +198,7 @@ const PayrollOverview = () => {
       setGenerateOpen(false);
       refreshAll();
     } catch {
+      addToast('Failed to generate payroll', 'error');
     } finally {
       setGenerateLoading(false);
     }

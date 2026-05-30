@@ -24,11 +24,6 @@ export const getNetPay = (payroll: Payroll) => {
   return (snapshot as { netPay?: number }).netPay ?? 0;
 };
 
-export const isFullTimeSnapshot = (
-  payroll: Payroll
-): payroll is Payroll & { salarySnapshot: { netPay: number; gross: number } } =>
-  payroll.employmentType === 'Full-time';
-
 export const getCurrentYearMonth = () => {
   const now = new Date();
   return { month: now.getMonth() + 1, year: now.getFullYear() };

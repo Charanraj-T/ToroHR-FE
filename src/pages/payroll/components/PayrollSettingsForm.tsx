@@ -19,7 +19,6 @@ const PayrollSettingsForm = () => {
         setPayrollGenerationDay(String(settings.payrollGenerationDay));
         setDefaultPF(String(settings.defaultPF));
       })
-      .catch(() => {})
       .finally(() => setLoading(false));
   }, []);
 
@@ -33,6 +32,7 @@ const PayrollSettingsForm = () => {
       });
       addToast('Payroll settings updated successfully', 'success');
     } catch {
+      addToast('Failed to update payroll settings', 'error');
     } finally {
       setSaving(false);
     }

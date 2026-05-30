@@ -47,7 +47,6 @@ const MyPayslips = () => {
   }, []);
 
   const fetchRecords = useCallback(async () => {
-    setLoading(true);
     try {
       const response = await payrollService.getMyPayslips({
         page: currentPage,
@@ -69,6 +68,7 @@ const MyPayslips = () => {
   }, [filters, currentPage]);
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     fetchRecords();
   }, [fetchRecords]);
 
@@ -79,6 +79,7 @@ const MyPayslips = () => {
       downloadBlob(blob, `${record.payrollNumber}.pdf`);
       addToast('PDF downloaded successfully', 'success');
     } catch {
+      addToast('Failed to download payslip', 'error');
     } finally {
       setDownloadLoading(false);
     }

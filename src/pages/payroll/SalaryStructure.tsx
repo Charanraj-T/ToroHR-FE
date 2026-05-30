@@ -21,7 +21,6 @@ const SalaryStructurePage = () => {
   const [editing, setEditing] = useState<SalaryStructure | null>(null);
 
   const fetchRecords = useCallback(async () => {
-    setLoading(true);
     try {
       const response = await payrollService.getSalaryStructures({
         page: currentPage,
@@ -32,12 +31,15 @@ const SalaryStructurePage = () => {
       setTotalPages(response.totalPages > 0 ? response.totalPages : 1);
     } catch {
       setRecords([]);
+      setTotalCount(0);
+      setTotalPages(1);
     } finally {
       setLoading(false);
     }
   }, [currentPage]);
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     fetchRecords();
   }, [fetchRecords]);
 

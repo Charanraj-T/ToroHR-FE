@@ -41,6 +41,7 @@ const SalaryFormModal = ({
 
   const years = buildYearOptions();
 
+  /* eslint-disable react-hooks/set-state-in-effect */
   useEffect(() => {
     if (!isOpen) return;
 
@@ -82,6 +83,7 @@ const SalaryFormModal = ({
       setEmploymentType(selectedEmployee.employmentType);
     }
   }, [selectedEmployee, isEdit]);
+  /* eslint-enable react-hooks/set-state-in-effect */
 
   const gross = useMemo(() => {
     const b = parseFloat(basic) || 0;
@@ -144,6 +146,7 @@ const SalaryFormModal = ({
       onClose();
     } catch {
       submittedRef.current = false;
+      addToast('Failed to save salary structure', 'error');
     } finally {
       setLoading(false);
     }

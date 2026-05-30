@@ -45,7 +45,6 @@ const ClaimFormModal = ({ isOpen, onClose, onSuccess, editingClaim }: ClaimFormM
     claimService
       .getClaimById(editingClaim.id)
       .then((claim) => setAttachments(mapExistingAttachments(claim)))
-      .catch(() => {})
       .finally(() => setDetailLoading(false));
   }, [editingClaim?.id]);
 

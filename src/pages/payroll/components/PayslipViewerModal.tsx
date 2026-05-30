@@ -135,8 +135,8 @@ const PayslipViewerModal = ({
                 <span>{formatCurrency((salary as { dailyAmount?: number }).dailyAmount || 0)}</span>
               </div>
               <div className="payslip-line">
-                <span>Working Days</span>
-                <span>{(salary as { payableDays?: number }).payableDays ?? attendance.workingDays ?? 0}</span>
+                <span>Present Days</span>
+                <span>{(salary as { payableDays?: number }).payableDays ?? attendance.presentDays ?? 0}</span>
               </div>
               <div className="payslip-net-row">
                 <span>Total Pay</span>

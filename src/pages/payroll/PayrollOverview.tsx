@@ -114,11 +114,12 @@ const PayrollOverview = () => {
   useEffect(() => { fetchRecords(); }, [fetchRecords]);
 
   useEffect(() => {
+    const params: Record<string, string | number> = { limit: 100 };
+    if (role === 'Manager' && user?.employeeId) {
+      params.manager = user.employeeId;
+    }
     employeeService
-      .getEmployees({
-        limit: 100,
-        manager: role === 'Manager' ? user?.employeeId : undefined
-      })
+      .getEmployees(params)
       .then((res) => setEmployees(res.data || []))
       .catch(() => setEmployees([]))
       .finally(() => setEmployeesLoading(false));

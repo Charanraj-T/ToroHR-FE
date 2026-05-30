@@ -104,9 +104,11 @@ const SalaryFormModal = ({
     if (!effectiveYear) next.effectiveYear = 'Year is required';
 
     if (employmentType === 'Full-time') {
-      if (!basic || parseFloat(basic) <= 0) next.basic = 'Basic must be greater than 0';
-    } else if (!dailyAmount || parseFloat(dailyAmount) <= 0) {
-      next.dailyAmount = 'Daily amount must be greater than 0';
+      const b = parseFloat(basic);
+      if (!basic || isNaN(b) || b <= 0) next.basic = 'Basic must be greater than 0';
+    } else {
+      const d = parseFloat(dailyAmount);
+      if (!dailyAmount || isNaN(d) || d <= 0) next.dailyAmount = 'Daily amount must be greater than 0';
     }
 
     setErrors(next);

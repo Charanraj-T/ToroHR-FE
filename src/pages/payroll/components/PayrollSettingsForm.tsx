@@ -19,6 +19,9 @@ const PayrollSettingsForm = () => {
         setPayrollGenerationDay(String(settings.payrollGenerationDay));
         setDefaultPF(String(settings.defaultPF));
       })
+      .catch(() => {
+        addToast('Failed to load settings', 'error');
+      })
       .finally(() => setLoading(false));
   }, []);
 

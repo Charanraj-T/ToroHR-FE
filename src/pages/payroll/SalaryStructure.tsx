@@ -45,7 +45,7 @@ const SalaryStructurePage = () => {
 
   useEffect(() => {
     employeeService
-      .getEmployees({ limit: 200, status: 'Active' })
+      .getEmployees({ limit: 10000, status: 'Active' })
       .then((res) => setEmployees(res.data || []))
       .catch(() => setEmployees([]));
   }, []);

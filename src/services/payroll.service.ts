@@ -50,7 +50,6 @@ export interface Payroll {
   status: PayrollStatus;
   processedAt?: string | null;
   paidAt?: string | null;
-  hasPdf?: boolean;
   createdAt: string;
   updatedAt: string;
 }
@@ -85,6 +84,13 @@ export interface GeneratePayrollPayload {
 export interface RegeneratePayrollPayload {
   month: number;
   year: number;
+}
+
+export interface PaginatedSalaryStructureResponse {
+  totalCount: number;
+  currentPage: number;
+  totalPages: number;
+  data: SalaryStructure[];
 }
 
 export interface SalaryStructure {
@@ -173,9 +179,9 @@ const payrollService = {
     return response.data;
   },
 
-  getSalaryStructures: async (params: Record<string, string | number> = {}) => {
+  getSalaryStructures: async (params: Record<string, string | number> = {}): Promise<PaginatedSalaryStructureResponse> => {
     const response = await api.get('/api/payroll/salary-structure', { params });
-    return response.data as PaginatedPayrollResponse & { data: SalaryStructure[] };
+    return response.data;
   },
 
   getSalaryStructureByEmployee: async (employeeId: string): Promise<SalaryStructure[]> => {

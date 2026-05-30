@@ -18,10 +18,13 @@ export const formatCurrency = (amount: number) =>
 
 export const getNetPay = (payroll: Payroll) => {
   const snapshot = payroll.salarySnapshot;
-  if (payroll.employmentType === 'Contract') {
-    return (snapshot as { totalPay?: number }).totalPay ?? 0;
+  if (payroll.employmentType === 'Contract' && 'totalPay' in snapshot) {
+    return snapshot.totalPay ?? 0;
   }
-  return (snapshot as { netPay?: number }).netPay ?? 0;
+  if ('netPay' in snapshot) {
+    return snapshot.netPay ?? 0;
+  }
+  return 0;
 };
 
 export const getCurrentYearMonth = () => {

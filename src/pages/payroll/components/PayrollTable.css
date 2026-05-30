@@ -1,0 +1,84 @@
+.payroll-employee-cell {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.payroll-employee-cell .avatar-placeholder {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: var(--brand-primary);
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  font-weight: 600;
+  flex-shrink: 0;
+}
+
+.payroll-employee-cell .employee-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.payroll-employee-cell .employee-name {
+  font-weight: 500;
+  color: var(--text-main);
+  font-size: 14px;
+}
+
+.payroll-employee-cell .employee-sub {
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+.payroll-type-badge {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text-main);
+}
+
+.payroll-net-pay {
+  font-weight: 600;
+  color: var(--text-main);
+}
+
+.table-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.action-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 6px;
+  color: var(--text-muted);
+  transition: background-color 0.2s, color 0.2s;
+}
+
+.action-btn:hover:not(:disabled) {
+  background-color: var(--bg-hover);
+  color: var(--text-main);
+}
+
+.action-btn.approve:hover:not(:disabled) {
+  background-color: #dcfce7;
+  color: #15803d;
+}
+
+.action-btn.reimburse:hover:not(:disabled) {
+  background-color: #e0f2fe;
+  color: #0369a1;
+}
+
+.action-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}

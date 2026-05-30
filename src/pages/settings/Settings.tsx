@@ -1,22 +1,36 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
+import { useSearchParams } from 'react-router-dom';
+import { useAuthStore } from '../../store/authStore';
 import CompanySettingsPage from './CompanySettings';
 import Holidays from './Holidays';
+import PayrollSettingsForm from '../payroll/components/PayrollSettingsForm';
 import './Settings.css';
 
-type SettingsTab = 'company' | 'holidays';
+type SettingsTab = 'company' | 'holidays' | 'payroll';
 
-const SETTINGS_TABS = [
+const ALL_TABS = [
   { key: 'company' as const, label: 'Company' },
   { key: 'holidays' as const, label: 'Holidays' },
+  { key: 'payroll' as const, label: 'Payroll' },
 ];
 
 const Settings = () => {
+  const [searchParams] = useSearchParams();
+  const user = useAuthStore((s) => s.user);
+  const isAdmin = user?.role === 'Admin';
   const [activeTab, setActiveTab] = useState<SettingsTab>('company');
+
+  useEffect(() => {
+    const tab = searchParams.get('tab');
+    if (tab === 'payroll') setActiveTab('payroll');
+  }, [searchParams]);
+
+  const tabs = isAdmin ? ALL_TABS : ALL_TABS.filter((t) => t.key !== 'payroll');
 
   return (
     <div className="settings-module-container animate-fade-in">
       <div className="settings-tabs-header">
-        {SETTINGS_TABS.map((tab) => (
+        {tabs.map((tab) => (
           <button
             key={tab.key}
             className={`settings-tab-btn ${activeTab === tab.key ? 'active' : ''}`}
@@ -30,6 +44,7 @@ const Settings = () => {
       <div className="settings-tab-content">
         {activeTab === 'company' && <CompanySettingsPage />}
         {activeTab === 'holidays' && <Holidays />}
+        {activeTab === 'payroll' && isAdmin && <PayrollSettingsForm />}
       </div>
     </div>
   );

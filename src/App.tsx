@@ -9,6 +9,9 @@ import AttendanceOverview from './pages/attendance/AttendanceOverview.tsx';
 import MyAttendance from './pages/attendance/MyAttendance.tsx';
 import Leave from './pages/leave/Leave.tsx';
 import Claims from './pages/claims/Claims.tsx';
+import PayrollOverview from './pages/payroll/PayrollOverview.tsx';
+import SalaryStructure from './pages/payroll/SalaryStructure.tsx';
+import MyPayslips from './pages/payroll/MyPayslips.tsx';
 import Settings from './pages/settings/Settings.tsx';
 import { ToastContainer } from './components/ui/Toast';
 import ProtectedRoute from './components/layout/ProtectedRoute.tsx';
@@ -18,6 +21,18 @@ const RoleRedirect = () => {
   const role = useAuthStore.getState().user?.role;
   if (role === 'Employee') return <Navigate to="/attendance/me" replace />;
   return <Navigate to="/attendance" replace />;
+};
+
+const PayrollRedirectPage = () => {
+  const role = useAuthStore((state) => state.user?.role);
+  if (role === 'Employee') return <MyPayslips />;
+  return <PayrollOverview />;
+};
+
+const MyPayslipsRedirectPage = () => {
+  const role = useAuthStore((state) => state.user?.role);
+  if (role === 'Admin') return <Navigate to="/payroll" replace />;
+  return <MyPayslips />;
 };
 
 function App() {
@@ -41,6 +56,13 @@ function App() {
             </Route>
             <Route path="leave" element={<Leave />} />
             <Route path="claims" element={<Claims />} />
+            <Route element={<ProtectedRoute allowedRoles={['Admin', 'Manager', 'Employee']} />}>
+              <Route path="payroll" element={<PayrollRedirectPage />} />
+              <Route path="payroll/my-payslips" element={<MyPayslipsRedirectPage />} />
+            </Route>
+            <Route element={<ProtectedRoute allowedRoles={['Admin']} />}>
+              <Route path="payroll/salary-structure" element={<SalaryStructure />} />
+            </Route>
             <Route path="employees/:id" element={<EmployeeDetails />} />
             <Route path="*" element={<RoleRedirect />} />
           </Route>

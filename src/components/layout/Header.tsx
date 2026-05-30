@@ -1,4 +1,4 @@
-import { Bell, Menu } from 'lucide-react';
+import { Menu } from 'lucide-react';
 import { useAuthStore } from '../../store/authStore';
 import './Header.css';
 
@@ -18,11 +18,6 @@ const Header: React.FC<HeaderProps> = ({ onToggleSidebar }) => {
       </div>
       
       <div className="header-right">
-        <button className="notification-btn">
-          <Bell size={20} />
-          <span className="notification-badge"></span>
-        </button>
-        
         <div className="user-profile">
           <div className="avatar">
             {(user?.name || 'User').substring(0, 2)}

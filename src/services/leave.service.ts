@@ -12,6 +12,13 @@ export interface EmployeeBrief {
 export type LeaveType = 'CL' | 'SL' | 'PL' | 'LOP';
 type LeaveStatus = 'Pending' | 'Approved' | 'Rejected' | 'Cancelled';
 
+export interface UserBrief {
+  id: string;
+  name: string;
+  email: string;
+  role: string;
+}
+
 export interface Leave {
   id: string;
   employee: EmployeeBrief;
@@ -22,14 +29,10 @@ export interface Leave {
   dayType?: string;
   reason?: string;
   status: LeaveStatus;
-  appliedBy: string;
-  approvedBy?: string | null;
-  approvedAt?: string | null;
-  rejectedBy?: string | null;
-  rejectedAt?: string | null;
+  appliedBy: UserBrief | null;
+  modifiedBy: UserBrief | null;
+  modifiedAt?: string | null;
   rejectionReason?: string;
-  cancelledBy?: string | null;
-  cancelledAt?: string | null;
   cancellationReason?: string;
   createdAt: string;
   updatedAt: string;

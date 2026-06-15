@@ -183,6 +183,12 @@ const MyLeave = () => {
       accessor: (item: Leave) => <StatusBadge status={item.status} />
     },
     {
+      header: 'MODIFIED BY',
+      accessor: (item: Leave) => (
+        <span>{item.modifiedBy?.name || '-'}</span>
+      )
+    },
+    {
       header: 'ACTIONS',
       accessor: (item: Leave) => (
         <div className="table-actions">

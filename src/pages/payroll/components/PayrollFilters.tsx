@@ -1,6 +1,6 @@
 import { X } from 'lucide-react';
 import type { Employee } from '../../../services/employee.service';
-import { MONTH_NAMES, buildYearOptions } from '../payrollHelpers';
+import { MONTH_NAMES, buildYearOptions, getCurrentYearMonth } from '../payrollHelpers';
 
 export interface PayrollFilterValues {
   month: string;
@@ -35,7 +35,9 @@ const PayrollFilters = ({
   onChange,
   onClear
 }: PayrollFiltersProps) => {
-  const hasFilters = values.month || values.year || values.employee || values.status;
+  const { month: defaultMonth, year: defaultYear } = getCurrentYearMonth();
+  const hasFilters = values.employee !== '' || values.status !== ''
+    || values.month !== String(defaultMonth) || values.year !== String(defaultYear);
   const years = buildYearOptions();
 
   return (

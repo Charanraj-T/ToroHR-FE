@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
-import { Plus } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { Plus, ArrowLeft } from 'lucide-react';
 import PageHeader from '../../components/ui/PageHeader';
 import Pagination from '../../components/ui/Pagination';
 import payrollService, { type SalaryStructure } from '../../services/payroll.service';
@@ -11,6 +12,7 @@ import './Payroll.css';
 const PAGE_SIZE = 10;
 
 const SalaryStructurePage = () => {
+  const navigate = useNavigate();
   const [records, setRecords] = useState<SalaryStructure[]>([]);
   const [employees, setEmployees] = useState<Employee[]>([]);
   const [loading, setLoading] = useState(true);
@@ -66,9 +68,14 @@ const SalaryStructurePage = () => {
         title="Salary Structure"
         subtitle="Manage versioned monthly salary for employees"
         actions={
-          <button type="button" className="btn-primary" onClick={openAdd}>
-            <Plus size={18} /> Add Salary
-          </button>
+          <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
+            <button className="btn-secondary" onClick={() => navigate('/payroll')}>
+              <ArrowLeft size={18} /> Back
+            </button>
+            <button type="button" className="btn-primary" onClick={openAdd}>
+              <Plus size={18} /> Add Salary
+            </button>
+          </div>
         }
       />
 

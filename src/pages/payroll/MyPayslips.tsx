@@ -1,4 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { ArrowLeft } from 'lucide-react';
 import PageHeader from '../../components/ui/PageHeader';
 import Pagination from '../../components/ui/Pagination';
 import { useAuthStore } from '../../store/authStore';
@@ -21,6 +23,7 @@ const EMPTY_FILTERS: PayrollFilterValues = {
 };
 
 const MyPayslips = () => {
+  const navigate = useNavigate();
   const { user } = useAuthStore();
   const { addToast } = useToastStore();
   const role = user?.role || 'Employee';
@@ -90,6 +93,11 @@ const MyPayslips = () => {
       <PageHeader
         title={role === 'Manager' ? 'My Payslips' : 'Payroll'}
         subtitle="View and download your payslips"
+        actions={
+          <button className="btn-secondary" onClick={() => navigate('/payroll')}>
+            <ArrowLeft size={18} /> Back
+          </button>
+        }
       />
 
       <PayrollFilters

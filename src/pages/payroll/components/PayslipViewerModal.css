@@ -31,30 +31,8 @@
 }
 
 .payslip-company-info h3 {
-  margin: 0 0 4px;
+  margin: 0;
   font-size: 18px;
-  font-weight: 600;
-  color: var(--text-main);
-}
-
-.payslip-company-info p {
-  margin: 0;
-  font-size: 12px;
-  color: var(--text-muted);
-  white-space: pre-line;
-  line-height: 1.5;
-}
-
-.payslip-title-row {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-}
-
-.payslip-title-row h4 {
-  margin: 0;
-  font-size: 16px;
   font-weight: 600;
   color: var(--text-main);
 }
@@ -174,8 +152,4 @@
     grid-template-columns: 1fr;
   }
 
-  .payslip-title-row {
-    flex-direction: column;
-    align-items: flex-start;
-  }
 }

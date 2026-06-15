@@ -1,6 +1,5 @@
 import { Download, Building2 } from 'lucide-react';
 import Modal from '../../../components/ui/Modal';
-import StatusBadge from '../../../components/ui/StatusBadge';
 import type { Payroll, FullTimeSalarySnapshot } from '../../../services/payroll.service';
 import {
   formatCurrency,
@@ -36,7 +35,7 @@ const PayslipViewerModal = ({
     <Modal
       isOpen={isOpen}
       onClose={onClose}
-      title=""
+      title={payroll ? `Payslip – ${formatMonthYear(payroll.month, payroll.year)}` : 'Payslip'}
       footer={
         onDownload ? (
           <div className="modal-footer-btns">
@@ -65,13 +64,7 @@ const PayslipViewerModal = ({
           )}
           <div className="payslip-company-info">
             <h3>{company.companyName || 'ToroHR'}</h3>
-            {company.address && <p>{company.address}</p>}
           </div>
-        </div>
-
-        <div className="payslip-title-row">
-          <h4>Payslip – {formatMonthYear(payroll.month, payroll.year)}</h4>
-          <StatusBadge status={payroll.status} />
         </div>
 
         <section className="payslip-section">

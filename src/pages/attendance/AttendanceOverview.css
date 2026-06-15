@@ -67,9 +67,15 @@
 .attendance-filters-row {
   padding: 16px 24px;
   display: flex;
-  justify-content: space-between;
   align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
   background-color: var(--bg-subtle);
+}
+
+.attendance-filters-row .filter-search {
+  flex: 1 1 220px;
+  min-width: 160px;
 }
 
 .date-filter-group {

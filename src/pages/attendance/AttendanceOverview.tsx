@@ -1,10 +1,11 @@
-import React, { useState, useEffect } from 'react';
-import { 
+import React, { useState, useEffect, useRef } from 'react';
+import {
   UserCheck, 
   UserMinus, 
   Calendar, 
   Download, 
-  UserPlus
+  UserPlus,
+  Search
 } from 'lucide-react';
 import PageHeader from '../../components/ui/PageHeader';
 import StatsCard from '../../components/ui/StatsCard';
@@ -19,18 +20,59 @@ import { useAuthStore } from '../../store/authStore';
 import { formatDateOnly, buildDateStr, isWeekend, getMonthBoundaries, getCurrentYearMonth, toISTTime } from '../../lib/date';
 import './AttendanceOverview.css';
 
+interface AttendanceRecord {
+  id: string;
+  date: string;
+  status: string;
+  checkInTime?: string;
+  checkOutTime?: string;
+  hoursWorked?: number;
+  employeeId?: { _id: string } | string;
+  _id?: string;
+}
+
+interface EmployeeAttendance {
+  id: string;
+  fullName: string;
+  employeeId: string;
+  avatar: string | null;
+  attendance: Record<string, string>;
+}
+
+interface ModalRecord {
+  employee: {
+    id: string;
+    fullName: string;
+    employeeId: string;
+    attendance: Record<string, string>;
+  };
+  day: number;
+  dateString: string;
+  attendance: {
+    status: string;
+    id: string | null;
+    checkInTime: string;
+    checkOutTime: string;
+  };
+}
+
 const AttendanceOverview: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [modalOpen, setModalOpen] = useState(false);
-  const [selectedRecord, setSelectedRecord] = useState<any>(null);
+  const [selectedRecord, setSelectedRecord] = useState<ModalRecord | null>(null);
   const [stats, setStats] = useState({
     presentToday: 0,
     onLeave: 0,
     absentCount: 0
   });
-  const [attendanceData, setAttendanceData] = useState<any[]>([]);
+  const [attendanceData, setAttendanceData] = useState<EmployeeAttendance[]>([]);
+  const [refreshKey, setRefreshKey] = useState(0);
   const { year, month } = getCurrentYearMonth();
   const boundaries = getMonthBoundaries(year, month);
+
+  const [searchInput, setSearchInput] = useState('');
+  const [search, setSearch] = useState('');
+  const searchDebounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const [filters, setFilters] = useState({
     startDate: boundaries.start,
@@ -67,87 +109,103 @@ const AttendanceOverview: React.FC = () => {
     return !holidayDates.has(dateStr);
   }).length;
 
-  const loadAttendanceData = async (overrideFilters?: typeof filters) => {
-    setLoading(true);
-    try {
-      const activeFilters = overrideFilters || filters;
-      const [summaryRes, listRes, empRes, holidayRes] = await Promise.all([
-        attendanceService.getSummary(),
-        attendanceService.getAttendance(activeFilters),
-        employeeService.getEmployees({ 
-          limit: 100,
-          page: activeFilters.page,
-          manager: user?.role === 'Manager' ? user.employeeId : undefined
-        }),
-        holidayService.getCurrentYearHolidays().catch(() => []),
-      ]);
-
-      const holidaySet = new Set<string>();
-      (holidayRes || []).forEach((h: any) => {
-        const ds = formatDateOnly(h.date);
-        holidaySet.add(ds);
-      });
-      setHolidayDates(holidaySet);
-      
-      setStats({
-        presentToday: summaryRes.present || 0,
-        onLeave: summaryRes.onLeave || 0,
-        absentCount: summaryRes.absent || 0
-      });
-
-      const records = listRes.data || [];
-      const employees = empRes.data || [];
-      
-      if (listRes.pagination) {
-        setPagination({
-          totalPages: listRes.pagination.pages,
-          totalItems: listRes.pagination.total
-        });
-      }
-      
-      const employeeMap: { [key: string]: any } = {};
-
-      employees.forEach((emp: any) => {
-        employeeMap[emp.id] = {
-          id: emp.id,
-          fullName: emp.fullName,
-          employeeId: emp.employeeId,
-          avatar: emp.avatar || null,
-          attendance: {}
-        };
-      });
-
-      records.forEach((record: any) => {
-        const empId = record.employeeId?._id || record.employeeId;
-        if (employeeMap[empId]) {
-          const day = new Date(record.date).getUTCDate();
-          employeeMap[empId].attendance[day] = record.status;
-          employeeMap[empId].attendance[`${day}_id`] = record.id || record._id;
-        }
-      });
-
-      setAttendanceData(Object.values(employeeMap) as any);
-    } catch {
-      addToast('Failed to load attendance data', 'error');
-    } finally {
-      setLoading(false);
-    }
-  };
+  useEffect(() => {
+    if (searchDebounceRef.current) clearTimeout(searchDebounceRef.current);
+    searchDebounceRef.current = setTimeout(() => {
+      setSearch(searchInput);
+      setFilters(prev => ({ ...prev, page: 1 }));
+    }, 400);
+    return () => {
+      if (searchDebounceRef.current) clearTimeout(searchDebounceRef.current);
+    };
+  }, [searchInput]);
 
   useEffect(() => {
-    loadAttendanceData();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [filters.page, filters.startDate, filters.endDate, filters.limit, user?.employeeId, user?.role]);
+    let cancelled = false;
+    (async () => {
+      setLoading(true);
+      try {
+        const apiFilters: Record<string, unknown> = {
+          page: filters.page,
+          limit: filters.limit,
+          startDate: filters.startDate,
+          endDate: filters.endDate,
+        };
+        if (search.trim()) apiFilters.search = search.trim();
 
-  const handleFilterChange = (key: string, value: string) => {
-    setFilters(prev => ({ ...prev, [key]: value, page: 1 }));
-  };
+        const [summaryRes, listRes, empRes, holidayRes] = await Promise.all([
+          attendanceService.getSummary(),
+          attendanceService.getAttendance(apiFilters),
+          employeeService.getEmployees({
+            limit: 100,
+            page: filters.page,
+            search: search.trim() || undefined,
+            manager: user?.role === 'Manager' ? user.employeeId : undefined
+          }),
+          holidayService.getCurrentYearHolidays().catch(() => []),
+        ]);
+        if (cancelled) return;
+
+        const holidaySet = new Set<string>();
+        (holidayRes as { date: string }[] || []).forEach((h) => {
+          holidaySet.add(formatDateOnly(h.date));
+        });
+        setHolidayDates(holidaySet);
+
+        setStats({
+          presentToday: summaryRes.present || 0,
+          onLeave: summaryRes.onLeave || 0,
+          absentCount: summaryRes.absent || 0
+        });
+
+        const records: AttendanceRecord[] = (listRes.data || []) as AttendanceRecord[];
+        const employees = empRes.data || [];
+
+        if (listRes.pagination) {
+          setPagination({
+            totalPages: listRes.pagination.pages,
+            totalItems: listRes.pagination.total
+          });
+        }
+
+        const employeeMap: Record<string, EmployeeAttendance> = {};
+
+        employees.forEach((emp: { id: string; fullName: string; employeeId: string; avatar?: string | null }) => {
+          employeeMap[emp.id] = {
+            id: emp.id,
+            fullName: emp.fullName,
+            employeeId: emp.employeeId,
+            avatar: emp.avatar || null,
+            attendance: {}
+          };
+        });
+
+        records.forEach((record) => {
+          const empId = (typeof record.employeeId === 'object' && record.employeeId?._id) || record.employeeId;
+          if (typeof empId === 'string' && employeeMap[empId]) {
+            const day = new Date(record.date).getUTCDate();
+            employeeMap[empId].attendance[day] = record.status;
+            employeeMap[empId].attendance[`${day}_id`] = record.id;
+          }
+        });
+
+        if (cancelled) return;
+        setAttendanceData(Object.values(employeeMap));
+      } catch {
+        if (!cancelled) addToast('Failed to load attendance data', 'error');
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
+    })();
+    return () => { cancelled = true; };
+  }, [filters, refreshKey, user?.employeeId, user?.role, addToast, search]);
 
   const handlePageChange = (page: number) => {
     setFilters(prev => ({ ...prev, page }));
   };
 
   const handleSelfMark = async () => {
+    if (!user?.employeeId) return;
     const dateStr = formatDateOnly(new Date());
 
     let recordData = {
@@ -174,9 +232,9 @@ const AttendanceOverview: React.FC = () => {
 
     setSelectedRecord({
       employee: {
-        id: user?.employeeId,
-        fullName: user?.name || 'Self',
-        employeeId: user?.employeeId,
+        id: user.employeeId,
+        fullName: user.name || 'Self',
+        employeeId: user.employeeId,
         attendance: {}
       },
       day: todayDateNum,
@@ -195,7 +253,7 @@ const AttendanceOverview: React.FC = () => {
     }
   };
 
-  const handleUpdate = async (employee: any, day: number) => {
+  const handleUpdate = async (employee: EmployeeAttendance, day: number) => {
     const dateStr = buildDateStr(startY, startM, day);
     
     let recordData = {
@@ -230,7 +288,8 @@ const AttendanceOverview: React.FC = () => {
     setModalOpen(true);
   };
 
-  const handleModalSubmit = async (data: any) => {
+  const handleModalSubmit = async (data: Record<string, unknown>) => {
+    if (!selectedRecord) return;
     try {
       if (selectedRecord.attendance?.id) {
         await attendanceService.updateAttendance(selectedRecord.attendance.id, data);
@@ -243,7 +302,7 @@ const AttendanceOverview: React.FC = () => {
       }
       setModalOpen(false);
       addToast('Attendance updated successfully', 'success');
-      loadAttendanceData();
+      setRefreshKey((k) => k + 1);
     } catch {
       addToast('Failed to update attendance', 'error');
     }
@@ -306,25 +365,31 @@ const AttendanceOverview: React.FC = () => {
         </div>
 
         <div className="attendance-filters-row">
-          <div className="date-filter-group">
-            <div className="date-input-wrapper">
-              <label htmlFor="filter-start-date">From:</label>
-              <input 
-                id="filter-start-date"
-                type="date" 
-                value={filters.startDate} 
-                onChange={(e) => handleFilterChange('startDate', e.target.value)}
-                className="date-input"
+          <div className="filter-search">
+            <Search size={18} className="filter-search-icon" />
+            <input
+              type="text"
+              placeholder="Search by name or ID..."
+              value={searchInput}
+              onChange={(e) => setSearchInput(e.target.value)}
+            />
+          </div>
+          <div className="filter-date-range">
+            <div className="filter-date">
+              <input
+                type="date"
+                value={filters.startDate}
+                onChange={(e) => setFilters(prev => ({ ...prev, startDate: e.target.value, page: 1 }))}
+                title="Start Date"
               />
             </div>
-            <div className="date-input-wrapper">
-              <label htmlFor="filter-end-date">To:</label>
-              <input 
-                id="filter-end-date"
-                type="date" 
-                value={filters.endDate} 
-                onChange={(e) => handleFilterChange('endDate', e.target.value)}
-                className="date-input"
+            <span className="filter-date-sep">to</span>
+            <div className="filter-date">
+              <input
+                type="date"
+                value={filters.endDate}
+                onChange={(e) => setFilters(prev => ({ ...prev, endDate: e.target.value, page: 1 }))}
+                title="End Date"
               />
             </div>
           </div>

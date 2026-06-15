@@ -9,56 +9,82 @@ import { useToastStore } from '../../store/toastStore';
 import { formatDateOnly, getMonthBoundaries, toISTTime } from '../../lib/date';
 import './MyAttendance.css';
 
+interface AttendanceRecord {
+  id: string;
+  date: string;
+  checkInTime?: string;
+  checkOutTime?: string;
+  hoursWorked?: number;
+  status: string;
+}
+
+interface AttendanceStats {
+  present: number;
+  absent: number;
+  hoursWorked: number;
+}
+
 const MyAttendance: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [actionLoading, setActionLoading] = useState(false);
-  const [history, setHistory] = useState<any[]>([]);
-  const [todayRecord, setTodayRecord] = useState<any>(null);
+  const [history, setHistory] = useState<AttendanceRecord[]>([]);
+  const [todayRecord, setTodayRecord] = useState<AttendanceRecord | null>(null);
   const [summaryStats, setSummaryStats] = useState({ present: 0, absent: 0, avgHours: '0h' });
+  const [refreshKey, setRefreshKey] = useState(0);
   const addToast = useToastStore(state => state.addToast);
 
+  const now = useMemo(() => new Date(), []);
+  const { start: defaultStart, end: defaultEnd } = useMemo(
+    () => getMonthBoundaries(now.getFullYear(), now.getMonth() + 1),
+    [now]
+  );
+
   useEffect(() => {
-    fetchData();
-  }, []);
+    let cancelled = false;
+    (async () => {
+      setLoading(true);
+      try {
+        const historyRes = await attendanceService.getMyAttendance({ startDate: defaultStart, endDate: defaultEnd });
+        if (cancelled) return;
+        const data: AttendanceRecord[] = (historyRes?.data || []) as AttendanceRecord[];
+        setHistory(data);
 
-  const fetchData = async () => {
-    setLoading(true);
-    try {
-      const now = new Date();
-      const { start, end } = getMonthBoundaries(now.getFullYear(), now.getMonth() + 1);
-      const historyRes = await attendanceService.getMyAttendance({ startDate: start, endDate: end });
-      const data = historyRes?.data || [];
-      setHistory(data);
-      
-      const todayStr = formatDateOnly(now);
-      const todayRec = data.find((r: any) => r.date?.startsWith(todayStr));
-      setTodayRecord(todayRec || null);
+        const todayStr = formatDateOnly(now);
+        const todayRec = data.find((r) => r.date?.startsWith(todayStr));
+        if (cancelled) return;
+        setTodayRecord(todayRec || null);
 
-      const stats = data.reduce((acc: any, r: any) => {
-        if (r.status === 'Present' || r.status === 'Half-day') acc.present++;
-        else if (r.status === 'Absent') acc.absent++;
-        if (r.hoursWorked) acc.hoursWorked += r.hoursWorked;
-        return acc;
-      }, { present: 0, absent: 0, hoursWorked: 0 });
-      const avg = stats.present > 0 ? (stats.hoursWorked / stats.present) : 0;
-      setSummaryStats({
-        present: stats.present,
-        absent: stats.absent,
-        avgHours: `${avg.toFixed(1)}h`
-      });
-    } catch {
-      addToast('Failed to load attendance data', 'error');
-    } finally {
-      setLoading(false);
-    }
-  };
+        const stats = data.reduce<AttendanceStats>(
+          (acc, r) => {
+            if (r.status === 'Present' || r.status === 'Half-day') acc.present++;
+            else if (r.status === 'Absent') acc.absent++;
+            if (r.hoursWorked) acc.hoursWorked += r.hoursWorked;
+            return acc;
+          },
+          { present: 0, absent: 0, hoursWorked: 0 }
+        );
+        const avg = stats.present > 0 ? (stats.hoursWorked / stats.present) : 0;
+        if (cancelled) return;
+        setSummaryStats({
+          present: stats.present,
+          absent: stats.absent,
+          avgHours: `${avg.toFixed(1)}h`
+        });
+      } catch {
+        if (!cancelled) addToast('Failed to load attendance data', 'error');
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
+    })();
+    return () => { cancelled = true; };
+  }, [refreshKey, now, addToast, defaultStart, defaultEnd]);
 
   const handleCheckIn = async () => {
     setActionLoading(true);
     try {
       await attendanceService.checkIn();
       addToast('Checked in successfully!', 'success');
-      fetchData();
+      setRefreshKey((k) => k + 1);
     } catch {
       addToast('Check-in failed', 'error');
     } finally {
@@ -71,7 +97,7 @@ const MyAttendance: React.FC = () => {
     try {
       await attendanceService.checkOut();
       addToast('Checked out successfully!', 'success');
-      fetchData();
+      setRefreshKey((k) => k + 1);
     } catch {
       addToast('Check-out failed', 'error');
     } finally {
@@ -92,27 +118,27 @@ const MyAttendance: React.FC = () => {
   };
 
   const columns = useMemo(() => [
-    { 
-      header: 'Date', 
-      accessor: (item: any) => new Date(item.date).toLocaleDateString('en-IN', { 
-        day: '2-digit', 
-        month: 'short', 
+    {
+      header: 'Date',
+      accessor: (item: AttendanceRecord) => new Date(item.date).toLocaleDateString('en-IN', {
+        day: '2-digit',
+        month: 'short',
         year: 'numeric',
         timeZone: 'UTC'
-      }) 
+      })
     },
-    { 
-      header: 'Check In', 
-      accessor: (item: any) => item.checkInTime ? toISTTime(item.checkInTime) : '--:--' 
+    {
+      header: 'Check In',
+      accessor: (item: AttendanceRecord) => item.checkInTime ? toISTTime(item.checkInTime) : '--:--'
     },
-    { 
-      header: 'Check Out', 
-      accessor: (item: any) => item.checkOutTime ? toISTTime(item.checkOutTime) : '--:--' 
+    {
+      header: 'Check Out',
+      accessor: (item: AttendanceRecord) => item.checkOutTime ? toISTTime(item.checkOutTime) : '--:--'
     },
-    { header: 'Work Hours', accessor: (item: any) => item.hoursWorked ? `${item.hoursWorked.toFixed(1)}h` : '0h' },
-    { 
-      header: 'Status', 
-      accessor: (item: any) => <StatusBadge status={item.status} /> 
+    { header: 'Work Hours', accessor: (item: AttendanceRecord) => item.hoursWorked ? `${item.hoursWorked.toFixed(1)}h` : '0h' },
+    {
+      header: 'Status',
+      accessor: (item: AttendanceRecord) => <StatusBadge status={item.status} />
     }
   ], []);
 
@@ -156,10 +182,8 @@ const MyAttendance: React.FC = () => {
       <div className="history-section">
         <div className="section-header">
           <h3>Attendance History</h3>
-          <button className="btn-secondary sm" onClick={async () => {
-            const now = new Date();
-            const { start, end } = getMonthBoundaries(now.getFullYear(), now.getMonth() + 1);
-            attendanceService.exportCsv({ startDate: start, endDate: end });
+          <button className="btn-secondary sm" onClick={() => {
+            attendanceService.exportCsv({ startDate: defaultStart, endDate: defaultEnd });
           }}>
             <Download size={16} /> Export CSV
           </button>

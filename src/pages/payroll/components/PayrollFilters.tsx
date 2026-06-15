@@ -1,20 +1,16 @@
-import { X } from 'lucide-react';
-import type { Employee } from '../../../services/employee.service';
+import { Search, X } from 'lucide-react';
 import { MONTH_NAMES, buildYearOptions, getCurrentYearMonth } from '../payrollHelpers';
 
 export interface PayrollFilterValues {
+  search: string;
   month: string;
   year: string;
-  employee: string;
   status: string;
 }
 
 interface PayrollFiltersProps {
   values: PayrollFilterValues;
-  showEmployeeFilter?: boolean;
   showStatusFilter?: boolean;
-  employees?: Employee[];
-  employeesLoading?: boolean;
   onChange: (field: keyof PayrollFilterValues, value: string) => void;
   onClear: () => void;
 }
@@ -28,21 +24,28 @@ const STATUS_OPTIONS = [
 
 const PayrollFilters = ({
   values,
-  showEmployeeFilter = true,
   showStatusFilter = true,
-  employees = [],
-  employeesLoading,
   onChange,
   onClear
 }: PayrollFiltersProps) => {
   const { month: defaultMonth, year: defaultYear } = getCurrentYearMonth();
-  const hasFilters = values.employee !== '' || values.status !== ''
+  const hasFilters = values.search !== '' || values.status !== ''
     || values.month !== String(defaultMonth) || values.year !== String(defaultYear);
   const years = buildYearOptions();
 
   return (
     <div className="filter-card">
       <div className="filter-bar">
+        <div className="filter-search">
+          <Search size={18} className="filter-search-icon" />
+          <input
+            type="text"
+            placeholder="Search by name or ID"
+            value={values.search}
+            onChange={(e) => onChange('search', e.target.value)}
+          />
+        </div>
+
         <div className="filter-select">
           <select value={values.month} onChange={(e) => onChange('month', e.target.value)}>
             <option value="">All Months</option>
@@ -60,23 +63,6 @@ const PayrollFilters = ({
             ))}
           </select>
         </div>
-
-        {showEmployeeFilter && (
-          <div className="filter-select" style={{ flex: '1 1 220px', minWidth: '200px' }}>
-            <select
-              value={values.employee}
-              onChange={(e) => onChange('employee', e.target.value)}
-              disabled={employeesLoading}
-            >
-              <option value="">All Employees</option>
-              {employees.map((employee) => (
-                <option key={employee.id} value={employee.id}>
-                  {employee.fullName} ({employee.employeeId})
-                </option>
-              ))}
-            </select>
-          </div>
-        )}
 
         {showStatusFilter && (
           <div className="filter-select">

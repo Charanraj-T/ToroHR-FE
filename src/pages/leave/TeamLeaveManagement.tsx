@@ -58,6 +58,7 @@ const TeamLeaveManagement = () => {
     if (debounceRef.current) clearTimeout(debounceRef.current);
     setSearch('');
     searchRef.current = '';
+
     setLeaveType('');
     setStatus('');
     setStartDate('');
@@ -75,6 +76,7 @@ const TeamLeaveManagement = () => {
           page,
           limit: PAGE_LIMIT,
           search: searchRef.current.trim() || undefined,
+
           leaveType: leaveType || undefined,
           status: status || undefined,
           startDate: startDate || undefined,

@@ -7,7 +7,6 @@ import Modal from '../../components/ui/Modal';
 import { useAuthStore } from '../../store/authStore';
 import { useToastStore } from '../../store/toastStore';
 import payrollService, { type Payroll, type PayrollSummary } from '../../services/payroll.service';
-import employeeService, { type Employee } from '../../services/employee.service';
 import PayrollSummaryCards from './components/PayrollSummaryCards';
 import PayrollFilters, { type PayrollFilterValues } from './components/PayrollFilters';
 import PayrollTable from './components/PayrollTable';
@@ -19,9 +18,9 @@ const PAGE_SIZE = 10;
 const { month: defaultMonth, year: defaultYear } = getCurrentYearMonth();
 
 const EMPTY_FILTERS: PayrollFilterValues = {
+  search: '',
   month: String(defaultMonth),
   year: String(defaultYear),
-  employee: '',
   status: ''
 };
 
@@ -35,8 +34,6 @@ const PayrollOverview = () => {
 
   const [records, setRecords] = useState<Payroll[]>([]);
   const [summary, setSummary] = useState<PayrollSummary>(EMPTY_SUMMARY);
-  const [employees, setEmployees] = useState<Employee[]>([]);
-  const [employeesLoading, setEmployeesLoading] = useState(true);
 
   const [summaryLoading, setSummaryLoading] = useState(true);
   const [tableLoading, setTableLoading] = useState(true);
@@ -61,7 +58,7 @@ const PayrollOverview = () => {
       const params: Record<string, string | number> = { page, limit: PAGE_SIZE };
       if (filters.month) params.month = filters.month;
       if (filters.year) params.year = filters.year;
-      if (filters.employee) params.employee = filters.employee;
+      if (filters.search) params.search = filters.search;
       if (filters.status) params.status = filters.status;
       return params;
     },
@@ -112,18 +109,6 @@ const PayrollOverview = () => {
   useEffect(() => { fetchSummary(); }, [fetchSummary]);
   // eslint-disable-next-line react-hooks/set-state-in-effect
   useEffect(() => { fetchRecords(); }, [fetchRecords]);
-
-  useEffect(() => {
-    const params: Record<string, string | number> = { limit: 100 };
-    if (role === 'Manager' && user?.employeeId) {
-      params.manager = user.employeeId;
-    }
-    employeeService
-      .getEmployees(params)
-      .then((res) => setEmployees(res.data || []))
-      .catch(() => setEmployees([]))
-      .finally(() => setEmployeesLoading(false));
-  }, [role, user?.employeeId]);
 
   const handleDownload = async (record: Payroll) => {
     setDownloadLoading(true);
@@ -238,9 +223,6 @@ const PayrollOverview = () => {
 
       <PayrollFilters
         values={filters}
-        showEmployeeFilter={isAdmin || role === 'Manager'}
-        employees={employees}
-        employeesLoading={employeesLoading}
         onChange={handleFilterChange}
         onClear={handleClearFilters}
       />

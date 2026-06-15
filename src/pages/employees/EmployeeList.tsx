@@ -215,12 +215,12 @@ const EmployeeList = () => {
         <div className="filter-bar">
           <div className="filter-search">
             <Search size={18} className="filter-search-icon" />
-            <input
-              type="text"
-              placeholder="Search by name, ID, or email..."
-              value={searchInput}
-              onChange={(e) => setSearchInput(e.target.value)}
-            />
+          <input
+            type="text"
+            placeholder="Search by name or ID"
+            value={searchInput}
+            onChange={(e) => setSearchInput(e.target.value)}
+          />
           </div>
 
           <div className="filter-select">

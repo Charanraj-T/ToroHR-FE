@@ -6,7 +6,6 @@ import Modal from '../../components/ui/Modal';
 import { useAuthStore } from '../../store/authStore';
 import { useToastStore } from '../../store/toastStore';
 import claimService, { type Claim, type ClaimSummary } from '../../services/claim.service';
-import employeeService, { type Employee } from '../../services/employee.service';
 import ClaimSummaryCard from './components/ClaimSummaryCard';
 import ClaimFilters, { type ClaimFilterValues } from './components/ClaimFilters';
 import ClaimTable from './components/ClaimTable';
@@ -18,7 +17,7 @@ import './Claims.css';
 const PAGE_SIZE = 10;
 
 const EMPTY_FILTERS: ClaimFilterValues = {
-  employee: '',
+  search: '',
   status: '',
   dateFrom: '',
   dateTo: ''
@@ -36,12 +35,9 @@ const Claims = () => {
   const { addToast } = useToastStore();
   const role = user?.role || 'Employee';
   const canCreateClaim = role === 'Employee' || role === 'Manager';
-  const showEmployeeFilter = role === 'Admin' || role === 'Manager';
 
   const [claims, setClaims] = useState<Claim[]>([]);
   const [summary, setSummary] = useState<ClaimSummary>(EMPTY_SUMMARY);
-  const [employees, setEmployees] = useState<Employee[]>([]);
-  const [employeesLoading, setEmployeesLoading] = useState(false);
 
   const [summaryLoading, setSummaryLoading] = useState(true);
   const [tableLoading, setTableLoading] = useState(true);
@@ -65,7 +61,7 @@ const Claims = () => {
         limit: PAGE_SIZE
       };
 
-      if (filters.employee) params.employee = filters.employee;
+      if (filters.search) params.search = filters.search;
       if (filters.status) params.status = filters.status;
       if (filters.dateFrom) params.dateFrom = filters.dateFrom;
       if (filters.dateTo) params.dateTo = filters.dateTo;
@@ -116,20 +112,6 @@ const Claims = () => {
   useEffect(() => {
     fetchClaims();
   }, [fetchClaims]);
-
-  useEffect(() => {
-    if (!showEmployeeFilter) return;
-
-    setEmployeesLoading(true);
-    employeeService
-      .getEmployees({
-        limit: 100,
-        manager: role === 'Manager' ? user?.employeeId : undefined
-      })
-      .then((response) => setEmployees(response.data || []))
-      .catch(() => setEmployees([]))
-      .finally(() => setEmployeesLoading(false));
-  }, [role, showEmployeeFilter, user?.employeeId]);
 
   const handleFilterChange = (field: keyof ClaimFilterValues, value: string) => {
     setFilters((prev) => ({ ...prev, [field]: value }));
@@ -267,9 +249,6 @@ const Claims = () => {
 
       <ClaimFilters
         values={filters}
-        showEmployeeFilter={showEmployeeFilter}
-        employees={employees}
-        employeesLoading={employeesLoading}
         onChange={handleFilterChange}
         onClear={handleClearFilters}
       />

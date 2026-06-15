@@ -1,4 +1,4 @@
-import { Search, Filter, X } from 'lucide-react';
+import { Search, X } from 'lucide-react';
 
 interface LeaveFiltersProps {
   search: string;
@@ -45,14 +45,13 @@ const LeaveFilters = ({
           <Search size={18} className="filter-search-icon" />
           <input
             type="text"
-            placeholder="Search by reason..."
+            placeholder="Search by name or ID"
             value={search}
             onChange={(e) => onSearchChange(e.target.value)}
           />
         </div>
 
-        <div className="filter-select has-icon">
-          <Filter size={14} className="filter-select-icon" />
+        <div className="filter-select">
           <select
             value={leaveType}
             onChange={(e) => onLeaveTypeChange(e.target.value)}

@@ -1,5 +1,5 @@
 import api from '../lib/api';
-import type { EmployeeBrief } from './leave.service';
+import type { EmployeeBrief, UserBrief } from './leave.service';
 
 export type ClaimStatus = 'Pending' | 'Approved' | 'Rejected' | 'Cancelled' | 'Reimbursed';
 
@@ -11,13 +11,6 @@ export interface ClaimAttachment {
   data?: string | null;
 }
 
-export interface ClaimUserRef {
-  id: string;
-  name: string;
-  email: string;
-  role: string;
-}
-
 export interface Claim {
   id: string;
   employee: EmployeeBrief & { reportingManagerId?: string };
@@ -27,15 +20,8 @@ export interface Claim {
   description?: string;
   status: ClaimStatus;
   attachments: ClaimAttachment[];
-  submittedBy?: ClaimUserRef | null;
-  approvedBy?: ClaimUserRef | null;
-  approvedAt?: string | null;
-  rejectedBy?: ClaimUserRef | null;
-  rejectedAt?: string | null;
-  cancelledBy?: ClaimUserRef | null;
-  cancelledAt?: string | null;
-  reimbursedBy?: ClaimUserRef | null;
-  reimbursedAt?: string | null;
+  modifiedBy: UserBrief | null;
+  modifiedAt: string | null;
   createdAt: string;
   updatedAt: string;
 }

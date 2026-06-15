@@ -1,11 +1,10 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Plus, Search, Filter, Users, UserCheck, UserMinus, Eye, Edit2, UserX, UserCheck2 } from 'lucide-react';
+import { Plus, Search, Users, UserCheck, UserMinus, Edit2, UserX, UserCheck2, X } from 'lucide-react';
 import PageHeader from '../../components/ui/PageHeader';
 import StatsCard from '../../components/ui/StatsCard';
 import Table, { type Column } from '../../components/ui/Table';
 import Pagination from '../../components/ui/Pagination';
-import StatusBadge from '../../components/ui/StatusBadge';
 import Modal from '../../components/ui/Modal';
 import employeeService, { type Employee } from '../../services/employee.service';
 import { useToastStore } from '../../store/toastStore';
@@ -29,6 +28,15 @@ const EmployeeList = () => {
     totalPages: 1,
     totalItems: 0
   });
+  const [searchInput, setSearchInput] = useState('');
+
+  useEffect(() => {
+    if (searchInput === filters.search) return;
+    const timer = setTimeout(() => {
+      setFilters(prev => ({ ...prev, search: searchInput, page: 1 }));
+    }, 400);
+    return () => clearTimeout(timer);
+  }, [searchInput, filters.search]);
 
   // Modal State
   const [confirmModal, setConfirmModal] = useState<{
@@ -43,48 +51,45 @@ const EmployeeList = () => {
     action: 'deactivate'
   });
 
-  const fetchStats = async () => {
-    try {
-      const statsFilters = {
-        manager: user?.role === 'Manager' ? user.employeeId : undefined
-      };
-      const statsRes = await employeeService.getStats(statsFilters);
-      setStats(statsRes);
-    } catch {
-      useToastStore.getState().addToast('Failed to load employee stats', 'error');
-    }
-  };
-
-  const fetchEmployees = async () => {
-    setLoading(true);
-    try {
-      const employeeFilters = {
-        ...filters,
-        manager: user?.role === 'Manager' ? user.employeeId : undefined
-      };
-      const response = await employeeService.getEmployees(employeeFilters);
-      setEmployees(response.data); 
-      setPagination({
-        totalPages: response.totalPages,
-        totalItems: response.total
-      });
-    } finally {
-      setLoading(false);
-    }
-  };
+  useEffect(() => {
+    (async () => {
+      try {
+        const statsFilters = {
+          manager: user?.role === 'Manager' ? user.employeeId : undefined
+        };
+        const statsRes = await employeeService.getStats(statsFilters);
+        setStats(statsRes);
+      } catch {
+        useToastStore.getState().addToast('Failed to load employee stats', 'error');
+      }
+    })();
+  }, [user?.role, user?.employeeId]);
 
   useEffect(() => {
-    fetchStats();
-  }, []);
+    (async () => {
+      setLoading(true);
+      try {
+        const employeeFilters = {
+          ...filters,
+          manager: user?.role === 'Manager' ? user.employeeId : undefined
+        };
+        const response = await employeeService.getEmployees(employeeFilters);
+        setEmployees(response.data);
+        setPagination({
+          totalPages: response.totalPages,
+          totalItems: response.total
+        });
+      } catch {
+        useToastStore.getState().addToast('Failed to load employees', 'error');
+      } finally {
+        setLoading(false);
+      }
+    })();
+  }, [filters, user?.role, user?.employeeId]);
 
-  useEffect(() => {
-    fetchEmployees();
-  }, [filters.page, filters.department, filters.status]);
-
-  const handleSearch = (e: React.FormEvent) => {
-    e.preventDefault();
-    setFilters({ ...filters, page: 1 });
-    fetchEmployees();
+  const clearFilters = () => {
+    setSearchInput('');
+    setFilters({ ...filters, search: '', department: '', status: '', page: 1 });
   };
 
   const handleToggleStatus = async () => {
@@ -97,9 +102,19 @@ const EmployeeList = () => {
         await employeeService.updateEmployee(employeeId, { status: 'Active' });
         useToastStore.getState().addToast('Employee activated successfully', 'success');
       }
+      const employeeFilters = {
+        page: filters.page, limit: filters.limit, search: filters.search,
+        department: filters.department, status: filters.status,
+        manager: user?.role === 'Manager' ? user.employeeId : undefined
+      };
+      const [empRes, statsRes] = await Promise.all([
+        employeeService.getEmployees(employeeFilters),
+        employeeService.getStats({ manager: user?.role === 'Manager' ? user.employeeId : undefined })
+      ]);
       setConfirmModal({ ...confirmModal, isOpen: false });
-      fetchEmployees();
-      fetchStats();
+      setEmployees(empRes.data);
+      setPagination({ totalPages: empRes.totalPages, totalItems: empRes.total });
+      setStats(statsRes);
     } catch {
       useToastStore.getState().addToast(`Failed to ${action} employee`, 'error');
     }
@@ -115,7 +130,14 @@ const EmployeeList = () => {
   };
 
   const columns: Column<Employee>[] = [
-    { header: 'Employee ID', accessor: 'employeeId' },
+    {
+      header: 'Employee ID',
+      accessor: (item: Employee) => (
+        <span className={`status-badge ${item.status.toLowerCase()}`}>
+          {item.employeeId}
+        </span>
+      )
+    },
     { 
       header: 'Name', 
       accessor: (item: Employee) => (
@@ -125,27 +147,35 @@ const EmployeeList = () => {
           </div>
           <div className="employee-info">
             <span className="employee-name">{item.fullName}</span>
-            <span className="employee-sub">{item.email}</span>
           </div>
         </div>
       )
     },
-    { header: 'Department', accessor: 'department' },
-    { header: 'Designation', accessor: 'designation' },
-    { 
-      header: 'Joining Date', 
-      accessor: (item: Employee) => item.joiningDate ? new Date(item.joiningDate).toLocaleDateString('en-IN', { timeZone: 'UTC' }) : 'N/A' 
+    {
+      header: 'Department',
+      accessor: (item: Employee) => (
+        <div>
+          <div>{item.department}</div>
+          <div style={{ fontSize: '12px', color: 'var(--text-muted)', marginTop: '2px' }}>{item.designation}</div>
+        </div>
+      )
     },
-    { header: 'Reporting Manager', accessor: (item: Employee) => (item.reportingManager && typeof item.reportingManager === 'object') ? (item.reportingManager as any).fullName : 'N/A' },
+    { header: 'Reporting Manager', accessor: (item: Employee) => (item.reportingManager && typeof item.reportingManager === 'object') ? (item.reportingManager as { id: string; fullName: string; employeeId: string }).fullName : 'N/A' },
     { header: 'Role', accessor: (item: Employee) => <span className={`role-badge ${item.role.toLowerCase()}`}>{item.role}</span> },
-    { header: 'Status', accessor: (item: Employee) => <StatusBadge status={item.status} /> },
+    { header: 'Modified By', accessor: (item: Employee) => {
+      if (!item.modifiedBy) return <span style={{ color: 'var(--text-muted)' }}>-</span>;
+      const date = item.modifiedAt ? new Date(item.modifiedAt).toLocaleDateString('en-IN', { timeZone: 'UTC' }) : '';
+      return (
+        <div>
+          <div>{item.modifiedBy.name}</div>
+          <div style={{ fontSize: '12px', color: 'var(--text-muted)', marginTop: '2px' }}>{date}</div>
+        </div>
+      );
+    } },
     { 
       header: 'Actions', 
       accessor: (item: Employee) => (
         <div className="action-btns">
-          <button className="action-btn" onClick={(e) => { e.stopPropagation(); navigate(`/employees/${item.id}`); }} title="View">
-            <Eye size={18} />
-          </button>
           <button className="action-btn action-btn-edit" onClick={(e) => { e.stopPropagation(); navigate(`/employees/edit/${item.id}`); }} title="Edit">
             <Edit2 size={18} />
           </button>
@@ -181,22 +211,21 @@ const EmployeeList = () => {
         <StatsCard title="Inactive" value={stats.inactive} icon={<UserMinus size={24} />} variant="red" />
       </div>
 
-      <div className="list-controls">
-        <form className="search-box" onSubmit={handleSearch}>
-          <Search size={18} className="search-icon" />
-          <input 
-            type="text" 
-            placeholder="Search by name, ID, or email..." 
-            value={filters.search}
-            onChange={(e) => setFilters({ ...filters, search: e.target.value })}
-          />
-        </form>
+      <div className="filter-card">
+        <div className="filter-bar">
+          <div className="filter-search">
+            <Search size={18} className="filter-search-icon" />
+            <input
+              type="text"
+              placeholder="Search by name, ID, or email..."
+              value={searchInput}
+              onChange={(e) => setSearchInput(e.target.value)}
+            />
+          </div>
 
-        <div className="filter-group">
-          <div className="filter-item">
-            <Filter size={16} />
-            <select 
-              value={filters.department} 
+          <div className="filter-select">
+            <select
+              value={filters.department}
               onChange={(e) => setFilters({ ...filters, department: e.target.value, page: 1 })}
             >
               <option value="">All Departments</option>
@@ -208,9 +237,9 @@ const EmployeeList = () => {
             </select>
           </div>
 
-          <div className="filter-item">
-            <select 
-              value={filters.status} 
+          <div className="filter-select">
+            <select
+              value={filters.status}
               onChange={(e) => setFilters({ ...filters, status: e.target.value, page: 1 })}
             >
               <option value="">All Status</option>
@@ -218,6 +247,17 @@ const EmployeeList = () => {
               <option value="Inactive">Inactive</option>
             </select>
           </div>
+
+          <button
+            type="button"
+            className="filter-clear-btn"
+            onClick={clearFilters}
+            disabled={!searchInput && !filters.department && !filters.status}
+            title="Clear filters"
+            aria-label="Clear filters"
+          >
+            <X size={18} />
+          </button>
         </div>
       </div>
 

@@ -184,9 +184,16 @@ const MyLeave = () => {
     },
     {
       header: 'MODIFIED BY',
-      accessor: (item: Leave) => (
-        <span>{item.modifiedBy?.name || '-'}</span>
-      )
+      accessor: (item: Leave) => {
+        if (!item.modifiedBy) return <span style={{ color: 'var(--text-muted)' }}>-</span>;
+        const date = item.modifiedAt ? new Date(item.modifiedAt).toLocaleDateString('en-IN', { timeZone: 'UTC' }) : '';
+        return (
+          <div>
+            <div>{item.modifiedBy.name}</div>
+            <div style={{ fontSize: '12px', color: 'var(--text-muted)', marginTop: '2px' }}>{date}</div>
+          </div>
+        );
+      }
     },
     {
       header: 'ACTIONS',

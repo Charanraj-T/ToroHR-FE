@@ -1,5 +1,10 @@
 import api from '../lib/api';
 
+export interface UserBrief {
+  id: string;
+  name: string;
+}
+
 export interface Employee {
   id: string;
   employeeId: string;
@@ -14,6 +19,8 @@ export interface Employee {
   status: 'Active' | 'Inactive';
   reportingManager?: string | { id: string; fullName: string; employeeId: string };
   role: 'Manager' | 'Employee';
+  modifiedBy: UserBrief | null;
+  modifiedAt: string | null;
   bankName?: string;
   accountNumber?: string;
   ifscCode?: string;

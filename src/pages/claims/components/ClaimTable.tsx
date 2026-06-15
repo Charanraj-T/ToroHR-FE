@@ -1,6 +1,5 @@
 import { useMemo } from 'react';
 import {
-  Eye,
   Edit2,
   XCircle,
   Check,
@@ -70,9 +69,7 @@ const ClaimTable = ({
             </div>
             <div className="employee-info">
               <span className="employee-name">{item.employee?.fullName || 'N/A'}</span>
-              <span className="employee-sub">
-                {item.employee?.department || 'N/A'} • {item.employee?.designation || 'N/A'}
-              </span>
+              <span className="employee-sub">{item.employee?.department || 'N/A'}</span>
             </div>
           </div>
         )
@@ -91,6 +88,21 @@ const ClaimTable = ({
       {
         header: 'STATUS',
         accessor: (item) => <StatusBadge status={item.status} />
+      },
+      {
+        header: 'MODIFIED BY',
+        accessor: (item) => {
+          if (!item.modifiedBy) return <span style={{ color: 'var(--text-muted)' }}>-</span>;
+          const date = item.modifiedAt
+            ? new Date(item.modifiedAt).toLocaleDateString('en-IN', { timeZone: 'UTC' })
+            : '';
+          return (
+            <div>
+              <div>{item.modifiedBy.name}</div>
+              <div style={{ fontSize: '12px', color: 'var(--text-muted)', marginTop: '2px' }}>{date}</div>
+            </div>
+          );
+        }
       },
       {
         header: 'ATTACHMENTS',
@@ -118,18 +130,6 @@ const ClaimTable = ({
 
           return (
             <div className="table-actions">
-                <button
-                  type="button"
-                  className="action-btn"
-                  title="View"
-                  disabled={isBusy}
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    onView(item);
-                  }}
-                >
-                  <Eye size={18} />
-                </button>
               {actions.canEdit && onEdit && (
                 <button
                   type="button"

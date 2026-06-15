@@ -1,5 +1,4 @@
 import {
-  Eye,
   Download,
   Banknote,
   RefreshCw,
@@ -83,16 +82,6 @@ const PayrollTable = ({
 
         return (
           <div className="table-actions">
-            <button
-              type="button"
-              className="action-btn"
-              title="View"
-              disabled={isBusy}
-              onClick={(e) => { e.stopPropagation(); onView(item); }}
-            >
-              <Eye size={18} />
-            </button>
-
             {onDownload && (
               <button
                 type="button"

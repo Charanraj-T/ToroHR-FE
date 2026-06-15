@@ -38,11 +38,12 @@ interface SelectFieldProps extends React.SelectHTMLAttributes<HTMLSelectElement>
 }
 
 export const SelectField: React.FC<SelectFieldProps> = ({ label, options, error, ...props }) => {
+  const hasDefaultOption = options.some(o => o.value === '');
   return (
     <div className="form-field">
       <label htmlFor={props.id || props.name}>{label}</label>
       <select className={error ? 'error' : ''} {...props} id={props.id || props.name}>
-        <option value="">Select {label}</option>
+        {!hasDefaultOption && <option value="">Select {label}</option>}
         {options.map((opt) => (
           <option key={opt.value} value={opt.value}>
             {opt.label}

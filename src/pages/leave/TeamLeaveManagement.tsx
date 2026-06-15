@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useCallback } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Check, X, Calendar } from 'lucide-react';
 import Table, { type Column } from '../../components/ui/Table';
 import Pagination from '../../components/ui/Pagination';
@@ -39,39 +39,8 @@ const TeamLeaveManagement = () => {
   const [rejectionReason, setRejectionReason] = useState<string>('');
   const [isHolidayViewOpen, setIsHolidayViewOpen] = useState(false);
   const [actionLoading, setActionLoading] = useState<boolean>(false);
+  const [refreshKey, setRefreshKey] = useState(0);
   const actionSubmittedRef = useRef(false);
-  const abortRef = useRef<AbortController | null>(null);
-
-  const fetchLeaves = useCallback(async () => {
-    abortRef.current?.abort();
-    const controller = new AbortController();
-    abortRef.current = controller;
-
-    setLoading(true);
-    try {
-      const filters: LeaveFilterParams = {
-        page,
-        limit: PAGE_LIMIT,
-        search: searchRef.current.trim() || undefined,
-        leaveType: leaveType || undefined,
-        status: status || undefined,
-        startDate: startDate || undefined,
-        endDate: endDate || undefined,
-      };
-      
-      const response = await leaveService.getLeaves(filters);
-      if (controller.signal.aborted) return;
-      setLeaves(response.data || []);
-      setPagination({
-        totalPages: response.totalPages > 0 ? response.totalPages : 1,
-        totalItems: response.total || 0
-      });
-    } catch (error: any) {
-      if (error?.name === 'CanceledError' || error?.code === 'ERR_CANCELED') return;
-    } finally {
-      if (!controller.signal.aborted) setLoading(false);
-    }
-  }, [page, leaveType, status, startDate, endDate]);
 
   const commitSearch = (value: string) => {
     searchRef.current = value;
@@ -97,8 +66,39 @@ const TeamLeaveManagement = () => {
   };
 
   useEffect(() => {
-    fetchLeaves();
-  }, [fetchLeaves, searchVersion]);
+    const controller = new AbortController();
+
+    (async () => {
+      setLoading(true);
+      try {
+        const filters: LeaveFilterParams = {
+          page,
+          limit: PAGE_LIMIT,
+          search: searchRef.current.trim() || undefined,
+          leaveType: leaveType || undefined,
+          status: status || undefined,
+          startDate: startDate || undefined,
+          endDate: endDate || undefined,
+        };
+        const response = await leaveService.getLeaves(filters);
+        if (controller.signal.aborted) return;
+        setLeaves(response.data || []);
+        setPagination({
+          totalPages: response.totalPages > 0 ? response.totalPages : 1,
+          totalItems: response.total || 0
+        });
+      } catch (err) {
+        const error = err as { name?: string; code?: string };
+        if (error?.name === 'CanceledError' || error?.code === 'ERR_CANCELED') return;
+      } finally {
+        if (!controller.signal.aborted) setLoading(false);
+      }
+    })();
+
+    return () => {
+      controller.abort();
+    };
+  }, [page, leaveType, status, startDate, endDate, searchVersion, refreshKey]);
 
   useEffect(() => {
     return () => {
@@ -114,7 +114,7 @@ const TeamLeaveManagement = () => {
     try {
       await leaveService.approveLeave(id);
       addToast('Leave request approved successfully', 'success');
-      fetchLeaves();
+      setRefreshKey(k => k + 1);
     } catch {
       addToast('Failed to approve leave request', 'error');
     } finally {
@@ -140,7 +140,7 @@ const TeamLeaveManagement = () => {
       });
       addToast('Leave request rejected successfully', 'success');
       setRejectLeaveId(null);
-      fetchLeaves();
+      setRefreshKey(k => k + 1);
     } catch {
       addToast('Failed to reject leave request', 'error');
     } finally {
@@ -194,9 +194,16 @@ const TeamLeaveManagement = () => {
     },
     {
       header: 'MODIFIED BY',
-      accessor: (item: Leave) => (
-        <span>{item.modifiedBy?.name || '-'}</span>
-      )
+      accessor: (item: Leave) => {
+        if (!item.modifiedBy) return <span style={{ color: 'var(--text-muted)' }}>-</span>;
+        const date = item.modifiedAt ? new Date(item.modifiedAt).toLocaleDateString('en-IN', { timeZone: 'UTC' }) : '';
+        return (
+          <div>
+            <div>{item.modifiedBy.name}</div>
+            <div style={{ fontSize: '12px', color: 'var(--text-muted)', marginTop: '2px' }}>{date}</div>
+          </div>
+        );
+      }
     },
     {
       header: 'ACTIONS',

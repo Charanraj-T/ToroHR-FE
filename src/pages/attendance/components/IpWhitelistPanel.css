@@ -1,0 +1,111 @@
+.ip-whitelist-panel {
+  margin-top: 24px;
+  padding: 20px;
+  background: var(--bg-card, #fff);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+}
+
+.ip-whitelist-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 6px;
+}
+
+.ip-whitelist-header h3 {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.ip-whitelist-help-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  margin-left: auto;
+  border: none;
+  border-radius: 6px;
+  background: transparent;
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.ip-whitelist-help-btn:hover {
+  background: var(--bg-main);
+  color: var(--brand-primary);
+}
+
+.cidr-help-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+
+.cidr-help-table th {
+  text-align: left;
+  font-weight: 600;
+  color: var(--text-main);
+  padding: 8px 10px;
+  border-bottom: 2px solid var(--border-color);
+}
+
+.cidr-help-table td {
+  padding: 10px;
+  border-bottom: 1px solid var(--border-color);
+  color: var(--text-secondary);
+  vertical-align: top;
+}
+
+.cidr-help-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.cidr-help-table code {
+  font-size: 12px;
+  background: var(--bg-main);
+  padding: 2px 6px;
+  border-radius: 4px;
+  white-space: nowrap;
+  color: var(--brand-primary);
+}
+
+.ip-whitelist-hint {
+  margin: 0 0 16px 0;
+  font-size: 13px;
+  color: var(--text-muted);
+}
+
+.ip-whitelist-form {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 16px;
+  flex-wrap: wrap;
+}
+
+.ip-whitelist-form .form-input {
+  flex: 1;
+  min-width: 160px;
+}
+
+.ip-whitelist-remove-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border: none;
+  border-radius: 6px;
+  background: transparent;
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: background-color 0.2s, color 0.2s;
+}
+
+.ip-whitelist-remove-btn:hover {
+  background: var(--danger-bg, #fef2f2);
+  color: var(--danger, #ef4444);
+}

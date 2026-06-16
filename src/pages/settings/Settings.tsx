@@ -4,14 +4,16 @@ import { useAuthStore } from '../../store/authStore';
 import CompanySettingsPage from './CompanySettings';
 import Holidays from './Holidays';
 import PayrollSettingsForm from '../payroll/components/PayrollSettingsForm';
+import IpWhitelistPanel from '../attendance/components/IpWhitelistPanel';
 import './Settings.css';
 
-type SettingsTab = 'company' | 'holidays' | 'payroll';
+type SettingsTab = 'company' | 'holidays' | 'payroll' | 'network';
 
 const ALL_TABS = [
   { key: 'company' as const, label: 'Company' },
   { key: 'holidays' as const, label: 'Holidays' },
   { key: 'payroll' as const, label: 'Payroll' },
+  { key: 'network' as const, label: 'Network' },
 ];
 
 const Settings = () => {
@@ -23,9 +25,10 @@ const Settings = () => {
   useEffect(() => {
     const tab = searchParams.get('tab');
     if (tab === 'payroll') setActiveTab('payroll');
+    else if (tab === 'network') setActiveTab('network');
   }, [searchParams]);
 
-  const tabs = isAdmin ? ALL_TABS : ALL_TABS.filter((t) => t.key !== 'payroll');
+  const tabs = isAdmin ? ALL_TABS : ALL_TABS.filter((t) => t.key !== 'payroll' && t.key !== 'network');
 
   return (
     <div className="settings-module-container animate-fade-in">
@@ -45,6 +48,7 @@ const Settings = () => {
         {activeTab === 'company' && <CompanySettingsPage />}
         {activeTab === 'holidays' && <Holidays />}
         {activeTab === 'payroll' && isAdmin && <PayrollSettingsForm />}
+        {activeTab === 'network' && isAdmin && <IpWhitelistPanel />}
       </div>
     </div>
   );

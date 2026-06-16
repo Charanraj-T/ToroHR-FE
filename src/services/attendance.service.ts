@@ -53,6 +53,22 @@ const attendanceService = {
     return response.data.data;
   },
 
+  // IP Whitelist
+  getAllowedIps: async () => {
+    const response = await api.get('/api/attendance/ip-whitelist');
+    return response.data.data;
+  },
+
+  addIpRange: async (ipRange: string, label?: string) => {
+    const response = await api.post('/api/attendance/ip-whitelist', { ipRange, label });
+    return response.data;
+  },
+
+  removeIpRange: async (id: string) => {
+    const response = await api.delete(`/api/attendance/ip-whitelist/${id}`);
+    return response.data;
+  },
+
   exportCsv: async (params: AttendanceFilters = {}) => {
     const response = await api.get('/api/attendance/export/csv', { 
       params,

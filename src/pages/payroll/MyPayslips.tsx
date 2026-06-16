@@ -16,9 +16,9 @@ const PAGE_SIZE = 10;
 const { month: defaultMonth, year: defaultYear } = getCurrentYearMonth();
 
 const EMPTY_FILTERS: PayrollFilterValues = {
+  search: '',
   month: String(defaultMonth),
   year: String(defaultYear),
-  employee: '',
   status: ''
 };
 
@@ -102,7 +102,6 @@ const MyPayslips = () => {
 
       <PayrollFilters
         values={filters}
-        showEmployeeFilter={false}
         showStatusFilter
         onChange={handleFilterChange}
         onClear={handleClearFilters}

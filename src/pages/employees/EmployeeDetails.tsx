@@ -1,11 +1,19 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { ArrowLeft, Edit, User, Briefcase, Landmark, ShieldCheck } from 'lucide-react';
+import { ArrowLeft, Edit, User, Briefcase, Landmark, ShieldCheck, FileText } from 'lucide-react';
 import PageHeader from '../../components/ui/PageHeader';
 import StatusBadge from '../../components/ui/StatusBadge';
-import employeeService, { type Employee } from '../../services/employee.service';
+import employeeService, { type Employee, type EmployeeDocument } from '../../services/employee.service';
 import { useAuthStore } from '../../store/authStore';
+import { getFileIcon, formatFileSize } from '../../lib/file';
 import './EmployeeDetails.css';
+
+const DetailRow = ({ label, value }: { label: string, value?: string }) => (
+  <div className="detail-row">
+    <span className="detail-label">{label}</span>
+    <span className="detail-value">{value || 'N/A'}</span>
+  </div>
+);
 
 const EmployeeDetails = () => {
   const { id } = useParams();
@@ -29,13 +37,6 @@ const EmployeeDetails = () => {
 
   if (loading) return <div className="loading-state">Loading profile...</div>;
   if (!employee) return <div className="error-state">Employee not found</div>;
-
-  const DetailRow = ({ label, value }: { label: string, value?: string }) => (
-    <div className="detail-row">
-      <span className="detail-label">{label}</span>
-      <span className="detail-value">{value || 'N/A'}</span>
-    </div>
-  );
 
   const canEdit = user?.role === 'Admin' || user?.role === 'Manager';
 
@@ -98,7 +99,7 @@ const EmployeeDetails = () => {
               <DetailRow label="Designation" value={employee.designation} />
               <DetailRow label="Joining Date" value={employee.joiningDate ? new Date(employee.joiningDate).toLocaleDateString('en-IN', { timeZone: 'UTC' }) : 'N/A'} />
               <DetailRow label="Employment Type" value={employee.employmentType} />
-              <DetailRow label="Reporting Manager" value={(employee.reportingManager && typeof employee.reportingManager === 'object') ? (employee.reportingManager as any).fullName : 'N/A'} />
+              <DetailRow label="Reporting Manager" value={(employee.reportingManager && typeof employee.reportingManager === 'object') ? employee.reportingManager.fullName : 'N/A'} />
             </div>
           </div>
 
@@ -124,6 +125,29 @@ const EmployeeDetails = () => {
             </div>
           </div>
         </div>
+
+        {/* Documents Section */}
+        {(employee.documents || []).length > 0 && (
+          <div className="detail-section documents-section">
+            <div className="section-title">
+              <FileText size={18} /> <h3>Documents</h3>
+            </div>
+            <div>
+              <p className="documents-hint">Uploaded documents (Aadhaar, PAN, etc.)</p>
+              <div className="documents-list">
+                {(employee.documents || []).map((doc: EmployeeDocument) => (
+                  <div key={doc.id} className="document-item">
+                    <span className="document-item-icon">{getFileIcon(doc.mimeType)}</span>
+                    <span className="document-item-name" title={doc.fileName}>
+                      {doc.fileName}
+                    </span>
+                    <span className="document-item-size">{formatFileSize(doc.size)}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

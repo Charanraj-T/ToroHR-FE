@@ -5,6 +5,14 @@ export interface UserBrief {
   name: string;
 }
 
+export interface EmployeeDocument {
+  id: string;
+  fileName: string;
+  mimeType: string;
+  size: number;
+  data?: string;
+}
+
 export interface Employee {
   id: string;
   employeeId: string;
@@ -28,6 +36,7 @@ export interface Employee {
   panNumber?: string;
   aadhaarNumber?: string;
   password?: string;
+  documents?: EmployeeDocument[];
 }
 
 export interface EmployeeFilters {

@@ -1,8 +1,9 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { InputField, SelectField } from '../../../components/ui/FormFields';
-import employeeService, { type Employee } from '../../../services/employee.service';
+import employeeService, { type Employee, type EmployeeDocument } from '../../../services/employee.service';
 import { useToastStore } from '../../../store/toastStore';
-import { Loader2, Save, X } from 'lucide-react';
+import { ALLOWED_FILE_TYPES, ALLOWED_EXTENSIONS, MAX_FILE_SIZE, fileToBase64, getFileIcon } from '../../../lib/file';
+import { Loader2, Save, X, Upload } from 'lucide-react';
 import './EmployeeForm.css';
 
 interface EmployeeFormProps {
@@ -12,9 +13,11 @@ interface EmployeeFormProps {
   loading?: boolean;
 }
 
+const MAX_DOCUMENTS = 10;
+
 const EmployeeForm: React.FC<EmployeeFormProps> = ({ initialData, onSubmit, onCancel, loading }) => {
   const [formData, setFormData] = useState<Partial<Employee & { reportingManagerId?: string }>>(() => {
-    const data: any = {
+    const data: Record<string, unknown> = {
       fullName: '', email: '', phoneNumber: '', dateOfBirth: '', joiningDate: '',
       department: '', designation: '', employmentType: '', role: '',
       reportingManagerId: '', password: '', bankName: '', accountNumber: '',
@@ -28,19 +31,29 @@ const EmployeeForm: React.FC<EmployeeFormProps> = ({ initialData, onSubmit, onCa
     });
 
     // Format dates for input type="date"
-    if (data.dateOfBirth) data.dateOfBirth = new Date(data.dateOfBirth).toISOString().split('T')[0];
-    if (data.joiningDate) data.joiningDate = new Date(data.joiningDate).toISOString().split('T')[0];
+    if (data.dateOfBirth) data.dateOfBirth = new Date(data.dateOfBirth as string).toISOString().split('T')[0];
+    if (data.joiningDate) data.joiningDate = new Date(data.joiningDate as string).toISOString().split('T')[0];
 
     // Extract ID if reportingManager is an object
     if (typeof initialData?.reportingManager === 'object') {
-      data.reportingManagerId = (initialData.reportingManager as any)?.id || '';
+      const rm = initialData.reportingManager as { id: string };
+      data.reportingManagerId = rm?.id || '';
     }
 
     return data;
   });
 
-  const [managers, setManagers] = useState<any[]>([]);
+  const [managers, setManagers] = useState<Array<{ id: string; fullName: string; employeeId: string }>>([]);
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const documentInputRef = useRef<HTMLInputElement>(null);
+  const [formDocuments, setFormDocuments] = useState<EmployeeDocument[]>(() => {
+    if (initialData?.documents) {
+      return initialData.documents.map((doc) => ({
+        id: doc.id, fileName: doc.fileName, mimeType: doc.mimeType, size: doc.size, isExisting: !!doc.id
+      }));
+    }
+    return [];
+  });
 
   useEffect(() => {
     const fetchManagers = async () => {
@@ -79,20 +92,58 @@ const EmployeeForm: React.FC<EmployeeFormProps> = ({ initialData, onSubmit, onCa
     return Object.keys(newErrors).length === 0;
   };
 
+  const handleFileSelect = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    event.target.value = '';
+
+    if (!file) return;
+
+    if (formDocuments.length >= MAX_DOCUMENTS) {
+      alert(`A maximum of ${MAX_DOCUMENTS} documents is allowed`);
+      return;
+    }
+
+    if (!ALLOWED_FILE_TYPES.includes(file.type as typeof ALLOWED_FILE_TYPES[number])) {
+      alert('Unsupported file type. Allowed: JPG, PNG, PDF');
+      return;
+    }
+
+    if (file.size > MAX_FILE_SIZE) {
+      alert('File exceeds maximum size of 5MB');
+      return;
+    }
+
+    const data = await fileToBase64(file);
+    setFormDocuments((prev) => [
+      ...prev,
+      {
+        id: `new-${Date.now()}`,
+        fileName: file.name,
+        mimeType: file.type,
+        data,
+        size: file.size
+      }
+    ]);
+  };
+
+  const removeDocument = (docId: string) => {
+    setFormDocuments((prev) => prev.filter((d) => d.id !== docId));
+  };
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (validate()) {
-      // Clean up data before submission
-      const cleanData = { ...formData };
-      
-      // Remove empty password to avoid Joi validation error on backend
+      const cleanDocuments = formDocuments.map(({ id, ...rest }) => {
+        if (id && id.startsWith('new-')) return rest;
+        return { id, ...rest };
+      });
+
+      const cleanData = { ...formData, documents: cleanDocuments } as Partial<Employee>;
+
       if (!cleanData.password) {
         delete cleanData.password;
       }
 
-      // Convert empty strings to null for backend optional fields if needed
-      // but usually the backend handles it. Here we focus on password.
-      
       onSubmit(cleanData);
     }
   };
@@ -197,6 +248,39 @@ const EmployeeForm: React.FC<EmployeeFormProps> = ({ initialData, onSubmit, onCa
             <InputField label="IFSC Code" name="ifscCode" value={formData.ifscCode} onChange={handleChange} placeholder="GBNK0001234" />
             <InputField label="PAN Number" name="panNumber" value={formData.panNumber} onChange={handleChange} placeholder="ABCDE1234F" />
             <InputField label="Aadhaar Number" name="aadhaarNumber" value={formData.aadhaarNumber} onChange={handleChange} placeholder="1234 5678 9012" />
+          </div>
+        </div>
+
+        {/* Section E: Documents */}
+        <div className="form-card">
+          <h3>Documents</h3>
+          <p className="form-documents-hint">JPG, PNG, or PDF — max 5 MB each (up to {MAX_DOCUMENTS} files)</p>
+
+          {formDocuments.length > 0 && (
+            <div className="form-documents-list">
+              {formDocuments.map((doc) => (
+                <div key={doc.id} className="form-document-item">
+                  <span className="form-document-item-icon">{getFileIcon(doc.mimeType)}</span>
+                  <span className="form-document-item-name" title={doc.fileName}>{doc.fileName}</span>
+                  <button type="button" className="form-document-remove-btn" onClick={() => removeDocument(doc.id)} aria-label={`Remove ${doc.fileName}`}>
+                    <X size={16} />
+                  </button>
+                </div>
+              ))}
+            </div>
+          )}
+
+          <div
+            className={`form-document-upload-zone${formDocuments.length >= MAX_DOCUMENTS ? ' disabled' : ''}`}
+            onClick={() => formDocuments.length < MAX_DOCUMENTS && documentInputRef.current?.click()}
+            onKeyDown={(e) => e.key === 'Enter' && formDocuments.length < MAX_DOCUMENTS && documentInputRef.current?.click()}
+            role="button"
+            tabIndex={0}
+            aria-disabled={formDocuments.length >= MAX_DOCUMENTS}
+          >
+            <Upload size={20} />
+            <span>{formDocuments.length >= MAX_DOCUMENTS ? `Maximum ${MAX_DOCUMENTS} documents reached` : 'Click to upload document'}</span>
+            <input ref={documentInputRef} type="file" accept={ALLOWED_EXTENSIONS} hidden onChange={handleFileSelect} />
           </div>
         </div>
       </div>

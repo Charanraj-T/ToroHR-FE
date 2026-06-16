@@ -33,6 +33,8 @@ const EditEmployee = () => {
       await employeeService.updateEmployee(id!, data);
       addToast('Employee updated successfully', 'success');
       navigate(`/employees/${id}`);
+    } catch {
+      addToast('Failed to update employee', 'error');
     } finally {
       setLoading(false);
     }

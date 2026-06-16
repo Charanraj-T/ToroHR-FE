@@ -1,11 +1,11 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { ArrowLeft, Edit, User, Briefcase, Landmark, ShieldCheck, FileText } from 'lucide-react';
+import { ArrowLeft, Edit, User, Briefcase, Landmark, ShieldCheck, FileText, Eye, Download } from 'lucide-react';
 import PageHeader from '../../components/ui/PageHeader';
 import StatusBadge from '../../components/ui/StatusBadge';
 import employeeService, { type Employee, type EmployeeDocument } from '../../services/employee.service';
 import { useAuthStore } from '../../store/authStore';
-import { getFileIcon, formatFileSize } from '../../lib/file';
+import { getFileIcon, formatFileSize, getFileDataUrl, openFile, downloadFile } from '../../lib/file';
 import './EmployeeDetails.css';
 
 const DetailRow = ({ label, value }: { label: string, value?: string }) => (
@@ -135,15 +135,38 @@ const EmployeeDetails = () => {
             <div>
               <p className="documents-hint">Uploaded documents (Aadhaar, PAN, etc.)</p>
               <div className="documents-list">
-                {(employee.documents || []).map((doc: EmployeeDocument) => (
-                  <div key={doc.id} className="document-item">
-                    <span className="document-item-icon">{getFileIcon(doc.mimeType)}</span>
-                    <span className="document-item-name" title={doc.fileName}>
-                      {doc.fileName}
-                    </span>
-                    <span className="document-item-size">{formatFileSize(doc.size)}</span>
-                  </div>
-                ))}
+                {(employee.documents || []).map((doc: EmployeeDocument) => {
+                  const previewUrl = getFileDataUrl(doc.mimeType, doc.data);
+                  return (
+                    <div key={doc.id} className="document-item">
+                      <span className="document-item-icon">{getFileIcon(doc.mimeType)}</span>
+                      <span className="document-item-name" title={doc.fileName}>
+                        {doc.fileName}
+                      </span>
+                      <span className="document-item-size">{formatFileSize(doc.size)}</span>
+                      <div className="document-item-actions">
+                        <button
+                          type="button"
+                          className="document-item-action"
+                          title="Open"
+                          onClick={() => openFile(doc.mimeType, doc.data)}
+                          disabled={!previewUrl}
+                        >
+                          <Eye size={14} />
+                        </button>
+                        <button
+                          type="button"
+                          className="document-item-action"
+                          title="Download"
+                          onClick={() => downloadFile(doc.mimeType, doc.data, doc.fileName)}
+                          disabled={!previewUrl}
+                        >
+                          <Download size={14} />
+                        </button>
+                      </div>
+                    </div>
+                  );
+                })}
               </div>
             </div>
           </div>

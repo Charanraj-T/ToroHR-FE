@@ -25,3 +25,36 @@ export const formatFileSize = (bytes: number) => {
   if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
   return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
 };
+
+export const base64ToBlobUrl = (data: string, mimeType: string): string => {
+  const byteChars = atob(data);
+  const byteNumbers = new Array(byteChars.length);
+  for (let i = 0; i < byteChars.length; i++) {
+    byteNumbers[i] = byteChars.charCodeAt(i);
+  }
+  const blob = new Blob([new Uint8Array(byteNumbers)], { type: mimeType });
+  return URL.createObjectURL(blob);
+};
+
+export const getFileDataUrl = (mimeType: string, data?: string | null) => {
+  if (!data) return null;
+  return `data:${mimeType};base64,${data}`;
+};
+
+export const openFile = (mimeType: string, data?: string | null) => {
+  if (!data) return;
+  const url = base64ToBlobUrl(data, mimeType);
+  window.open(url);
+};
+
+export const downloadFile = (mimeType: string, data?: string | null, fileName?: string) => {
+  if (!data) return;
+  const url = getFileDataUrl(mimeType, data);
+  if (!url) return;
+  const ext = mimeType === 'application/pdf' ? '.pdf' : '.jpg';
+  const link = document.createElement('a');
+  link.href = url;
+  link.download = fileName || `file${ext}`;
+  link.rel = 'noopener noreferrer';
+  link.click();
+};

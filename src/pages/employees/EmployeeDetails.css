@@ -90,6 +90,36 @@
   flex-shrink: 0;
 }
 
+.document-item-actions {
+  display: flex;
+  gap: 4px;
+  flex-shrink: 0;
+}
+
+.document-item-action {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border: none;
+  border-radius: 6px;
+  background: transparent;
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: background-color 0.2s, color 0.2s;
+}
+
+.document-item-action:hover:not(:disabled) {
+  background: var(--bg-hover);
+  color: var(--brand-primary);
+}
+
+.document-item-action:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
 .document-remove-btn {
   display: flex;
   align-items: center;

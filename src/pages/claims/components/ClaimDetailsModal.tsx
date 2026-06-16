@@ -9,6 +9,7 @@ import {
   formatClaimDate,
   getClaimActions
 } from '../claimHelpers';
+import { getFileDataUrl, openFile, downloadFile } from '../../../lib/file';
 import EmptyState from './EmptyState';
 import LoadingSkeleton from './LoadingSkeleton';
 import './ClaimDetailsModal.css';
@@ -73,39 +74,6 @@ const ClaimDetailsModal = ({
     } finally {
       setActionLoading(false);
     }
-  };
-
-  const getAttachmentUrl = (mimeType: string, data?: string | null) => {
-    if (!data) return null;
-    return `data:${mimeType};base64,${data}`;
-  };
-
-  const base64ToBlobUrl = (data: string, mimeType: string): string => {
-    const byteChars = atob(data);
-    const byteNumbers = new Array(byteChars.length);
-    for (let i = 0; i < byteChars.length; i++) {
-      byteNumbers[i] = byteChars.charCodeAt(i);
-    }
-    const blob = new Blob([new Uint8Array(byteNumbers)], { type: mimeType });
-    return URL.createObjectURL(blob);
-  };
-
-  const openAttachment = (mimeType: string, data?: string | null) => {
-    if (!data) return;
-    const url = base64ToBlobUrl(data, mimeType);
-    window.open(url);
-  };
-
-  const downloadAttachment = (mimeType: string, data?: string | null, fileName?: string) => {
-    if (!data) return;
-    const url = getAttachmentUrl(mimeType, data);
-    if (!url) return;
-    const ext = mimeType === 'application/pdf' ? '.pdf' : '.jpg';
-    const link = document.createElement('a');
-    link.href = url;
-    link.download = fileName || `attachment${ext}`;
-    link.rel = 'noopener noreferrer';
-    link.click();
   };
 
   const actions = claim ? getClaimActions(claim, role, employeeId) : null;
@@ -215,7 +183,7 @@ const ClaimDetailsModal = ({
             ) : (
               <div className="claim-attachments-list">
                 {claim.attachments.map((attachment) => {
-                  const previewUrl = getAttachmentUrl(attachment.mimeType, attachment.data);
+                  const previewUrl = getFileDataUrl(attachment.mimeType, attachment.data);
                   const isImage = attachment.mimeType.startsWith('image/');
 
                   return (
@@ -229,7 +197,7 @@ const ClaimDetailsModal = ({
                             className="claim-attachment-action"
                             title="Open"
                             onClick={() =>
-                              openAttachment(attachment.mimeType, attachment.data)
+                              openFile(attachment.mimeType, attachment.data)
                             }
                             disabled={!previewUrl}
                           >
@@ -240,7 +208,7 @@ const ClaimDetailsModal = ({
                             className="claim-attachment-action"
                             title="Download"
                             onClick={() =>
-                              downloadAttachment(attachment.mimeType, attachment.data, attachment.fileName)
+                              downloadFile(attachment.mimeType, attachment.data, attachment.fileName)
                             }
                             disabled={!previewUrl}
                           >

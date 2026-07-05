@@ -3,13 +3,23 @@ import Modal from '../../../components/ui/Modal';
 import { FormField } from '../../../components/ui/FormFields';
 import './AttendanceModal.css';
 
+interface AttendanceFormData {
+  status: string;
+  checkInTime: string;
+  checkOutTime: string;
+}
+
+interface AttendanceInitialData extends AttendanceFormData {
+  id?: string | null;
+}
+
 interface AttendanceModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onSubmit: (data: any) => void;
+  onSubmit: (data: AttendanceFormData) => void;
   employeeName: string;
   date: string;
-  initialData?: any;
+  initialData?: AttendanceInitialData;
 }
 
 const AttendanceModal: React.FC<AttendanceModalProps> = ({
@@ -20,7 +30,7 @@ const AttendanceModal: React.FC<AttendanceModalProps> = ({
   date,
   initialData
 }) => {
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<AttendanceFormData>({
     checkInTime: initialData?.checkInTime || '',
     checkOutTime: initialData?.checkOutTime || '',
     status: initialData?.status || 'Present'

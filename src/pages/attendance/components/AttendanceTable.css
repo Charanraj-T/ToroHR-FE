@@ -135,3 +135,8 @@
 .current-day {
   background-color: color-mix(in srgb, var(--brand-primary) 3%, transparent);
 }
+
+.future-day {
+  opacity: 0.5;
+  pointer-events: none;
+}

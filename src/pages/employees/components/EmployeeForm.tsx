@@ -115,6 +115,14 @@ const EmployeeForm: React.FC<EmployeeFormProps> = ({ initialData, onSubmit, onCa
     if (!formData.email) newErrors.email = 'Email is required';
     if (!formData.phoneNumber) newErrors.phoneNumber = 'Phone Number is required';
     else if (!/^[6-9]\d{9}$/.test(formData.phoneNumber)) newErrors.phoneNumber = 'Phone number must be 10 digits';
+    if (formData.dateOfBirth) {
+      const dob = new Date(formData.dateOfBirth);
+      const today = new Date();
+      const minDate = new Date(today.getFullYear() - 18, today.getMonth(), today.getDate());
+      if (dob > minDate) {
+        newErrors.dateOfBirth = 'Enter valid age';
+      }
+    }
     if (!formData.department) newErrors.department = 'Department is required';
     if (!formData.designation) newErrors.designation = 'Designation is required';
     if (!initialData?.id && !formData.password) newErrors.password = 'Password is required';
@@ -189,7 +197,7 @@ const EmployeeForm: React.FC<EmployeeFormProps> = ({ initialData, onSubmit, onCa
             <InputField label="Full Name" name="fullName" value={formData.fullName} onChange={handleChange} error={errors.fullName} placeholder="John Doe" required maxLength={60} />
             <InputField label="Email Address" name="email" type="email" value={formData.email} onChange={handleChange} error={errors.email} placeholder="john@company.com" required maxLength={254} />
             <InputField label="Phone Number" name="phoneNumber" value={formData.phoneNumber} onChange={handleChange} error={errors.phoneNumber} placeholder="9876543210" required maxLength={10} />
-            <InputField label="Date of Birth" name="dateOfBirth" type="date" value={formData.dateOfBirth} onChange={handleChange} required />
+            <InputField label="Date of Birth" name="dateOfBirth" type="date" value={formData.dateOfBirth} onChange={handleChange} error={errors.dateOfBirth} max={new Date(new Date().setFullYear(new Date().getFullYear() - 18)).toISOString().split('T')[0]} required />
             <InputField 
               label={initialData?.id ? "Update Password" : "Login Password"} 
               name="password" 

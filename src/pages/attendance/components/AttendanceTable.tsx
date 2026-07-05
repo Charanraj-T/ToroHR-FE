@@ -3,12 +3,22 @@ import AttendanceIndicator from './AttendanceIndicator';
 import { isWeekend } from '../../../lib/date';
 import './AttendanceTable.css';
 
+type AttendanceStatus = 'Present' | 'Absent' | 'Leave' | 'Weekend' | 'Half-day' | 'Holiday' | 'N/A';
+
+interface AttendanceTableRow {
+  id: string;
+  fullName: string;
+  employeeId: string;
+  avatar: string | null;
+  attendance: Record<string, string>;
+}
+
 interface AttendanceTableProps {
-  data: any[];
+  data: AttendanceTableRow[];
   startDay: number;
   endDay: number;
   currentDate: number;
-  onUpdate: (employee: any, day: number) => void;
+  onUpdate: (employee: AttendanceTableRow, day: number) => void;
   startDate: string;
   holidayDates?: Set<string>;
 }
@@ -16,21 +26,31 @@ interface AttendanceTableProps {
 const AttendanceTable: React.FC<AttendanceTableProps> = ({ data, startDay, endDay, currentDate, onUpdate, startDate, holidayDates }) => {
   const [baseY, baseM] = startDate.split('-').map(Number);
 
+  const today = new Date();
+  const todayY = today.getFullYear();
+  const todayM = today.getMonth() + 1;
+  const todayD = today.getDate();
+
+  const isFutureDay = (day: number) => {
+    return baseY > todayY || (baseY === todayY && baseM > todayM) || (baseY === todayY && baseM === todayM && day > todayD);
+  };
+
+  const days = Array.from({ length: endDay - startDay + 1 }, (_, i) => startDay + i);
+  const futureDays = new Set(days.filter(isFutureDay));
+
   const isHoliday = (day: number) => {
     const dateStr = `${baseY}-${String(baseM).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
     return holidayDates?.has(dateStr) || false;
   };
 
-  const getDayStatus = (day: number, dayStatus: string | undefined) => {
-    if (dayStatus) return dayStatus as any;
+  const getDayStatus = (day: number, dayStatus: string | undefined): AttendanceStatus => {
+    if (dayStatus) return dayStatus as AttendanceStatus;
     if (isHoliday(day)) return 'Holiday' as const;
     if (isWeekend(baseY, baseM, day)) return 'Holiday' as const;
     return 'N/A' as const;
   };
 
-  const days = Array.from({ length: endDay - startDay + 1 }, (_, i) => startDay + i);
-
-  const getWorkedDays = (row: any) => {
+  const getWorkedDays = (row: AttendanceTableRow) => {
     let count = 0;
     days.forEach(day => {
       const status = getDayStatus(day, row.attendance?.[day]);
@@ -48,7 +68,7 @@ const AttendanceTable: React.FC<AttendanceTableProps> = ({ data, startDay, endDa
             <th className="sticky-col second-col">Actions</th>
             <th className="sticky-col third-col">Worked</th>
             {days.map(day => (
-              <th key={day} className={day === currentDate ? 'current-day' : ''}>
+              <th key={day} className={`${day === currentDate ? 'current-day' : ''}${futureDays.has(day) ? ' future-day' : ''}`}>
                 {day}
               </th>
             ))}
@@ -91,12 +111,13 @@ const AttendanceTable: React.FC<AttendanceTableProps> = ({ data, startDay, endDa
                 const dayStatus = row.attendance?.[day];
                 const status = getDayStatus(day, dayStatus);
 
+                const isFuture = futureDays.has(day);
                 return (
-                  <td key={day} className={day === currentDate ? 'current-day' : ''}>
+                  <td key={day} className={`${day === currentDate ? 'current-day' : ''}${isFuture ? ' future-day' : ''}`}>
                     <AttendanceIndicator
                       status={status}
                       size="sm"
-                      onClick={() => onUpdate(row, day)}
+                      onClick={isFuture ? undefined : () => onUpdate(row, day)}
                     />
                   </td>
                 );

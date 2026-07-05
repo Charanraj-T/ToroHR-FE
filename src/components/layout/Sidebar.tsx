@@ -56,10 +56,16 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
               <CalendarClock size={20} />
               <span>Attendance</span>
             </NavLink>
-            <NavLink to="/employees" className={({ isActive }) => `menu-item ${isActive ? 'active' : ''}`}>
+            <NavLink to="/employees" end className={({ isActive }) => `menu-item ${isActive ? 'active' : ''}`}>
               <Users size={20} />
               <span>Employees</span>
             </NavLink>
+            {user?.employeeId && (
+              <NavLink to={`/employees/${user.employeeId}`} className={({ isActive }) => `menu-item ${isActive ? 'active' : ''}`}>
+                <Users size={20} />
+                <span>My Profile</span>
+              </NavLink>
+            )}
           </>
         )}
         

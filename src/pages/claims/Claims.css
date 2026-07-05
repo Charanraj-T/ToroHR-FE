@@ -2,7 +2,7 @@
   padding: 10px 0;
   display: flex;
   flex-direction: column;
-  gap: 24px;
+  gap: 20px;
 }
 
 .claim-cancel-text {

@@ -36,6 +36,7 @@ export interface ClaimSummary {
 export interface ClaimFilters {
   page?: number;
   limit?: number;
+  filter?: string;
   employee?: string;
   status?: string;
   dateFrom?: string;

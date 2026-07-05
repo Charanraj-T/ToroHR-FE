@@ -1,4 +1,5 @@
 import { Search, X } from 'lucide-react';
+import { getTodayIST } from '../../../lib/date';
 
 interface HolidayFiltersProps {
   search: string;
@@ -8,7 +9,7 @@ interface HolidayFiltersProps {
   onClear: () => void;
 }
 
-const currentYear = new Date().getFullYear();
+const currentYear = getTodayIST().year;
 const YEAR_OPTIONS = [
   { value: '', label: 'All Years' },
   ...Array.from({ length: 5 }, (_, i) => {

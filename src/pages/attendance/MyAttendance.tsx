@@ -6,7 +6,7 @@ import Table from '../../components/ui/Table';
 import StatusBadge from '../../components/ui/StatusBadge';
 import attendanceService, { type AttendanceRecord } from '../../services/attendance.service';
 import { useToastStore } from '../../store/toastStore';
-import { formatDateOnly, getMonthBoundaries, toISTTime } from '../../lib/date';
+import { buildDateStr, getMonthBoundaries, getTodayIST, toISTTime } from '../../lib/date';
 import './MyAttendance.css';
 
 interface AttendanceStats {
@@ -24,11 +24,10 @@ const MyAttendance: React.FC = () => {
   const [refreshKey, setRefreshKey] = useState(0);
   const addToast = useToastStore(state => state.addToast);
 
-  const now = useMemo(() => new Date(), []);
-  const { start: defaultStart, end: defaultEnd } = useMemo(
-    () => getMonthBoundaries(now.getFullYear(), now.getMonth() + 1),
-    [now]
-  );
+  const { start: defaultStart, end: defaultEnd } = useMemo(() => {
+    const { year, month } = getTodayIST();
+    return getMonthBoundaries(year, month);
+  }, []);
 
   useEffect(() => {
     let cancelled = false;
@@ -40,7 +39,8 @@ const MyAttendance: React.FC = () => {
         const data: AttendanceRecord[] = (historyRes?.data || []);
         setHistory(data);
 
-        const todayStr = formatDateOnly(now);
+        const { year, month, day } = getTodayIST();
+        const todayStr = buildDateStr(year, month, day);
         const todayRec = data.find((r) => r.date?.startsWith(todayStr));
         if (cancelled) return;
         setTodayRecord(todayRec || null);
@@ -68,7 +68,7 @@ const MyAttendance: React.FC = () => {
       }
     })();
     return () => { cancelled = true; };
-  }, [refreshKey, now, addToast, defaultStart, defaultEnd]);
+  }, [refreshKey, addToast, defaultStart, defaultEnd]);
 
   const handleCheckIn = async () => {
     setActionLoading(true);

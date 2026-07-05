@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Plus, Search, Users, UserCheck, UserMinus, Edit2, UserX, UserCheck2, X } from 'lucide-react';
+import { Plus, Search, Users, UserCheck, UserMinus, UserCog, UserRound, Edit2, UserX, UserCheck2, X } from 'lucide-react';
 import PageHeader from '../../components/ui/PageHeader';
 import StatsCard from '../../components/ui/StatsCard';
 import Table, { type Column } from '../../components/ui/Table';
@@ -16,13 +16,14 @@ const EmployeeList = () => {
   const { user } = useAuthStore();
   const [employees, setEmployees] = useState<Employee[]>([]);
   const [loading, setLoading] = useState(true);
-  const [stats, setStats] = useState({ total: 0, active: 0, inactive: 0 });
+  const [stats, setStats] = useState({ total: 0, active: 0, inactive: 0, managers: 0, employees: 0 });
   const [filters, setFilters] = useState({
     page: 1,
     limit: 10,
     search: '',
     department: '',
-    status: ''
+    status: '',
+    role: ''
   });
   const [pagination, setPagination] = useState({
     totalPages: 1,
@@ -89,7 +90,7 @@ const EmployeeList = () => {
 
   const clearFilters = () => {
     setSearchInput('');
-    setFilters({ ...filters, search: '', department: '', status: '', page: 1 });
+    setFilters({ ...filters, search: '', department: '', status: '', role: '', page: 1 });
   };
 
   const handleToggleStatus = async () => {
@@ -209,6 +210,8 @@ const EmployeeList = () => {
         <StatsCard title="Total Employees" value={stats.total} icon={<Users size={24} />} variant="dark" />
         <StatsCard title="Active" value={stats.active} icon={<UserCheck size={24} />} variant="green" />
         <StatsCard title="Inactive" value={stats.inactive} icon={<UserMinus size={24} />} variant="red" />
+        <StatsCard title="Managers" value={stats.managers} icon={<UserCog size={24} />} variant="blue" />
+        <StatsCard title="Employees" value={stats.employees} icon={<UserRound size={24} />} variant="blue" />
       </div>
 
       <div className="filter-card">
@@ -239,6 +242,17 @@ const EmployeeList = () => {
 
           <div className="filter-select">
             <select
+              value={filters.role}
+              onChange={(e) => setFilters({ ...filters, role: e.target.value, page: 1 })}
+            >
+              <option value="">All Roles</option>
+              <option value="Manager">Manager</option>
+              <option value="Employee">Employee</option>
+            </select>
+          </div>
+
+          <div className="filter-select">
+            <select
               value={filters.status}
               onChange={(e) => setFilters({ ...filters, status: e.target.value, page: 1 })}
             >
@@ -252,7 +266,7 @@ const EmployeeList = () => {
             type="button"
             className="filter-clear-btn"
             onClick={clearFilters}
-            disabled={!searchInput && !filters.department && !filters.status}
+            disabled={!searchInput && !filters.department && !filters.status && !filters.role}
             title="Clear filters"
             aria-label="Clear filters"
           >

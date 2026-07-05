@@ -1,4 +1,5 @@
 import type { Payroll } from '../../services/payroll.service';
+import { getTodayIST } from '../../lib/date';
 
 export const MONTH_NAMES = [
   'January', 'February', 'March', 'April', 'May', 'June',
@@ -28,12 +29,12 @@ export const getNetPay = (payroll: Payroll) => {
 };
 
 export const getCurrentYearMonth = () => {
-  const now = new Date();
-  return { month: now.getMonth() + 1, year: now.getFullYear() };
+  const { year, month } = getTodayIST();
+  return { month, year };
 };
 
 export const buildYearOptions = (range = 5) => {
-  const currentYear = new Date().getFullYear();
+  const currentYear = getTodayIST().year;
   return Array.from({ length: range * 2 + 1 }, (_, i) => currentYear - range + i);
 };
 

@@ -50,8 +50,16 @@ export const getMonthBoundaries = (year: number, month: number): { start: string
 };
 
 export const getCurrentYearMonth = (): { year: number; month: number } => {
-  const now = new Date();
-  return { year: now.getFullYear(), month: now.getMonth() + 1 };
+  const { year, month } = getTodayIST();
+  return { year, month };
+};
+
+export const getTodayIST = (): { year: number; month: number; day: number } => {
+  const [year, month, day] = new Date()
+    .toLocaleDateString("en-CA", { timeZone: "Asia/Kolkata" })
+    .split("-")
+    .map(Number);
+  return { year, month, day };
 };
 
 export const parseDateParts = (date: Date | string): { year: number; month: number; day: number } => {

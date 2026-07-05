@@ -1,6 +1,6 @@
 import React from 'react';
 import AttendanceIndicator from './AttendanceIndicator';
-import { isWeekend } from '../../../lib/date';
+import { isWeekend, getTodayIST } from '../../../lib/date';
 import './AttendanceTable.css';
 
 type AttendanceStatus = 'Present' | 'Absent' | 'Leave' | 'Weekend' | 'Half-day' | 'Holiday' | 'N/A';
@@ -26,10 +26,7 @@ interface AttendanceTableProps {
 const AttendanceTable: React.FC<AttendanceTableProps> = ({ data, startDay, endDay, currentDate, onUpdate, startDate, holidayDates }) => {
   const [baseY, baseM] = startDate.split('-').map(Number);
 
-  const today = new Date();
-  const todayY = today.getFullYear();
-  const todayM = today.getMonth() + 1;
-  const todayD = today.getDate();
+  const { year: todayY, month: todayM, day: todayD } = getTodayIST();
 
   const isFutureDay = (day: number) => {
     return baseY > todayY || (baseY === todayY && baseM > todayM) || (baseY === todayY && baseM === todayM && day > todayD);

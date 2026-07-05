@@ -1,4 +1,5 @@
 import api from '../lib/api';
+import { getTodayIST } from '../lib/date';
 
 export interface AttendanceRecord {
   id: string;
@@ -76,8 +77,8 @@ const attendanceService = {
     });
 
     const contentDisposition = response.headers['content-disposition'];
-    const now = new Date();
-    const fallbackFilename = `attendance-summary-${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}.csv`;
+    const { year, month } = getTodayIST();
+    const fallbackFilename = `attendance-summary-${year}-${String(month).padStart(2, '0')}.csv`;
     const filename = contentDisposition
       ? contentDisposition.split('filename=')[1]?.replace(/"/g, '') || fallbackFilename
       : fallbackFilename;

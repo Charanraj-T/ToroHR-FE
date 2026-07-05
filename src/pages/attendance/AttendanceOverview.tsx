@@ -11,13 +11,14 @@ import PageHeader from '../../components/ui/PageHeader';
 import StatsCard from '../../components/ui/StatsCard';
 import AttendanceTable from './components/AttendanceTable';
 import AttendanceModal from './components/AttendanceModal';
+import type { AttendanceFormData } from './components/AttendanceModal';
 import Pagination from '../../components/ui/Pagination';
 import attendanceService, { type AttendanceRecord } from '../../services/attendance.service';
 import employeeService from '../../services/employee.service';
 import holidayService from '../../services/holiday.service';
 import { useToastStore } from '../../store/toastStore';
 import { useAuthStore } from '../../store/authStore';
-import { formatDateOnly, buildDateStr, isWeekend, getMonthBoundaries, getCurrentYearMonth, toISTTime } from '../../lib/date';
+import { formatDateOnly, buildDateStr, isWeekend, getMonthBoundaries, getCurrentYearMonth, toISTTime, getTodayIST } from '../../lib/date';
 import './AttendanceOverview.css';
 
 interface EmployeeAttendance {
@@ -85,12 +86,9 @@ const AttendanceOverview: React.FC = () => {
   const daysInMonth = new Date(Date.UTC(startY, startM, 0)).getUTCDate();
   const startDay = sameMonth ? startD : 1;
   const endDay = sameMonth ? endD : daysInMonth;
-  const now = new Date();
-  const todayUTC = formatDateOnly(now);
-  const [todayY, todayM, todayD] = todayUTC.split('-').map(Number);
+  const { year: todayY, month: todayM, day: todayD } = getTodayIST();
   const isCurrentMonth = startY === todayY && startM === todayM;
-  const todayDateNum = todayD;
-  const currentDate = (isCurrentMonth && todayDateNum >= startDay && todayDateNum <= endDay) ? todayDateNum : 0;
+  const currentDate = (isCurrentMonth && todayD >= startDay && todayD <= endDay) ? todayD : 0;
 
   const workingDays = Array.from({ length: endDay - startDay + 1 }, (_, i) => startDay + i).filter(day => {
     if (isWeekend(startY, startM, day)) return false;
@@ -195,7 +193,8 @@ const AttendanceOverview: React.FC = () => {
 
   const handleSelfMark = async () => {
     if (!user?.employeeId) return;
-    const dateStr = formatDateOnly(new Date());
+    const { year, month, day } = getTodayIST();
+    const dateStr = buildDateStr(year, month, day);
 
     let recordData = {
       status: 'Present',
@@ -226,7 +225,7 @@ const AttendanceOverview: React.FC = () => {
         employeeId: user.employeeId,
         attendance: {}
       },
-      day: todayDateNum,
+      day: todayD,
       dateString: dateStr,
       attendance: recordData
     });
@@ -277,7 +276,7 @@ const AttendanceOverview: React.FC = () => {
     setModalOpen(true);
   };
 
-  const handleModalSubmit = async (data: Record<string, unknown>) => {
+  const handleModalSubmit = async (data: AttendanceFormData) => {
     if (!selectedRecord) return;
     try {
       if (selectedRecord.attendance?.id) {

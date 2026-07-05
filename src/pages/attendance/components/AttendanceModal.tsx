@@ -3,7 +3,7 @@ import Modal from '../../../components/ui/Modal';
 import { FormField } from '../../../components/ui/FormFields';
 import './AttendanceModal.css';
 
-interface AttendanceFormData {
+export interface AttendanceFormData {
   status: string;
   checkInTime: string;
   checkOutTime: string;

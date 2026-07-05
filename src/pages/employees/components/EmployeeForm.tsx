@@ -3,6 +3,7 @@ import { InputField, SelectField } from '../../../components/ui/FormFields';
 import employeeService, { type Employee, type EmployeeDocument } from '../../../services/employee.service';
 import { useToastStore } from '../../../store/toastStore';
 import { ALLOWED_FILE_TYPES, ALLOWED_EXTENSIONS, MAX_FILE_SIZE, fileToBase64, getFileIcon } from '../../../lib/file';
+import { getTodayIST } from '../../../lib/date';
 import { Loader2, Save, X, Upload, Plus, Trash2 } from 'lucide-react';
 import './EmployeeForm.css';
 
@@ -117,14 +118,17 @@ const EmployeeForm: React.FC<EmployeeFormProps> = ({ initialData, onSubmit, onCa
     else if (!/^[6-9]\d{9}$/.test(formData.phoneNumber)) newErrors.phoneNumber = 'Phone number must be 10 digits';
     if (formData.dateOfBirth) {
       const dob = new Date(formData.dateOfBirth);
-      const today = new Date();
-      const minDate = new Date(today.getFullYear() - 18, today.getMonth(), today.getDate());
+      const { year, month, day } = getTodayIST();
+      const minDate = new Date(year - 18, month - 1, day);
       if (dob > minDate) {
         newErrors.dateOfBirth = 'Enter valid age';
       }
     }
     if (!formData.department) newErrors.department = 'Department is required';
     if (!formData.designation) newErrors.designation = 'Designation is required';
+    if (!formData.joiningDate) newErrors.joiningDate = 'Joining Date is required';
+    if (!formData.employmentType) newErrors.employmentType = 'Employment Type is required';
+    if (!formData.role) newErrors.role = 'Role is required';
     if (!initialData?.id && !formData.password) newErrors.password = 'Password is required';
     
     setErrors(newErrors);
@@ -187,6 +191,9 @@ const EmployeeForm: React.FC<EmployeeFormProps> = ({ initialData, onSubmit, onCa
     }
   };
 
+  const { year: curYear, month: curMonth, day: curDay } = getTodayIST();
+  const maxDobDate = `${curYear - 18}-${String(curMonth).padStart(2, '0')}-${String(curDay).padStart(2, '0')}`;
+
   return (
     <form className="employee-form" onSubmit={handleSubmit}>
       <div className="form-section">
@@ -197,7 +204,7 @@ const EmployeeForm: React.FC<EmployeeFormProps> = ({ initialData, onSubmit, onCa
             <InputField label="Full Name" name="fullName" value={formData.fullName} onChange={handleChange} error={errors.fullName} placeholder="John Doe" required maxLength={60} />
             <InputField label="Email Address" name="email" type="email" value={formData.email} onChange={handleChange} error={errors.email} placeholder="john@company.com" required maxLength={254} />
             <InputField label="Phone Number" name="phoneNumber" value={formData.phoneNumber} onChange={handleChange} error={errors.phoneNumber} placeholder="9876543210" required maxLength={10} />
-            <InputField label="Date of Birth" name="dateOfBirth" type="date" value={formData.dateOfBirth} onChange={handleChange} error={errors.dateOfBirth} max={new Date(new Date().setFullYear(new Date().getFullYear() - 18)).toISOString().split('T')[0]} required />
+            <InputField label="Date of Birth" name="dateOfBirth" type="date" value={formData.dateOfBirth} onChange={handleChange} error={errors.dateOfBirth} max={maxDobDate} required />
             <InputField 
               label={initialData?.id ? "Update Password" : "Login Password"} 
               name="password" 
@@ -218,7 +225,7 @@ const EmployeeForm: React.FC<EmployeeFormProps> = ({ initialData, onSubmit, onCa
           <h3>Employment Details</h3>
           <div className="form-grid-3">
             <InputField label="Employee ID" name="employeeId" value={formData.employeeId} disabled placeholder="Auto-generated" />
-            <InputField label="Joining Date" name="joiningDate" type="date" value={formData.joiningDate} onChange={handleChange} required />
+            <InputField label="Joining Date" name="joiningDate" type="date" value={formData.joiningDate} onChange={handleChange} error={errors.joiningDate} required />
             <SelectField 
               label="Department" 
               name="department" 
@@ -246,6 +253,8 @@ const EmployeeForm: React.FC<EmployeeFormProps> = ({ initialData, onSubmit, onCa
                 { value: 'Full-time', label: 'Full-time' },
                 { value: 'Contract', label: 'Contract' }
               ]} 
+              required
+              error={errors.employmentType}
             />
           </div>
         </div>
@@ -275,6 +284,7 @@ const EmployeeForm: React.FC<EmployeeFormProps> = ({ initialData, onSubmit, onCa
                 { value: 'Manager', label: 'Manager' }
               ]} 
               required
+              error={errors.role}
             />
           </div>
         </div>

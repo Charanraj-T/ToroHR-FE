@@ -5,6 +5,7 @@ import type { EmploymentType, SalaryStructure } from '../../../services/payroll.
 import payrollService from '../../../services/payroll.service';
 import { useToastStore } from '../../../store/toastStore';
 import { MONTH_NAMES, buildYearOptions, formatCurrency } from '../payrollHelpers';
+import { getTodayIST } from '../../../lib/date';
 import LoadingSkeleton from '../../claims/components/LoadingSkeleton';
 import './SalaryFormModal.css';
 
@@ -27,10 +28,11 @@ const SalaryFormModal = ({
   const isEdit = Boolean(editingStructure);
   const submittedRef = useRef(false);
 
+  const { year: initYear, month: initMonth } = getTodayIST();
   const [employeeId, setEmployeeId] = useState('');
   const [employmentType, setEmploymentType] = useState<EmploymentType>('Full-time');
-  const [effectiveMonth, setEffectiveMonth] = useState(String(new Date().getMonth() + 1));
-  const [effectiveYear, setEffectiveYear] = useState(String(new Date().getFullYear()));
+  const [effectiveMonth, setEffectiveMonth] = useState(String(initMonth));
+  const [effectiveYear, setEffectiveYear] = useState(String(initYear));
   const [basic, setBasic] = useState('');
   const [hra, setHra] = useState('');
   const [special, setSpecial] = useState('');
@@ -56,11 +58,11 @@ const SalaryFormModal = ({
       setPf(editingStructure.pf != null ? String(editingStructure.pf) : '');
       setDailyAmount(String(editingStructure.dailyAmount || ''));
     } else {
-      const now = new Date();
+      const { year, month } = getTodayIST();
       setEmployeeId('');
       setEmploymentType('Full-time');
-      setEffectiveMonth(String(now.getMonth() + 1));
-      setEffectiveYear(String(now.getFullYear()));
+      setEffectiveMonth(String(month));
+      setEffectiveYear(String(year));
       setBasic('');
       setHra('');
       setSpecial('');

@@ -42,14 +42,20 @@ const TenantFormModal = ({ isOpen, tenant, onClose, onSuccess }: TenantFormModal
     setForm((prev) => ({ ...prev, [e.target.name]: e.target.value }));
   };
 
+  const validate = () => {
+    if (!form.companyName.trim()) { setError('Company name is required'); return false; }
+    if (form.companyName.trim().length > 200) { setError('Company name cannot exceed 200 characters'); return false; }
+    if (!form.companyEmail.trim()) { setError('Company email is required'); return false; }
+    if (!form.companyPhone.trim()) { setError('Company phone is required'); return false; }
+    if (!/^[6-9]\d{9}$/.test(form.companyPhone.trim())) { setError('Phone number must be 10 digits'); return false; }
+    return true;
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
 
-    if (!form.companyName.trim() || !form.companyEmail.trim() || !form.companyPhone.trim()) {
-      setError('All fields are required');
-      return;
-    }
+    if (!validate()) return;
 
     setSaving(true);
     try {
@@ -103,6 +109,7 @@ const TenantFormModal = ({ isOpen, tenant, onClose, onSuccess }: TenantFormModal
             placeholder="Acme Pvt Ltd"
             required
             disabled={saving}
+            maxLength={200}
           />
         </div>
 
@@ -118,6 +125,7 @@ const TenantFormModal = ({ isOpen, tenant, onClose, onSuccess }: TenantFormModal
             placeholder="hello@acme.com"
             required
             disabled={saving}
+            maxLength={254}
           />
         </div>
 
@@ -133,6 +141,8 @@ const TenantFormModal = ({ isOpen, tenant, onClose, onSuccess }: TenantFormModal
             placeholder="9876543210"
             required
             disabled={saving}
+            maxLength={10}
+            pattern="[6-9]\d{9}"
           />
         </div>
 

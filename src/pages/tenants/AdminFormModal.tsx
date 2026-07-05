@@ -41,15 +41,10 @@ const AdminFormModal = ({ isOpen, tenantId, admin, onClose, onSuccess }: AdminFo
     e.preventDefault();
     setError(null);
 
-    if (!name.trim() || !email.trim()) {
-      setError('Name and email are required');
-      return;
-    }
-
-    if (!isEdit && !password.trim()) {
-      setError('Password is required');
-      return;
-    }
+    if (!name.trim()) { setError('Name is required'); return; }
+    if (name.trim().length > 60) { setError('Name cannot exceed 60 characters'); return; }
+    if (!email.trim()) { setError('Email is required'); return; }
+    if (!isEdit && !password.trim()) { setError('Password is required'); return; }
 
     setSaving(true);
     try {
@@ -99,6 +94,7 @@ const AdminFormModal = ({ isOpen, tenantId, admin, onClose, onSuccess }: AdminFo
             placeholder="Admin Name"
             required
             disabled={saving}
+            maxLength={60}
           />
         </div>
 
@@ -113,6 +109,7 @@ const AdminFormModal = ({ isOpen, tenantId, admin, onClose, onSuccess }: AdminFo
             placeholder="admin@acme.com"
             required
             disabled={saving || isEdit}
+            maxLength={254}
           />
         </div>
 

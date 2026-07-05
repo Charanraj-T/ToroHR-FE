@@ -142,6 +142,12 @@ const PayslipViewerModal = ({
         <footer className="payslip-footer">
           <div><span>Payslip Number</span><strong>{payroll.payrollNumber}</strong></div>
           <div><span>Status</span><strong>{payroll.status}</strong></div>
+          {payroll.processedAt && (
+            <div>
+              <span>Processed Date</span>
+              <strong>{new Date(payroll.processedAt).toLocaleDateString('en-IN')}</strong>
+            </div>
+          )}
           {payroll.paidAt && (
             <div>
               <span>Paid Date</span>

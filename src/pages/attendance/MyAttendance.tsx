@@ -4,19 +4,10 @@ import PageHeader from '../../components/ui/PageHeader';
 import AttendanceCard from './components/AttendanceCard';
 import Table from '../../components/ui/Table';
 import StatusBadge from '../../components/ui/StatusBadge';
-import attendanceService from '../../services/attendance.service';
+import attendanceService, { type AttendanceRecord } from '../../services/attendance.service';
 import { useToastStore } from '../../store/toastStore';
 import { formatDateOnly, getMonthBoundaries, toISTTime } from '../../lib/date';
 import './MyAttendance.css';
-
-interface AttendanceRecord {
-  id: string;
-  date: string;
-  checkInTime?: string;
-  checkOutTime?: string;
-  hoursWorked?: number;
-  status: string;
-}
 
 interface AttendanceStats {
   present: number;
@@ -46,7 +37,7 @@ const MyAttendance: React.FC = () => {
       try {
         const historyRes = await attendanceService.getMyAttendance({ startDate: defaultStart, endDate: defaultEnd });
         if (cancelled) return;
-        const data: AttendanceRecord[] = (historyRes?.data || []) as AttendanceRecord[];
+        const data: AttendanceRecord[] = (historyRes?.data || []);
         setHistory(data);
 
         const todayStr = formatDateOnly(now);

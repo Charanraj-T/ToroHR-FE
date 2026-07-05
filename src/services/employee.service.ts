@@ -36,6 +36,21 @@ export interface Employee {
   panNumber?: string;
   aadhaarNumber?: string;
   password?: string;
+  nationality?: string;
+  address?: {
+    line1?: string;
+    line2?: string;
+    city?: string;
+    state?: string;
+    country?: string;
+    postalCode?: string;
+  };
+  education?: Array<{
+    degree: string;
+    duration: string;
+    institute: string;
+    grade: string;
+  }>;
   documents?: EmployeeDocument[];
 }
 

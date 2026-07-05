@@ -73,9 +73,9 @@ const CompanySettingsPage = () => {
   const validate = () => {
     const e: Record<string, string> = {};
     if (!form.companyName.trim()) e.companyName = 'Company name is required';
+    else if (form.companyName.trim().length > 200) e.companyName = 'Company name cannot exceed 200 characters';
     if (!form.companyEmail.trim()) e.companyEmail = 'Email is required';
-    else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.companyEmail)) e.companyEmail = 'Invalid email format';
-    if (form.companyPhone && !/^[\d\s\-+()]{7,20}$/.test(form.companyPhone)) e.companyPhone = 'Invalid phone number';
+    if (form.companyPhone && !/^[6-9]\d{9}$/.test(form.companyPhone)) e.companyPhone = 'Phone number must be 10 digits';
     setErrors(e);
     return Object.keys(e).length === 0;
   };
@@ -139,6 +139,7 @@ const CompanySettingsPage = () => {
                 error={errors.companyName}
                 placeholder="Your Company Pvt. Ltd."
                 required
+                maxLength={200}
               />
               <InputField
                 label="Company Email"
@@ -149,6 +150,7 @@ const CompanySettingsPage = () => {
                 error={errors.companyEmail}
                 placeholder="company@company.co.in"
                 required
+                maxLength={254}
               />
               <InputField
                 label="Company Phone"
@@ -156,7 +158,8 @@ const CompanySettingsPage = () => {
                 value={form.companyPhone}
                 onChange={handleChange}
                 error={errors.companyPhone}
-                placeholder="+91 98765 43210"
+                placeholder="9876543210"
+                maxLength={10}
               />
               <InputField
                 label="Company Logo URL"

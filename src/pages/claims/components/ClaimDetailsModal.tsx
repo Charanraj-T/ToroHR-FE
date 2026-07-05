@@ -173,6 +173,21 @@ const ClaimDetailsModal = ({
             </div>
           </div>
 
+          {claim.modifiedBy && (
+            <div className="claim-details-grid">
+              <div className="claim-detail-item">
+                <span className="claim-detail-label">Last Modified By</span>
+                <span className="claim-detail-value">{claim.modifiedBy.name}</span>
+              </div>
+              {claim.modifiedAt && (
+                <div className="claim-detail-item">
+                  <span className="claim-detail-label">Modified At</span>
+                  <span className="claim-detail-value">{new Date(claim.modifiedAt).toLocaleDateString('en-IN', { timeZone: 'UTC' })}</span>
+                </div>
+              )}
+            </div>
+          )}
+
           <div className="claim-attachments-section">
             <h5>Attachments</h5>
             {claim.attachments.length === 0 ? (

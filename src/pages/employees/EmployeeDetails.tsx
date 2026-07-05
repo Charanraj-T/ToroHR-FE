@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { ArrowLeft, Edit, User, Briefcase, Landmark, ShieldCheck, FileText, Eye, Download } from 'lucide-react';
+import { ArrowLeft, Edit, User, Briefcase, Landmark, ShieldCheck, FileText, Eye, Download, MapPin, GraduationCap } from 'lucide-react';
 import PageHeader from '../../components/ui/PageHeader';
 import StatusBadge from '../../components/ui/StatusBadge';
 import employeeService, { type Employee, type EmployeeDocument } from '../../services/employee.service';
@@ -86,6 +86,7 @@ const EmployeeDetails = () => {
               <DetailRow label="Email" value={employee.email} />
               <DetailRow label="Phone" value={employee.phoneNumber} />
               <DetailRow label="Date of Birth" value={employee.dateOfBirth ? new Date(employee.dateOfBirth).toLocaleDateString('en-IN', { timeZone: 'UTC' }) : 'N/A'} />
+              <DetailRow label="Nationality" value={employee.nationality} />
             </div>
           </div>
 
@@ -122,6 +123,42 @@ const EmployeeDetails = () => {
             <div>
               <DetailRow label="PAN Number" value={employee.panNumber} />
               <DetailRow label="Aadhaar Number" value={employee.aadhaarNumber} />
+            </div>
+          </div>
+
+          <div className="detail-section">
+            <div className="section-title">
+              <MapPin size={18} /> <h3>Address</h3>
+            </div>
+            <div>
+              <DetailRow label="Address Line 1" value={employee.address?.line1} />
+              <DetailRow label="Address Line 2" value={employee.address?.line2} />
+              <DetailRow label="City" value={employee.address?.city} />
+              <DetailRow label="State" value={employee.address?.state} />
+              <DetailRow label="Country" value={employee.address?.country} />
+              <DetailRow label="Postal Code" value={employee.address?.postalCode} />
+            </div>
+          </div>
+
+          <div className="detail-section">
+            <div className="section-title">
+              <GraduationCap size={18} /> <h3>Education</h3>
+            </div>
+            <div>
+              {(employee.education || []).length === 0 ? (
+                <DetailRow label="Education" value="N/A" />
+              ) : (
+                (employee.education || []).map((edu, i) => (
+                  <div key={i} style={{ marginBottom: '12px', paddingBottom: '12px', borderBottom: i < (employee.education || []).length - 1 ? '1px solid var(--border-color)' : 'none' }}>
+                    <strong>{edu.degree || 'N/A'}</strong>
+                    <div style={{ fontSize: '13px', color: 'var(--text-secondary)', marginTop: '4px' }}>
+                      {edu.institute && <span>{edu.institute}{edu.duration ? ' | ' : ''}</span>}
+                      {edu.duration && <span>{edu.duration}</span>}
+                    </div>
+                    {edu.grade && <span style={{ fontSize: '13px', color: 'var(--text-secondary)' }}>Grade: {edu.grade}</span>}
+                  </div>
+                ))
+              )}
             </div>
           </div>
         </div>

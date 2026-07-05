@@ -17,7 +17,7 @@ const Login = () => {
   const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
   const user = useAuthStore((state) => state.user);
   
-  const [email, setEmail] = useState('');
+  const [identifier, setIdentifier] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
@@ -33,7 +33,7 @@ const Login = () => {
     setLoading(true);
 
     try {
-      const response = await api.post('/api/auth/login', { identifier: email, password });
+      const response = await api.post('/api/auth/login', { identifier, password });
       
       if (response.data.success) {
         const { token, user } = response.data.data;
@@ -43,11 +43,7 @@ const Login = () => {
         setError(response.data.message || 'Login failed. Please try again.');
       }
     } catch (err: any) {
-      if (err.response && err.response.data && err.response.data.message) {
-        setError(err.response.data.message);
-      } else {
-        setError('An error occurred during login. Please try again.');
-      }
+      setError(err?.response?.data?.message || 'An error occurred during login. Please try again.');
     } finally {
       setLoading(false);
     }
@@ -79,15 +75,16 @@ const Login = () => {
             {error && <div className="error-message">{error}</div>}
             
             <div className="form-group">
-              <label htmlFor="email">Email Address</label>
+              <label htmlFor="identifier">Email or Phone Number</label>
               <input 
-                type="email" 
-                id="email" 
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
+                type="text" 
+                id="identifier" 
+                value={identifier}
+                onChange={(e) => setIdentifier(e.target.value)}
                 placeholder="name@company.com" 
                 required 
                 disabled={loading}
+                maxLength={254}
               />
             </div>
 

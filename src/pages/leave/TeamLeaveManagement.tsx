@@ -178,7 +178,7 @@ const TeamLeaveManagement = () => {
       accessor: (item: Leave) => (
         <div className="duration-cell-group">
           <span className="dates">{formatDate(item.fromDate)} - {formatDate(item.toDate)}</span>
-          <span className="days">({item.leaveDays} {item.leaveDays === 1 ? 'day' : 'days'})</span>
+          <span className="days">({item.leaveDays} {item.leaveDays <= 1 ? 'day' : 'days'})</span>
         </div>
       )
     },
@@ -192,7 +192,21 @@ const TeamLeaveManagement = () => {
     },
     {
       header: 'STATUS',
-      accessor: (item: Leave) => <StatusBadge status={item.status} />
+      accessor: (item: Leave) => (
+        <div>
+          <StatusBadge status={item.status} />
+          {item.status === 'Rejected' && item.rejectionReason && (
+            <div style={{ fontSize: '11px', color: 'var(--danger-color)', marginTop: '4px', maxWidth: '200px', whiteSpace: 'normal', lineHeight: 1.3 }} title={item.rejectionReason}>
+              {item.rejectionReason.length > 50 ? `${item.rejectionReason.substring(0, 50)}...` : item.rejectionReason}
+            </div>
+          )}
+          {item.status === 'Cancelled' && item.cancellationReason && (
+            <div style={{ fontSize: '11px', color: 'var(--text-muted)', marginTop: '4px', maxWidth: '200px', whiteSpace: 'normal', lineHeight: 1.3 }} title={item.cancellationReason}>
+              {item.cancellationReason.length > 50 ? `${item.cancellationReason.substring(0, 50)}...` : item.cancellationReason}
+            </div>
+          )}
+        </div>
+      )
     },
     {
       header: 'MODIFIED BY',

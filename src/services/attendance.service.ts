@@ -1,5 +1,21 @@
 import api from '../lib/api';
 
+export interface AttendanceRecord {
+  id: string;
+  date: string;
+  status: string;
+  checkInTime?: string;
+  checkOutTime?: string;
+  hoursWorked?: number;
+  employeeId?: { _id: string } | string;
+  markedBy?: string;
+  markingMethod?: string;
+  isLateCheckIn?: boolean;
+  lateCheckInMinutes?: number;
+  createdAt?: string;
+  updatedAt?: string;
+}
+
 export interface AttendanceFilters {
   page?: number;
   limit?: number;

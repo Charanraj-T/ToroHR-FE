@@ -12,24 +12,13 @@ import StatsCard from '../../components/ui/StatsCard';
 import AttendanceTable from './components/AttendanceTable';
 import AttendanceModal from './components/AttendanceModal';
 import Pagination from '../../components/ui/Pagination';
-import attendanceService from '../../services/attendance.service';
+import attendanceService, { type AttendanceRecord } from '../../services/attendance.service';
 import employeeService from '../../services/employee.service';
 import holidayService from '../../services/holiday.service';
 import { useToastStore } from '../../store/toastStore';
 import { useAuthStore } from '../../store/authStore';
 import { formatDateOnly, buildDateStr, isWeekend, getMonthBoundaries, getCurrentYearMonth, toISTTime } from '../../lib/date';
 import './AttendanceOverview.css';
-
-interface AttendanceRecord {
-  id: string;
-  date: string;
-  status: string;
-  checkInTime?: string;
-  checkOutTime?: string;
-  hoursWorked?: number;
-  employeeId?: { _id: string } | string;
-  _id?: string;
-}
 
 interface EmployeeAttendance {
   id: string;
@@ -158,7 +147,7 @@ const AttendanceOverview: React.FC = () => {
           absentCount: summaryRes.absent || 0
         });
 
-        const records: AttendanceRecord[] = (listRes.data || []) as AttendanceRecord[];
+        const records: AttendanceRecord[] = (listRes.data || []);
         const employees = empRes.data || [];
 
         if (listRes.pagination) {

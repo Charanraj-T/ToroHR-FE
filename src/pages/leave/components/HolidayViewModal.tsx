@@ -69,6 +69,7 @@ const HolidayViewModal = ({ isOpen, onClose }: HolidayViewModalProps) => {
                         <div className="holiday-info">
                           <span className="holiday-name">{h.name}</span>
                           {h.description && <span className="holiday-desc">{h.description}</span>}
+                          {h.isRecurringYearly && <span className="holiday-recurring">Recurring Yearly</span>}
                         </div>
                       </li>
                     );

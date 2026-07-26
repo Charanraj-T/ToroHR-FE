@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Building2, MapPin, Edit2, X, Save, Loader2 } from 'lucide-react';
+import { Building2, MapPin, Edit2, X, Save, Loader2, CalendarDays } from 'lucide-react';
 import { useAuthStore } from '../../store/authStore';
 import { useToastStore } from '../../store/toastStore';
 import settingsService, { type CompanySettings } from '../../services/settings.service';
@@ -16,6 +16,10 @@ const CompanySettingsPage = () => {
   const [loading, setLoading] = useState(true);
   const [editing, setEditing] = useState(false);
   const [saving, setSaving] = useState(false);
+
+  const [weekendSaving, setWeekendSaving] = useState(false);
+  const [saturdayIsHoliday, setSaturdayIsHoliday] = useState(true);
+  const [sundayIsHoliday, setSundayIsHoliday] = useState(true);
 
   const [form, setForm] = useState({
     companyName: '',
@@ -51,6 +55,8 @@ const CompanySettingsPage = () => {
           country: data.country || '',
           postalCode: data.postalCode || '',
         });
+        setSaturdayIsHoliday(data.saturdayIsHoliday !== false);
+        setSundayIsHoliday(data.sundayIsHoliday !== false);
       } catch {
         addToast('Failed to load company settings', 'error');
       } finally {
@@ -113,9 +119,29 @@ const CompanySettingsPage = () => {
         country: settings.country || '',
         postalCode: settings.postalCode || '',
       });
+      setSaturdayIsHoliday(settings.saturdayIsHoliday !== false);
+      setSundayIsHoliday(settings.sundayIsHoliday !== false);
     }
     setErrors({});
     setEditing(false);
+  };
+
+  const handleWeekendSave = async () => {
+    setWeekendSaving(true);
+    try {
+      const updated = await settingsService.updateCompanySettings({
+        saturdayIsHoliday,
+        sundayIsHoliday,
+      });
+      setSettings(updated);
+      setSaturdayIsHoliday(updated.saturdayIsHoliday !== false);
+      setSundayIsHoliday(updated.sundayIsHoliday !== false);
+      addToast('Weekend settings updated successfully', 'success');
+    } catch {
+      addToast('Failed to update weekend settings', 'error');
+    } finally {
+      setWeekendSaving(false);
+    }
   };
 
   if (loading) {
@@ -304,6 +330,54 @@ const CompanySettingsPage = () => {
             <DetailRow label="Country" value={settings?.country} />
             <DetailRow label="Postal Code" value={settings?.postalCode} />
           </div>
+        </div>
+      </div>
+
+      <div className="detail-section" style={{ marginTop: '24px' }}>
+        <div className="section-title">
+          <CalendarDays size={18} /> <h3>Weekend Settings</h3>
+        </div>
+        <div className="weekend-settings">
+          <div className="weekend-toggle-row">
+            <div className="weekend-toggle-label">
+              <span>Saturday</span>
+              <span>{saturdayIsHoliday ? 'Holiday' : 'Working day'}</span>
+            </div>
+            <label className="toggle-switch">
+              <input
+                type="checkbox"
+                checked={saturdayIsHoliday}
+                onChange={(e) => setSaturdayIsHoliday(e.target.checked)}
+                disabled={!isAdmin || weekendSaving}
+              />
+              <span className="toggle-slider" />
+            </label>
+          </div>
+          <div className="weekend-toggle-row">
+            <div className="weekend-toggle-label">
+              <span>Sunday</span>
+              <span>{sundayIsHoliday ? 'Holiday' : 'Working day'}</span>
+            </div>
+            <label className="toggle-switch">
+              <input
+                type="checkbox"
+                checked={sundayIsHoliday}
+                onChange={(e) => setSundayIsHoliday(e.target.checked)}
+                disabled={!isAdmin || weekendSaving}
+              />
+              <span className="toggle-slider" />
+            </label>
+          </div>
+          {isAdmin && (
+            <button
+              className="btn-primary weekend-save-btn"
+              onClick={handleWeekendSave}
+              disabled={weekendSaving}
+            >
+              {weekendSaving ? <Loader2 size={18} className="spin" /> : <Save size={18} />}
+              Save Weekend Settings
+            </button>
+          )}
         </div>
       </div>
     </div>

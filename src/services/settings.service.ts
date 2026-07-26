@@ -13,6 +13,8 @@ export interface CompanySettings {
   state: string;
   country: string;
   postalCode: string;
+  saturdayIsHoliday: boolean;
+  sundayIsHoliday: boolean;
   createdAt: string;
   updatedAt: string;
 }

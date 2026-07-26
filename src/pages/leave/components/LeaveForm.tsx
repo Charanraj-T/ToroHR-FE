@@ -5,7 +5,8 @@ import leaveService, {
   type LeaveType,
   type LeaveBalance
 } from '../../../services/leave.service';
-import { calculateWorkingDays, isWeekend } from '../../../lib/date';
+import settingsService from '../../../services/settings.service';
+import { calculateWorkingDays, isWeekend, buildWeekendDays } from '../../../lib/date';
 import { useToastStore } from '../../../store/toastStore';
 import './LeaveForm.css';
 
@@ -34,6 +35,13 @@ const LeaveForm = ({ balances, initialLeave = null, onSubmitSuccess, onCancel }:
   const [reason, setReason] = useState<string>(initialLeave?.reason || '');
   const [loading, setLoading] = useState<boolean>(false);
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
+  const [weekendDays, setWeekendDays] = useState<number[]>([0, 6]);
+
+  useEffect(() => {
+    settingsService.getCompanySettings()
+      .then((settings) => setWeekendDays(buildWeekendDays(settings)))
+      .catch(() => {});
+  }, []);
 
   useEffect(() => {
     if (initialLeave?.id && initialLeave.id === initialLeaveIdRef.current) return;
@@ -50,13 +58,13 @@ const LeaveForm = ({ balances, initialLeave = null, onSubmitSuccess, onCancel }:
   const workingDays = useMemo(() => {
     if (!fromDate || !toDate) return 0;
     if (dayType === 'Full-day') {
-      return calculateWorkingDays(fromDate, toDate);
+      return calculateWorkingDays(fromDate, toDate, weekendDays);
     }
     if (fromDate !== toDate) return 0;
     const [y, m, d] = fromDate.split('-').map(Number);
-    const wknd = isWeekend(y, m, d);
+    const wknd = isWeekend(y, m, d, weekendDays);
     return wknd ? 0 : 0.5;
-  }, [fromDate, toDate, dayType]);
+  }, [fromDate, toDate, dayType, weekendDays]);
 
   const validate = () => {
     const newErrors: { [key: string]: string } = {};
@@ -71,7 +79,7 @@ const LeaveForm = ({ balances, initialLeave = null, onSubmitSuccess, onCancel }:
       } else if (dayType === 'Half-day' && fromDate !== toDate) {
         newErrors.toDate = 'Half-day leave must start and end on the same date';
       } else if (workingDays === 0) {
-        newErrors.toDate = 'Selected range contains no working days (weekends only)';
+        newErrors.toDate = 'Selected range contains no working days (non-working days only)';
       }
     }
 

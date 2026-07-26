@@ -9,16 +9,16 @@ const getUTCDayOfWeek = (year: number, month: number, day: number): number => {
   return new Date(Date.UTC(year, month - 1, day)).getUTCDay();
 };
 
-export const isWeekend = (year: number, month: number, day: number): boolean => {
+export const isWeekend = (year: number, month: number, day: number, weekendDays: number[] = [0, 6]): boolean => {
   const dayOfWeek = getUTCDayOfWeek(year, month, day);
-  return dayOfWeek === 0 || dayOfWeek === 6;
+  return weekendDays.includes(dayOfWeek);
 };
 
 export const buildDateStr = (year: number, month: number, day: number): string => {
   return `${year}-${pad(month)}-${pad(day)}`;
 };
 
-export const calculateWorkingDays = (fromDateStr: string, toDateStr: string): number => {
+export const calculateWorkingDays = (fromDateStr: string, toDateStr: string, weekendDays: number[] = [0, 6]): number => {
   if (!fromDateStr || !toDateStr) return 0;
   const start = new Date(`${fromDateStr}T00:00:00.000Z`);
   const end = new Date(`${toDateStr}T00:00:00.000Z`);
@@ -27,7 +27,11 @@ export const calculateWorkingDays = (fromDateStr: string, toDateStr: string): nu
   const cursor = new Date(start);
   while (cursor <= end) {
     const dayOfWeek = cursor.getUTCDay();
-    if (dayOfWeek !== 0 && dayOfWeek !== 6) count++;
+    if (weekendDays.includes(dayOfWeek)) {
+      cursor.setUTCDate(cursor.getUTCDate() + 1);
+      continue;
+    }
+    count++;
     cursor.setUTCDate(cursor.getUTCDate() + 1);
   }
   return count;
@@ -65,4 +69,11 @@ export const getTodayIST = (): { year: number; month: number; day: number } => {
 export const parseDateParts = (date: Date | string): { year: number; month: number; day: number } => {
   const d = new Date(date);
   return { year: d.getUTCFullYear(), month: d.getUTCMonth() + 1, day: d.getUTCDate() };
+};
+
+export const buildWeekendDays = (settings: { saturdayIsHoliday?: boolean; sundayIsHoliday?: boolean } | null): number[] => {
+  const weekendDays: number[] = [];
+  if (settings?.saturdayIsHoliday !== false) weekendDays.push(6);
+  if (settings?.sundayIsHoliday !== false) weekendDays.push(0);
+  return weekendDays;
 };

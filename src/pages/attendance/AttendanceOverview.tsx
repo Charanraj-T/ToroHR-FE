@@ -16,9 +16,10 @@ import Pagination from '../../components/ui/Pagination';
 import attendanceService, { type AttendanceRecord } from '../../services/attendance.service';
 import employeeService from '../../services/employee.service';
 import holidayService from '../../services/holiday.service';
+import settingsService from '../../services/settings.service';
 import { useToastStore } from '../../store/toastStore';
 import { useAuthStore } from '../../store/authStore';
-import { formatDateOnly, buildDateStr, isWeekend, getMonthBoundaries, getCurrentYearMonth, toISTTime, getTodayIST } from '../../lib/date';
+import { formatDateOnly, buildDateStr, isWeekend, getMonthBoundaries, getCurrentYearMonth, toISTTime, getTodayIST, buildWeekendDays } from '../../lib/date';
 import './AttendanceOverview.css';
 
 interface EmployeeAttendance {
@@ -79,6 +80,7 @@ const AttendanceOverview: React.FC = () => {
   const { user } = useAuthStore();
 
   const [holidayDates, setHolidayDates] = useState<Set<string>>(new Set());
+  const [weekendDays, setWeekendDays] = useState<number[]>([0, 6]);
 
   const [startY, startM, startD] = (filters.startDate || '').split('-').map(Number);
   const [endY, endM, endD] = (filters.endDate || '').split('-').map(Number);
@@ -91,7 +93,7 @@ const AttendanceOverview: React.FC = () => {
   const currentDate = (isCurrentMonth && todayD >= startDay && todayD <= endDay) ? todayD : 0;
 
   const workingDays = Array.from({ length: endDay - startDay + 1 }, (_, i) => startDay + i).filter(day => {
-    if (isWeekend(startY, startM, day)) return false;
+    if (isWeekend(startY, startM, day, weekendDays)) return false;
     const dateStr = buildDateStr(startY, startM, day);
     return !holidayDates.has(dateStr);
   }).length;
@@ -120,7 +122,7 @@ const AttendanceOverview: React.FC = () => {
         };
         if (search.trim()) apiFilters.search = search.trim();
 
-        const [summaryRes, listRes, empRes, holidayRes] = await Promise.all([
+        const [summaryRes, listRes, empRes, holidayRes, settingsRes] = await Promise.all([
           attendanceService.getSummary(),
           attendanceService.getAttendance(apiFilters),
           employeeService.getEmployees({
@@ -130,8 +132,11 @@ const AttendanceOverview: React.FC = () => {
             manager: user?.role === 'Manager' ? user.employeeId : undefined
           }),
           holidayService.getCurrentYearHolidays().catch(() => []),
+          settingsService.getCompanySettings().catch(() => null),
         ]);
         if (cancelled) return;
+
+        setWeekendDays(buildWeekendDays(settingsRes));
 
         const holidaySet = new Set<string>();
         (holidayRes as { date: string }[] || []).forEach((h) => {
@@ -397,6 +402,7 @@ const AttendanceOverview: React.FC = () => {
                 onUpdate={handleUpdate}
                 startDate={filters.startDate}
                 holidayDates={holidayDates}
+                weekendDays={weekendDays}
               />
               <Pagination 
                 currentPage={filters.page}

@@ -21,9 +21,10 @@ interface AttendanceTableProps {
   onUpdate: (employee: AttendanceTableRow, day: number) => void;
   startDate: string;
   holidayDates?: Set<string>;
+  weekendDays?: number[];
 }
 
-const AttendanceTable: React.FC<AttendanceTableProps> = ({ data, startDay, endDay, currentDate, onUpdate, startDate, holidayDates }) => {
+const AttendanceTable: React.FC<AttendanceTableProps> = ({ data, startDay, endDay, currentDate, onUpdate, startDate, holidayDates, weekendDays = [0, 6] }) => {
   const [baseY, baseM] = startDate.split('-').map(Number);
 
   const { year: todayY, month: todayM, day: todayD } = getTodayIST();
@@ -43,7 +44,7 @@ const AttendanceTable: React.FC<AttendanceTableProps> = ({ data, startDay, endDa
   const getDayStatus = (day: number, dayStatus: string | undefined): AttendanceStatus => {
     if (dayStatus) return dayStatus as AttendanceStatus;
     if (isHoliday(day)) return 'Holiday' as const;
-    if (isWeekend(baseY, baseM, day)) return 'Holiday' as const;
+    if (isWeekend(baseY, baseM, day, weekendDays)) return 'Holiday' as const;
     return 'N/A' as const;
   };
 

@@ -19,7 +19,7 @@ const MAX_DOCUMENTS = 10;
 const EmployeeForm: React.FC<EmployeeFormProps> = ({ initialData, onSubmit, onCancel, loading }) => {
   const [formData, setFormData] = useState<Partial<Employee & { reportingManagerId?: string }>>(() => {
     const data: Record<string, unknown> = {
-      fullName: '', email: '', phoneNumber: '', dateOfBirth: '', joiningDate: '',
+      fullName: '', email: '', countryCode: '+91', phoneNumber: '', dateOfBirth: '', joiningDate: '',
       department: '', designation: '', employmentType: '', role: '',
       reportingManagerId: '', password: '', bankName: '', accountNumber: '',
       ifscCode: '', branchName: '', panNumber: '', aadhaarNumber: '',
@@ -115,7 +115,7 @@ const EmployeeForm: React.FC<EmployeeFormProps> = ({ initialData, onSubmit, onCa
     else if (formData.fullName.length > 60) newErrors.fullName = 'Full Name cannot exceed 60 characters';
     if (!formData.email) newErrors.email = 'Email is required';
     if (!formData.phoneNumber) newErrors.phoneNumber = 'Phone Number is required';
-    else if (!/^[6-9]\d{9}$/.test(formData.phoneNumber)) newErrors.phoneNumber = 'Phone number must be 10 digits';
+    else if (!/^\d{5,15}$/.test(formData.phoneNumber)) newErrors.phoneNumber = 'Invalid phone number';
     if (formData.dateOfBirth) {
       const dob = new Date(formData.dateOfBirth);
       const { year, month, day } = getTodayIST();
@@ -203,7 +203,41 @@ const EmployeeForm: React.FC<EmployeeFormProps> = ({ initialData, onSubmit, onCa
           <div className="form-grid-3">
             <InputField label="Full Name" name="fullName" value={formData.fullName} onChange={handleChange} error={errors.fullName} placeholder="John Doe" required maxLength={60} />
             <InputField label="Email Address" name="email" type="email" value={formData.email} onChange={handleChange} error={errors.email} placeholder="john@company.com" required maxLength={254} />
-            <InputField label="Phone Number" name="phoneNumber" value={formData.phoneNumber} onChange={handleChange} error={errors.phoneNumber} placeholder="9876543210" required maxLength={10} />
+            <div className="form-group">
+              <label className="form-label">Phone Number *</label>
+              <div style={{ display: 'flex', gap: '8px' }}>
+                <select
+                  name="countryCode"
+                  className="form-input"
+                  style={{ width: '120px', flexShrink: 0 }}
+                  value={formData.countryCode || '+91'}
+                  onChange={handleChange}
+                >
+                  <option value="+1">+1 (US)</option>
+                  <option value="+44">+44 (UK)</option>
+                  <option value="+61">+61 (AU)</option>
+                  <option value="+91">+91 (IN)</option>
+                  <option value="+81">+81 (JP)</option>
+                  <option value="+86">+86 (CN)</option>
+                  <option value="+49">+49 (DE)</option>
+                  <option value="+33">+33 (FR)</option>
+                  <option value="+65">+65 (SG)</option>
+                  <option value="+971">+971 (AE)</option>
+                </select>
+                <input
+                  type="text"
+                  name="phoneNumber"
+                  className={`form-input ${errors.phoneNumber ? 'input-error' : ''}`}
+                  value={formData.phoneNumber}
+                  onChange={handleChange}
+                  placeholder="9876543210"
+                  required
+                  maxLength={15}
+                  style={{ flex: 1 }}
+                />
+              </div>
+              {errors.phoneNumber && <span className="form-error">{errors.phoneNumber}</span>}
+            </div>
             <InputField label="Date of Birth" name="dateOfBirth" type="date" value={formData.dateOfBirth} onChange={handleChange} error={errors.dateOfBirth} max={maxDobDate} required />
             <InputField 
               label={initialData?.id ? "Update Password" : "Login Password"} 

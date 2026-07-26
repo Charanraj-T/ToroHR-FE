@@ -27,6 +27,7 @@ const MyPayslips = () => {
   const { user } = useAuthStore();
   const { addToast } = useToastStore();
   const role = user?.role || 'Employee';
+  const hasPayrollAccess = role === 'Admin' || (role === 'Manager' && user?.payrollAccess);
 
   const [records, setRecords] = useState<Payroll[]>([]);
   const [loading, setLoading] = useState(true);
@@ -91,12 +92,14 @@ const MyPayslips = () => {
   return (
     <div className="payroll-page animate-fade-in">
       <PageHeader
-        title={role === 'Manager' ? 'My Payslips' : 'Payroll'}
+        title={hasPayrollAccess ? 'Payroll' : 'My Payslips'}
         subtitle="View and download your payslips"
         actions={
-          <button className="btn-secondary" onClick={() => navigate('/payroll')}>
-            <ArrowLeft size={18} /> Back
-          </button>
+          hasPayrollAccess ? (
+            <button className="btn-secondary" onClick={() => navigate('/payroll')}>
+              <ArrowLeft size={18} /> Back
+            </button>
+          ) : undefined
         }
       />
 

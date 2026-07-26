@@ -129,6 +129,21 @@ export interface PayrollSettings {
   updatedAt?: string;
 }
 
+export interface ManagerPayrollAccess {
+  id: string;
+  employeeId: string;
+  fullName: string;
+  email: string;
+  payrollAccess: boolean;
+}
+
+export interface PaginatedManagerPayrollAccessResponse {
+  totalCount: number;
+  currentPage: number;
+  totalPages: number;
+  data: ManagerPayrollAccess[];
+}
+
 export interface GeneratePayrollResult {
   generatedCount: number;
   skippedCount: number;
@@ -141,8 +156,8 @@ const payrollService = {
     return response.data;
   },
 
-  getPayrollSummary: async (): Promise<PayrollSummary> => {
-    const response = await api.get('/api/payroll/summary');
+  getPayrollSummary: async (params: { month?: number; year?: number } = {}): Promise<PayrollSummary> => {
+    const response = await api.get('/api/payroll/summary', { params });
     return response.data?.data?.summary ?? { Draft: 0, Processed: 0, Paid: 0 };
   },
 
@@ -212,6 +227,16 @@ const payrollService = {
   ): Promise<PayrollSettings> => {
     const response = await api.put('/api/payroll/settings', data);
     return response.data?.data?.settings;
+  },
+
+  getManagersPayrollAccess: async (params: { page?: number; limit?: number; search?: string } = {}): Promise<PaginatedManagerPayrollAccessResponse> => {
+    const response = await api.get('/api/employees/managers/payroll-access', { params });
+    return response.data;
+  },
+
+  toggleManagerPayrollAccess: async (id: string): Promise<ManagerPayrollAccess> => {
+    const response = await api.put(`/api/employees/${id}/payroll-access`);
+    return response.data?.data?.manager;
   }
 };
 

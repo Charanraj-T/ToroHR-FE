@@ -30,21 +30,23 @@ const SalaryStructureTable = ({ records, loading, onEdit, onAdd }: SalaryStructu
     },
     {
       header: 'TYPE',
-      accessor: (item) => <span>{item.employmentType}</span>
+      accessor: (item) => <span>{item.employmentType || 'N/A'}</span>
     },
     {
       header: 'EFFECTIVE MONTH',
       accessor: (item) => (
-        <span>{formatMonthYear(item.effectiveMonth, item.effectiveYear)}</span>
+        <span>{item.effectiveMonth ? formatMonthYear(item.effectiveMonth, item.effectiveYear) : 'N/A'}</span>
       )
     },
     {
       header: 'GROSS / DAILY',
       accessor: (item) => (
         <span className="salary-amount">
-          {item.employmentType === 'Full-time'
-            ? `₹${(item.gross || 0).toLocaleString('en-IN')}`
-            : `₹${(item.dailyAmount || 0).toLocaleString('en-IN')}/day`}
+          {item.effectiveMonth
+            ? (item.employmentType === 'Full-time'
+                ? `₹${(item.gross || 0).toLocaleString('en-IN')}`
+                : `₹${(item.dailyAmount || 0).toLocaleString('en-IN')}/day`)
+            : 'N/A'}
         </span>
       )
     },

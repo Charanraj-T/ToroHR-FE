@@ -4,6 +4,7 @@ export interface CompanySettings {
   id: string;
   companyName: string;
   companyEmail: string;
+  companyCountryCode?: string;
   companyPhone: string;
   companyLogo: string;
   addressLine1: string;

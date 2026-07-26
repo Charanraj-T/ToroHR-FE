@@ -18,6 +18,7 @@ export interface Employee {
   employeeId: string;
   fullName: string;
   email: string;
+  countryCode?: string;
   phoneNumber: string;
   dateOfBirth: string;
   joiningDate: string;

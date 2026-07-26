@@ -4,6 +4,7 @@ export interface Tenant {
   id: string;
   companyName: string;
   companyEmail: string;
+  companyCountryCode?: string;
   companyPhone: string;
   status: 'Active' | 'Inactive';
   createdAt?: string;
@@ -24,6 +25,7 @@ export interface PaginatedTenantResponse {
 export interface CreateTenantPayload {
   companyName: string;
   companyEmail: string;
+  companyCountryCode?: string;
   companyPhone: string;
   status?: 'Active' | 'Inactive';
 }
@@ -31,6 +33,7 @@ export interface CreateTenantPayload {
 export interface UpdateTenantPayload {
   companyName?: string;
   companyEmail?: string;
+  companyCountryCode?: string;
   companyPhone?: string;
   status?: 'Active' | 'Inactive';
 }

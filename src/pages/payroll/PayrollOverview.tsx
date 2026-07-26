@@ -77,14 +77,17 @@ const PayrollOverview = () => {
 
   const fetchSummary = useCallback(async () => {
     try {
-      const data = await payrollService.getPayrollSummary();
+      const params: { month?: number; year?: number } = {};
+      if (filters.month) params.month = Number(filters.month);
+      if (filters.year) params.year = Number(filters.year);
+      const data = await payrollService.getPayrollSummary(params);
       setSummary(data);
     } catch {
       setSummary(EMPTY_SUMMARY);
     } finally {
       setSummaryLoading(false);
     }
-  }, []);
+  }, [filters.month, filters.year]);
 
   const fetchRecords = useCallback(async () => {
     try {

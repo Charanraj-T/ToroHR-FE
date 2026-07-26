@@ -25,7 +25,7 @@ const SalaryFormModal = ({
   editingStructure
 }: SalaryFormModalProps) => {
   const { addToast } = useToastStore();
-  const isEdit = Boolean(editingStructure);
+  const isEdit = Boolean(editingStructure?.id);
   const submittedRef = useRef(false);
 
   const { year: initYear, month: initMonth } = getTodayIST();
@@ -47,7 +47,7 @@ const SalaryFormModal = ({
   useEffect(() => {
     if (!isOpen) return;
 
-    if (editingStructure) {
+    if (editingStructure?.id) {
       setEmployeeId(editingStructure.employee?.id || '');
       setEmploymentType(editingStructure.employmentType);
       setEffectiveMonth(String(editingStructure.effectiveMonth));
@@ -59,8 +59,8 @@ const SalaryFormModal = ({
       setDailyAmount(String(editingStructure.dailyAmount || ''));
     } else {
       const { year, month } = getTodayIST();
-      setEmployeeId('');
-      setEmploymentType('Full-time');
+      setEmployeeId(editingStructure?.employee?.id || '');
+      setEmploymentType(editingStructure?.employmentType || 'Full-time');
       setEffectiveMonth(String(month));
       setEffectiveYear(String(year));
       setBasic('');
@@ -183,6 +183,7 @@ const SalaryFormModal = ({
                 className={`form-input ${errors.employeeId ? 'input-error' : ''}`}
                 value={employeeId}
                 onChange={(e) => setEmployeeId(e.target.value)}
+                disabled={Boolean(editingStructure)}
               >
                 <option value="">Select employee</option>
                 {employees.map((emp) => (

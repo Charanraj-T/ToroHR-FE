@@ -20,6 +20,7 @@ const CompanySettingsPage = () => {
   const [form, setForm] = useState({
     companyName: '',
     companyEmail: '',
+    companyCountryCode: '+91',
     companyPhone: '',
     companyLogo: '',
     addressLine1: '',
@@ -40,6 +41,7 @@ const CompanySettingsPage = () => {
         setForm({
           companyName: data.companyName || '',
           companyEmail: data.companyEmail || '',
+          companyCountryCode: data.companyCountryCode || '+91',
           companyPhone: data.companyPhone || '',
           companyLogo: data.companyLogo || '',
           addressLine1: data.addressLine1 || '',
@@ -75,7 +77,7 @@ const CompanySettingsPage = () => {
     if (!form.companyName.trim()) e.companyName = 'Company name is required';
     else if (form.companyName.trim().length > 200) e.companyName = 'Company name cannot exceed 200 characters';
     if (!form.companyEmail.trim()) e.companyEmail = 'Email is required';
-    if (form.companyPhone && !/^[6-9]\d{9}$/.test(form.companyPhone)) e.companyPhone = 'Phone number must be 10 digits';
+    if (form.companyPhone && !/^\d{5,15}$/.test(form.companyPhone)) e.companyPhone = 'Invalid phone number';
     setErrors(e);
     return Object.keys(e).length === 0;
   };
@@ -101,6 +103,7 @@ const CompanySettingsPage = () => {
       setForm({
         companyName: settings.companyName || '',
         companyEmail: settings.companyEmail || '',
+        companyCountryCode: settings.companyCountryCode || '+91',
         companyPhone: settings.companyPhone || '',
         companyLogo: settings.companyLogo || '',
         addressLine1: settings.addressLine1 || '',
@@ -152,15 +155,40 @@ const CompanySettingsPage = () => {
                 required
                 maxLength={254}
               />
-              <InputField
-                label="Company Phone"
-                name="companyPhone"
-                value={form.companyPhone}
-                onChange={handleChange}
-                error={errors.companyPhone}
-                placeholder="9876543210"
-                maxLength={10}
-              />
+              <div className="form-group">
+                <label className="form-label">Company Phone</label>
+                <div style={{ display: 'flex', gap: '8px' }}>
+                  <select
+                    name="companyCountryCode"
+                    className="form-input"
+                    style={{ width: '120px', flexShrink: 0 }}
+                    value={form.companyCountryCode || '+91'}
+                    onChange={handleChange}
+                  >
+                    <option value="+1">+1 (US)</option>
+                    <option value="+44">+44 (UK)</option>
+                    <option value="+61">+61 (AU)</option>
+                    <option value="+91">+91 (IN)</option>
+                    <option value="+81">+81 (JP)</option>
+                    <option value="+86">+86 (CN)</option>
+                    <option value="+49">+49 (DE)</option>
+                    <option value="+33">+33 (FR)</option>
+                    <option value="+65">+65 (SG)</option>
+                    <option value="+971">+971 (AE)</option>
+                  </select>
+                  <input
+                    type="text"
+                    name="companyPhone"
+                    className={`form-input ${errors.companyPhone ? 'input-error' : ''}`}
+                    value={form.companyPhone}
+                    onChange={handleChange}
+                    placeholder="9876543210"
+                    maxLength={15}
+                    style={{ flex: 1 }}
+                  />
+                </div>
+                {errors.companyPhone && <span className="form-error">{errors.companyPhone}</span>}
+              </div>
               <InputField
                 label="Company Logo URL"
                 name="companyLogo"
@@ -260,7 +288,7 @@ const CompanySettingsPage = () => {
             )}
             <DetailRow label="Company Name" value={settings?.companyName} />
             <DetailRow label="Company Email" value={settings?.companyEmail} />
-            <DetailRow label="Company Phone" value={settings?.companyPhone} />
+            <DetailRow label="Company Phone" value={settings?.companyCountryCode ? `${settings.companyCountryCode} ${settings.companyPhone}` : settings?.companyPhone} />
           </div>
         </div>
 

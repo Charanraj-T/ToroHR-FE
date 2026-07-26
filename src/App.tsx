@@ -27,7 +27,9 @@ const RoleRedirect = () => {
 
 const PayrollRedirectPage = () => {
   const role = useAuthStore((state) => state.user?.role);
+  const payrollAccess = useAuthStore((state) => state.user?.payrollAccess);
   if (role === 'Employee') return <MyPayslips />;
+  if (role === 'Manager' && !payrollAccess) return <MyPayslips />;
   return <PayrollOverview />;
 };
 

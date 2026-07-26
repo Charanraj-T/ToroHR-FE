@@ -18,6 +18,7 @@ const TenantFormModal = ({ isOpen, tenant, onClose, onSuccess }: TenantFormModal
   const [form, setForm] = useState<CreateTenantPayload>({
     companyName: '',
     companyEmail: '',
+    companyCountryCode: '+91',
     companyPhone: '',
     status: 'Active',
   });
@@ -29,11 +30,12 @@ const TenantFormModal = ({ isOpen, tenant, onClose, onSuccess }: TenantFormModal
       setForm({
         companyName: tenant.companyName,
         companyEmail: tenant.companyEmail,
+        companyCountryCode: tenant.companyCountryCode || '+91',
         companyPhone: tenant.companyPhone,
         status: tenant.status,
       });
     } else {
-      setForm({ companyName: '', companyEmail: '', companyPhone: '', status: 'Active' });
+      setForm({ companyName: '', companyEmail: '', companyCountryCode: '+91', companyPhone: '', status: 'Active' });
     }
     setError(null);
   }, [tenant, isOpen]);
@@ -47,7 +49,7 @@ const TenantFormModal = ({ isOpen, tenant, onClose, onSuccess }: TenantFormModal
     if (form.companyName.trim().length > 200) { setError('Company name cannot exceed 200 characters'); return false; }
     if (!form.companyEmail.trim()) { setError('Company email is required'); return false; }
     if (!form.companyPhone.trim()) { setError('Company phone is required'); return false; }
-    if (!/^[6-9]\d{9}$/.test(form.companyPhone.trim())) { setError('Phone number must be 10 digits'); return false; }
+    if (!/^\d{5,15}$/.test(form.companyPhone.trim())) { setError('Invalid phone number'); return false; }
     return true;
   };
 
@@ -130,20 +132,41 @@ const TenantFormModal = ({ isOpen, tenant, onClose, onSuccess }: TenantFormModal
         </div>
 
         <div className="form-group">
-          <label className="form-label" htmlFor="companyPhone">Company Phone</label>
-          <input
-            id="companyPhone"
-            name="companyPhone"
-            type="tel"
-            className="form-input"
-            value={form.companyPhone}
-            onChange={handleChange}
-            placeholder="9876543210"
-            required
-            disabled={saving}
-            maxLength={10}
-            pattern="[6-9]\d{9}"
-          />
+          <label className="form-label">Company Phone *</label>
+          <div style={{ display: 'flex', gap: '8px' }}>
+            <select
+              name="companyCountryCode"
+              className="form-input"
+              style={{ width: '120px', flexShrink: 0 }}
+              value={form.companyCountryCode || '+91'}
+              onChange={handleChange}
+              disabled={saving}
+            >
+              <option value="+1">+1 (US)</option>
+              <option value="+44">+44 (UK)</option>
+              <option value="+61">+61 (AU)</option>
+              <option value="+91">+91 (IN)</option>
+              <option value="+81">+81 (JP)</option>
+              <option value="+86">+86 (CN)</option>
+              <option value="+49">+49 (DE)</option>
+              <option value="+33">+33 (FR)</option>
+              <option value="+65">+65 (SG)</option>
+              <option value="+971">+971 (AE)</option>
+            </select>
+            <input
+              id="companyPhone"
+              name="companyPhone"
+              type="tel"
+              className="form-input"
+              value={form.companyPhone}
+              onChange={handleChange}
+              placeholder="9876543210"
+              required
+              disabled={saving}
+              maxLength={15}
+              style={{ flex: 1 }}
+            />
+          </div>
         </div>
 
         {isEdit && (

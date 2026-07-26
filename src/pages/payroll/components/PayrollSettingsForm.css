@@ -1,5 +1,25 @@
-.payroll-settings-form {
-  max-width: 560px;
+.settings-loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 64px;
+}
+
+.payroll-settings-layout {
+  display: flex;
+  gap: 24px;
+}
+
+.payroll-settings-sidebar {
+  flex: 0 0 30%;
+  min-width: 280px;
+}
+
+.payroll-settings-main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
 }
 
 .settings-form-card {
@@ -61,4 +81,67 @@
 
 @keyframes spin {
   to { transform: rotate(360deg); }
+}
+
+/* Toggle Switch */
+.toggle-switch {
+  position: relative;
+  display: inline-block;
+  width: 44px;
+  height: 24px;
+  cursor: pointer;
+}
+
+.toggle-switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.toggle-slider {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: var(--border-color);
+  border-radius: 24px;
+  transition: background 0.2s ease;
+}
+
+.toggle-slider::before {
+  content: '';
+  position: absolute;
+  width: 18px;
+  height: 18px;
+  left: 3px;
+  bottom: 3px;
+  background: white;
+  border-radius: 50%;
+  transition: transform 0.2s ease;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);
+}
+
+.toggle-switch input:checked + .toggle-slider {
+  background: var(--brand-primary);
+}
+
+.toggle-switch input:checked + .toggle-slider::before {
+  transform: translateX(20px);
+}
+
+.toggle-switch input:disabled + .toggle-slider {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+@media (max-width: 768px) {
+  .payroll-settings-layout {
+    flex-direction: column;
+  }
+
+  .payroll-settings-sidebar {
+    flex: none;
+    min-width: 0;
+  }
 }

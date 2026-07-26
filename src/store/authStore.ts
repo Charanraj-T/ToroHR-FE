@@ -9,6 +9,7 @@ interface User {
   role: string;
   tenantId?: string | null;
   isActive: boolean;
+  payrollAccess?: boolean;
 }
 
 interface AuthState {

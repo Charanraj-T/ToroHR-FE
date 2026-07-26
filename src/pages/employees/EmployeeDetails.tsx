@@ -84,7 +84,7 @@ const EmployeeDetails = () => {
             <div>
               <DetailRow label="Full Name" value={employee.fullName} />
               <DetailRow label="Email" value={employee.email} />
-              <DetailRow label="Phone" value={employee.phoneNumber} />
+              <DetailRow label="Phone" value={employee.countryCode ? `${employee.countryCode} ${employee.phoneNumber}` : employee.phoneNumber} />
               <DetailRow label="Date of Birth" value={employee.dateOfBirth ? new Date(employee.dateOfBirth).toLocaleDateString('en-IN', { timeZone: 'UTC' }) : 'N/A'} />
               <DetailRow label="Nationality" value={employee.nationality} />
             </div>

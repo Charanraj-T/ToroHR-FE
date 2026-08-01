@@ -44,8 +44,23 @@ interface ModalRecord {
     id: string | null;
     checkInTime: string;
     checkOutTime: string;
+    punches?: { checkInTime: string; checkOutTime: string }[];
   };
 }
+
+const makeEmptyRecordData = (status: string, id: string | null) => ({
+  status,
+  id,
+  checkInTime: '',
+  checkOutTime: '',
+  punches: [] as { checkInTime: string; checkOutTime: string }[]
+});
+
+const toModalPunches = (punches?: { checkInTime?: string; checkOutTime?: string }[]) =>
+  (punches || []).map((p) => ({
+    checkInTime: p.checkInTime ? toISTTime(p.checkInTime) : '',
+    checkOutTime: p.checkOutTime ? toISTTime(p.checkOutTime) : ''
+  }));
 
 const AttendanceOverview: React.FC = () => {
   const [loading, setLoading] = useState(true);
@@ -201,12 +216,7 @@ const AttendanceOverview: React.FC = () => {
     const { year, month, day } = getTodayIST();
     const dateStr = buildDateStr(year, month, day);
 
-    let recordData = {
-      status: 'Present',
-      id: null,
-      checkInTime: '',
-      checkOutTime: ''
-    };
+    let recordData = makeEmptyRecordData('Present', null);
 
     try {
       const existingRes = await attendanceService.getMyAttendance({ startDate: dateStr, endDate: dateStr });
@@ -216,7 +226,8 @@ const AttendanceOverview: React.FC = () => {
           status: existing.status || 'Present',
           id: existing.id || existing._id || null,
           checkInTime: existing.checkInTime ? toISTTime(existing.checkInTime) : '',
-          checkOutTime: existing.checkOutTime ? toISTTime(existing.checkOutTime) : ''
+          checkOutTime: existing.checkOutTime ? toISTTime(existing.checkOutTime) : '',
+          punches: toModalPunches(existing.punches)
         };
       }
     } catch {
@@ -248,24 +259,19 @@ const AttendanceOverview: React.FC = () => {
 
   const handleUpdate = async (employee: EmployeeAttendance, day: number) => {
     const dateStr = buildDateStr(startY, startM, day);
-    
-    let recordData = {
-      status: employee.attendance?.[day] || 'Present',
-      id: employee.attendance?.[`${day}_id`] || null,
-      checkInTime: '',
-      checkOutTime: ''
-    };
+    const status = employee.attendance?.[day] || 'Present';
+    const id = employee.attendance?.[`${day}_id`] || null;
 
-    if (recordData.id) {
+    let recordData = makeEmptyRecordData(status, id);
+
+    if (id) {
       try {
-        const record = await attendanceService.getAttendanceById(recordData.id);
-        const checkInTimeStr = record.data.checkInTime ? toISTTime(record.data.checkInTime) : '';
-        const checkOutTimeStr = record.data.checkOutTime ? toISTTime(record.data.checkOutTime) : '';
-        
+        const record = await attendanceService.getAttendanceById(id);
         recordData = {
           ...recordData,
-          checkInTime: checkInTimeStr,
-          checkOutTime: checkOutTimeStr
+          checkInTime: record.data.checkInTime ? toISTTime(record.data.checkInTime) : '',
+          checkOutTime: record.data.checkOutTime ? toISTTime(record.data.checkOutTime) : '',
+          punches: toModalPunches(record.data.punches)
         };
       } catch {
         addToast('Failed to load attendance record details', 'error');

@@ -1,12 +1,19 @@
 import api from '../lib/api';
 import { getTodayIST } from '../lib/date';
 
+export interface AttendancePunch {
+  _id?: string | null;
+  checkInTime?: string | null;
+  checkOutTime?: string | null;
+}
+
 export interface AttendanceRecord {
   id: string;
   date: string;
   status: string;
   checkInTime?: string;
   checkOutTime?: string;
+  punches?: AttendancePunch[];
   hoursWorked?: number;
   employeeId?: { _id: string } | string;
   markedBy?: string;
@@ -70,6 +77,11 @@ const attendanceService = {
     return response.data.data;
   },
 
+  getEmployeeStats: async (params: { month?: number; year?: number } = {}) => {
+    const response = await api.get('/api/attendance/stats/employee', { params });
+    return response.data;
+  },
+
   exportCsv: async (params: AttendanceFilters = {}) => {
     const response = await api.get('/api/attendance/export/csv', { 
       params,
@@ -77,8 +89,15 @@ const attendanceService = {
     });
 
     const contentDisposition = response.headers['content-disposition'];
-    const { year, month } = getTodayIST();
-    const fallbackFilename = `attendance-summary-${year}-${String(month).padStart(2, '0')}.csv`;
+    const getFallbackFilename = () => {
+      if (params.startDate) {
+        const [y, m] = params.startDate.split('-').map(Number);
+        return `attendance-summary-${y}-${String(m).padStart(2, '0')}.csv`;
+      }
+      const { year, month } = getTodayIST();
+      return `attendance-summary-${year}-${String(month).padStart(2, '0')}.csv`;
+    };
+    const fallbackFilename = getFallbackFilename();
     const filename = contentDisposition
       ? contentDisposition.split('filename=')[1]?.replace(/"/g, '') || fallbackFilename
       : fallbackFilename;

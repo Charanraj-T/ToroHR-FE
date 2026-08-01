@@ -199,11 +199,6 @@ const payrollService = {
     return response.data;
   },
 
-  getSalaryStructureByEmployee: async (employeeId: string): Promise<SalaryStructure[]> => {
-    const response = await api.get(`/api/payroll/salary-structure/${employeeId}`);
-    return response.data?.data?.structures ?? [];
-  },
-
   createSalaryStructure: async (data: SalaryStructurePayload): Promise<SalaryStructure> => {
     const response = await api.post('/api/payroll/salary-structure', data);
     return response.data?.data?.structure;

@@ -9,11 +9,10 @@ import { useToastStore } from '../../store/toastStore';
 import { buildDateStr, getMonthBoundaries, getTodayIST, toISTTime } from '../../lib/date';
 import './MyAttendance.css';
 
-interface AttendanceStats {
-  present: number;
-  absent: number;
-  hoursWorked: number;
-}
+const MONTHS = [
+  'January', 'February', 'March', 'April', 'May', 'June',
+  'July', 'August', 'September', 'October', 'November', 'December'
+];
 
 const MyAttendance: React.FC = () => {
   const [loading, setLoading] = useState(true);
@@ -24,43 +23,44 @@ const MyAttendance: React.FC = () => {
   const [refreshKey, setRefreshKey] = useState(0);
   const addToast = useToastStore(state => state.addToast);
 
-  const { start: defaultStart, end: defaultEnd } = useMemo(() => {
-    const { year, month } = getTodayIST();
-    return getMonthBoundaries(year, month);
-  }, []);
+  const { year: todayYear, month: todayMonth } = getTodayIST();
+  const [selectedYear, setSelectedYear] = useState(todayYear);
+  const [selectedMonth, setSelectedMonth] = useState(todayMonth);
+
+  const boundaries = useMemo(() => getMonthBoundaries(selectedYear, selectedMonth), [selectedYear, selectedMonth]);
+
+  const yearOptions = useMemo(() => {
+    const currentYear = todayYear;
+    const years: number[] = [];
+    for (let y = currentYear; y >= currentYear - 5; y--) {
+      years.push(y);
+    }
+    return years;
+  }, [todayYear]);
+
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      const { year, month, day } = getTodayIST();
+      const todayStr = buildDateStr(year, month, day);
+      try {
+        const todayRes = await attendanceService.getMyAttendance({ startDate: todayStr, endDate: todayStr });
+        if (!cancelled) setTodayRecord(todayRes?.data?.[0] || null);
+      } catch {
+        if (!cancelled) setTodayRecord(null);
+      }
+    })();
+    return () => { cancelled = true; };
+  }, [refreshKey]);
 
   useEffect(() => {
     let cancelled = false;
     (async () => {
       setLoading(true);
       try {
-        const historyRes = await attendanceService.getMyAttendance({ startDate: defaultStart, endDate: defaultEnd });
+        const historyRes = await attendanceService.getMyAttendance({ startDate: boundaries.start, endDate: boundaries.end });
         if (cancelled) return;
-        const data: AttendanceRecord[] = (historyRes?.data || []);
-        setHistory(data);
-
-        const { year, month, day } = getTodayIST();
-        const todayStr = buildDateStr(year, month, day);
-        const todayRec = data.find((r) => r.date?.startsWith(todayStr));
-        if (cancelled) return;
-        setTodayRecord(todayRec || null);
-
-        const stats = data.reduce<AttendanceStats>(
-          (acc, r) => {
-            if (r.status === 'Present' || r.status === 'Half-day') acc.present++;
-            else if (r.status === 'Absent') acc.absent++;
-            if (r.hoursWorked) acc.hoursWorked += r.hoursWorked;
-            return acc;
-          },
-          { present: 0, absent: 0, hoursWorked: 0 }
-        );
-        const avg = stats.present > 0 ? (stats.hoursWorked / stats.present) : 0;
-        if (cancelled) return;
-        setSummaryStats({
-          present: stats.present,
-          absent: stats.absent,
-          avgHours: `${avg.toFixed(1)}h`
-        });
+        setHistory((historyRes?.data || []) as AttendanceRecord[]);
       } catch {
         if (!cancelled) addToast('Failed to load attendance data', 'error');
       } finally {
@@ -68,7 +68,29 @@ const MyAttendance: React.FC = () => {
       }
     })();
     return () => { cancelled = true; };
-  }, [refreshKey, addToast, defaultStart, defaultEnd]);
+  }, [refreshKey, addToast, boundaries.start, boundaries.end]);
+
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      try {
+        const statsRes = await attendanceService.getEmployeeStats({ month: selectedMonth, year: selectedYear });
+        if (cancelled) return;
+        const s = statsRes?.data;
+        if (!s) return;
+        const presentDays = (s.present || 0) + (s.halfday || 0);
+        const avg = presentDays > 0 ? (s.presentHours || 0) / presentDays : 0;
+        setSummaryStats({
+          present: presentDays,
+          absent: s.absent || 0,
+          avgHours: `${avg.toFixed(1)}h`
+        });
+      } catch {
+        // keep previous summary values on failure
+      }
+    })();
+    return () => { cancelled = true; };
+  }, [selectedMonth, selectedYear, refreshKey]);
 
   const handleCheckIn = async () => {
     setActionLoading(true);
@@ -133,6 +155,8 @@ const MyAttendance: React.FC = () => {
     }
   ], []);
 
+  const isCurrentMonth = selectedYear === todayYear && selectedMonth === todayMonth;
+
   return (
     <div className="my-attendance-page">
       <PageHeader 
@@ -173,21 +197,49 @@ const MyAttendance: React.FC = () => {
       <div className="history-section">
         <div className="section-header">
           <h3>Attendance History</h3>
-          <button className="btn-secondary sm" onClick={() => {
-            attendanceService.exportCsv({ startDate: defaultStart, endDate: defaultEnd });
-          }}>
-            <Download size={16} /> Export CSV
-          </button>
+          <div className="history-filters">
+            <select
+              value={selectedMonth}
+              onChange={(e) => setSelectedMonth(Number(e.target.value))}
+              aria-label="Select month"
+            >
+              {MONTHS.map((m, index) => (
+                <option key={index + 1} value={index + 1}>{m}</option>
+              ))}
+            </select>
+            <select
+              value={selectedYear}
+              onChange={(e) => setSelectedYear(Number(e.target.value))}
+              aria-label="Select year"
+            >
+              {yearOptions.map((y) => (
+                <option key={y} value={y}>{y}</option>
+              ))}
+            </select>
+            <button className="btn-secondary sm" onClick={() => {
+              attendanceService.exportCsv({ startDate: boundaries.start, endDate: boundaries.end });
+            }}>
+              <Download size={16} /> Export CSV
+            </button>
+          </div>
         </div>
 
         <div className="history-table-container">
           {loading ? (
             <div className="loading-state">Loading history...</div>
           ) : (
-            <Table 
-              columns={columns} 
-              data={history} 
-            />
+            <>
+              <Table 
+                columns={columns} 
+                data={history} 
+              />
+              {history.length === 0 && !loading && (
+                <div className="no-records-note">
+                  No attendance records found for {MONTHS[selectedMonth - 1]} {selectedYear}.
+                  {isCurrentMonth && ' Check in to record your first entry for this month.'}
+                </div>
+              )}
+            </>
           )}
         </div>
       </div>
